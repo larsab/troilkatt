@@ -1,0 +1,126 @@
+
+<?xml-stylesheet type="text/xsl"?>
+
+	<!-- Troilkatt configuration file -->
+
+<configuration>
+
+	<property>
+		<name>troilkatt.localfs.dir</name>
+		<value>/home/larsb/troilkatt2/test-tmp/data</value>
+		<description>
+
+			Directory where crawlers store their files, and where temporary files are
+			stored.
+
+    	</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.hdfs.rootdir</name>
+		<value>/user/larsab/troilkatt</value>
+		<description>
+		
+			Root directory for Troilkatt files in HDFS.
+		
+		</description>
+	</property>
+
+	<property>
+		<name>troilkatt.hdfs.timestamp.file</name>
+		<value>timestamps.txt</value>
+		<description>
+
+			This file contains the timestamps for when the datasets are updated. It
+			also provides a mapping from the Hbase integer timestamps to human readable
+			date/time format.
+    	
+    </description>
+	</property>
+
+	<property>
+		<name>troilkatt.hdfs.status.file</name>
+		<value>status.txt</value>
+		<description>
+		
+			This file contains the status of troilkatt iterations. It
+			is used to do recovery by checking the status of the last update
+			before initiating a new update.
+			
+		</description>
+	</property>
+
+	<property>
+		<name>troilkatt.update.interval</name>
+		<value>24</value>
+		<description>
+
+			Time in hours between each time the crawlers are called.
+    	
+    </description>
+	</property>
+	
+	<property>
+		<name>troilkatt.globalfs.global-meta.dir</name>
+		<value>/home/larsb/troilkatt2/test-tmp/global-meta</value>
+		<description>
+		
+			This directory contains various meta-data files used by the
+			troilkatt stage such as gold standards, gene names files, etc.
+			
+		</description>
+	</property>
+
+	<property>
+		<name>troilkatt.localfs.binary.dir</name>
+		<value>/home/larsab/troilkatt/apps/bin</value>
+		<description>
+
+			This directory contains binaeries tools.
+    	
+    </description>
+	</property>
+
+	<property>
+		<name>troilkatt.localfs.utils.dir</name>
+		<value>/home/larsab/troilkatt2/scripts/array_utils</value>
+		<description>
+		
+			This directory contains various scripts and tools used by
+			the stages (excluding the Sleipnir tools.
+			
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.localfs.scripts.dir</name>
+		<value>/home/larsab/troilkatt2/scripts</value>
+		<description>
+		
+			This directory contains various scripts for processing a
+			troilkatt stage.
+			
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.mapreduce.cmd</name>
+		<value>/home/larsab/apps/hadoop-0.20.1/bin/hadoop jar /home/larsab/workspace/skarntyde/output/troilkatt.jar	edu.princeton.function.troilkatt.mapreduce.ExecuteStage</value>
+		<description>
+			
+			Command used to run MapReduce scripts.
+		
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.mapreduce.jar</name>
+		<value>/home/larsab/apps/hadoop-0.20.1/bin/hadoop jar /home/larsab/workspace/skarntyde/output/troilkatt.jar</value>
+		<description>
+		
+			Hadoop jar command.
+			
+		</description>
+	</property>
+
+</configuration>

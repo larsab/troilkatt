@@ -1,0 +1,191 @@
+<?xml-stylesheet type="text/xsl"?>
+
+	<!-- 
+	
+	Troilkatt configuration file for the ice cluster
+	
+	-->
+
+<configuration>
+    <property>
+		<name>admin.email</name>
+		<value>larsab@cs.uit.no</value>
+		<description>
+
+			Administrator e-mail. It is used as password when logging to NCBI FTP servers.
+
+    	</description>
+	</property>
+
+	<property>
+		<name>troilkatt.localfs.dir</name>
+		<value>/state/partition1/larsab/troilkatt</value>
+		<description>
+
+			Directory on local filesystem used by Troilkatt server and clients for intermediate files.
+			The TROILKATT.DIR symbol is mapped to this directory.
+			
+			Note! _all_ data in this directory will be deleted after each iteration.
+			
+    	</description>
+	</property>
+
+	<property>
+		<name>troilkatt.localfs.log.dir</name>
+		<value>/home/larsab/troilkatt/log</value>
+		<description>
+			
+			Directory where the main logfiles are stored. Additional
+			logfiles are stored in the (intermediate) output directories for the
+			crawlers and pipeline stages.
+			
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.globalfs.global-meta.dir</name>
+		<value>/home/larsab/troilkatt/global-meta</value>
+		<description>
+		
+			This directory contains various global meta-data files used by many
+			Troilkatt stage such as gold standards, gene names files, etc.
+			The TROILKATT.GLOBALMETA_DIR is mapped to this directory.
+			
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.global-meta.retain.days</name>
+		<value>-1</value>
+		<description>
+
+			Time in days for which global-meta data is retained before being deleted. If
+			-1 global-meta is never deleted.
+    	
+    </description>
+	</property>
+	
+	<property>
+		<name>troilkatt.localfs.mapreduce.dir</name>
+		<value>/state/partition1/larsab/troilkatt/mapreduce</value>
+		<description>
+		
+			This directory is used by MapReduce jobs to save temporal data on the local FS.
+			
+			Note! all data in this directory will be deleted after each iteration
+			
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.localfs.binary.dir</name>
+		<value>/home/larsab/troilkatt/apps/bin</value>
+		<description>
+
+			This directory contains binaries for programs started by Troilkatt.
+			The TROILKATT.BIN symbol is mapped to this directory.
+    	
+    </description>
+	</property>
+	
+	<property>
+		<name>troilkatt.localfs.utils.dir</name>
+		<value>/home/larsab/skarntyde/troilkatt2/scripts/array_utils</value>
+		<description>
+		
+			This directory contains various scripts and tools used by
+			the stages. The TROILKATT.UTILS symbol is mapped to this directory.
+			
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.localfs.scripts.dir</name>
+		<value>/home/larsab/skarntyde/troilkatt2/scripts</value>
+		<description>
+		
+			This directory contains various scripts for processing a
+			Troilkatt stage. The TROILKATT.SCRIPTS symbol is mapped to this
+			directory.
+			
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.hdfs.root.dir</name>
+		<value>/user/larsab/troilkatt</value>
+		<description>
+		
+			Root directory for Troilkatt files in HDFS.
+		
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.hdfs.timestamp.file</name>
+		<value>/user/larsab/troilkatt/status/timestamps.txt</value>
+		<description>
+
+			This file contains the timestamps for when the datasets are updated. It
+			also provides a mapping from the integer timestamps to human readable
+			date/time format.
+    	
+    </description>
+	</property>
+
+	<property>
+		<name>troilkatt.hdfs.status.file</name>
+		<value>/user/larsab/troilkatt/status/status.txt</value>
+		<description>
+		
+			This file contains the status of troilkatt iterations. It
+			is used to do recovery by checking the status of the last update
+			before initiating a new update.
+			
+		</description>
+	</property>
+	
+	
+	<property>
+		<name>troilkatt.update.interval.hours</name>
+		<value>24</value>
+		<description>
+
+			Time in hours between each time the crawlers are called.
+    	
+    </description>
+	</property>
+	
+	<property>
+		<name>troilkatt.jar</name>
+		<value>/home/larsab/troilkatt2/lib/troilkatt.jar</value>
+		<description>
+
+			Jar file with Troilkatt MapReduce classes.
+    	
+    </description>
+	</property>
+	
+	<property>
+		<name>troilkatt.libjars</name>
+		<value>/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar,/home/larsab/lib/java/commons-cli.jar,/usr/lib/zookeeper/zookeeper.jar,/home/larsab/lib/java/commons-logging.jar,/etc/hadoop-0.20/conf.ice</value>
+		<description>
+
+			Jar files passed to the hadoop MapReduce startup script (-libjars). 
+			These should include: hbase-VERSION.jar, commons-cli.jar, zookeeper.jar, commons-logging.jar
+    	
+    </description>
+	</property>
+	
+	<property>
+		<name>troilkatt.container.bin</name>
+		<value>/home/larsab/troilkatt2/bin/troilkatt_container</value>
+		<description>
+
+			Troilkatt container binary
+    	
+    </description>
+	</property>
+	
+</configuration>
+	

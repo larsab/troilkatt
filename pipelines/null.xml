@@ -1,0 +1,35 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Test Troilkatt setup by creating and executing a pipeline with null stagees -->
+<dataset>		
+
+	<source>
+	  <name>theSource</name>
+	  <type>null_source</type>
+	  <arguments>arg1 arg2 arg3</arguments>
+	  <output-directory>test/output/null-crawler</output-directory>
+	  <compression-format>gz</compression-format>
+	  <storage-time>-1</storage-time>	    
+	  <description>A description</description>    
+	</source>	
+
+	<pipeline>		
+	  <stage>
+	    <name>theStage</name>
+	    <type>null_stage</type>
+	    <arguments>arg1 arg2</arguments>
+	    <output-directory>test/output/null</output-directory>
+	    <compression-format>none</compression-format>
+	    <storage-time>1</storage-time>
+	    <description>A 
+	      multi-line
+	      description.</description>	
+	  </stage> 
+	</pipeline>	
+	<sink>
+	  <name>theSink</name>
+	  <type>null_sink</type>
+	  <arguments>arg1</arguments>
+	  <description>Another description.</description>
+	</sink>			
+</dataset>

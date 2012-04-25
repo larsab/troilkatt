@@ -1,0 +1,26 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Test Troilkatt setup by creating and executing a pipeline with null stagees -->
+<dataset>		
+
+	<source>
+	  <name>genes</name>
+	  <type>os_cmds_source</type>
+	  <arguments>TROILKATT.SCRIPTS/oscmds/genes.sh</arguments>
+	  <output-directory>entrez_genes</output-directory>
+	  <compression-format>bz2</compression-format>
+	  <storage-time>-1</storage-time>	    
+	  <description>Download gene files parse these and update gene mappings.</description>    
+	</source>	
+
+	<pipeline>		
+	  
+	</pipeline>	
+	
+	<sink>
+	  <name>no-sink</name>
+	  <type>null_sink</type>
+	  <arguments></arguments>
+	  <description>No output files from source.</description>
+	</sink>			
+</dataset>

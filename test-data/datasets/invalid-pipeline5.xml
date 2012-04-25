@@ -1,0 +1,47 @@
+<!-- Invalid pipeline used for unit testing: missing source -->
+
+<?xml-stylesheet type="text/xsl"?>
+
+<dataset>		
+
+	<pipeline>		
+		<stage>
+			<name>firstStage</name>
+			<type>null_stage</type>
+			<arguments>arg1 arg2</arguments>
+			<output-directory>test/stage1-output</output-directory>
+			<compression-format>none</compression-format>
+			<storage-time>1</storage-time>
+			<description>A 
+			multi-line
+			description</description>						
+		</stage>
+
+		<stage>
+			<name>secondStage</name>
+			<type>null_stage</type>
+			<arguments>arg1 arg2 arg3 arg4</arguments>
+			<output-directory></output-directory>
+			<compression-format></compression-format>
+			<storage-time></storage-time>
+			<description>A description</description>						
+		</stage>
+		
+		<stage>
+			<name>thirdStage</name>
+			<type>null_stage</type>
+			<arguments></arguments>
+			<output-directory>test2/stage3-output</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>2</storage-time>
+			<description>A description</description>
+		</stage>   
+	</pipeline>
+	<sink>
+		<name>theSink</name>
+		<type>null_sink</type>
+		<arguments>arg1</arguments>
+		<description>A description.</description>
+	</sink>
+				
+</dataset>

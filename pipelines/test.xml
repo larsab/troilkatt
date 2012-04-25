@@ -1,0 +1,45 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Test Troilkatt setup by running a few test jobs -->
+<dataset>		
+	<source>
+		<name>test_source</name>
+		<type>list_dir</type>
+	    <arguments>/user/larsab/troilkatt/test/input/</arguments>
+	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Read in files from the HDFS directory specified in arguments. This
+	    directory should have a couple of PCL files. </description>    
+	</source>
+	
+	<pipeline>	
+	    <stage>
+			<name>test_filter</name>
+			<type>filter</type>
+			<arguments>.*\.pcl</arguments>
+			<output-directory>test/filtered</output-directory>
+			<compression-format>gz</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Filter out any non-pcl files.</description>						
+		</stage>
+
+	    <stage>
+			<name>test_mapreduce</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.GeneCounter</arguments>
+			<output-directory>test/counted</output-directory>
+			<compression-format>gz</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Filter out any non-pcl files.</description>						
+		</stage>
+	</pipeline>
+	
+	<sink>
+		<name>test_sink</name>
+		<type>copy_to_local</type>
+		<arguments>/tmp/test/output</arguments>
+		<description>Copy MapReduce output files to the local FS.</description>
+	</sink>
+				
+</dataset>

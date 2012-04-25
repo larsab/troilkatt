@@ -1,0 +1,65 @@
+# Add datasets to be crawled/analyzed to this file. Each dataset is identified by its
+# configuration file
+#
+#
+# Test and developement pipelines
+#
+#pipelines/null.xml
+#pipelines/test.xml 
+#pipelines/dev.xml
+#
+# Meta data and gold standard
+#
+#pipelines/genes.xml
+#pipelines/brainarray.xml
+#pipelines/brainarray2.xml
+#
+# GEO Series
+#pipelines/geo-gse-mirror.xml
+#pipelines/geo-gse-meta.xml
+#
+# GEO Datasets
+#
+#pipelines/geo-gds-mirror.xml
+#pipelines/geo-gds-meta.xml
+#pipelines/hefalmp-geo-gds-human.xml
+#pipelines/hefalmp-geo-gds-mouse.xml
+#pipelines/hefalmp-geo-gds-rat.xml
+#pipelines/hefalmp-geo-gds-yeast.xml
+#pipelines/hefalmp-geo-gds-arabidopsis.xml
+#pipelines/hefalmp-geo-gds-frog.xml
+#pipelines/hefalmp-geo-gds-zebrafish.xml
+#pipelines/hefalmp-geo-gds-slimemold.xml
+#pipelines/hefalmp-geo-gds-worm.xml
+#pipelines/hefalmp-geo-gds-fly.xml
+#
+# IMP
+#
+#pipelines/imp-geo-gds-human.xml
+#pipelines/imp-geo-gds-mouse.xml
+#pipelines/imp-geo-gds-rat.xml
+#pipelines/imp-geo-gds-arabidopsis.xml
+#pipelines/imp-geo-gds-yeast.xml
+#pipelines/imp-geo-gds-fly.xml
+#pipelines/imp-geo-gds-worm.xml
+#pipelines/imp-geo-gds-frog.xml
+#pipelines/imp-geo-gds-zebrafish.xml
+#pipelines/imp-geo-gds-slimemold.xml
+#pipelines/imp-geo-gds-fissionyeast.xml
+#pipelines/imp-geo-gds-dog.xml
+#pipelines/imp-geo-gds-cow.xml
+#
+#pipelines/imp-geo-gse-human.xml
+#pipelines/imp-geo-gse-fissionyeast.xml
+#pipelines/imp-geo-gse-dog.xml
+#pipelines/imp-geo-gse-cow.xml
+#
+pipelines/imp-geo-raw-human.xml
+pipelines/imp-geo-raw-mouse.xml
+#pipelines/imp-geo-raw-fissionyeast.xml
+#pipelines/imp-geo-raw-dog.xml
+#pipelines/imp-geo-raw-cow.xml
+#
+# ArrayExpress
+#datasets/arrayexpress.xml
+#

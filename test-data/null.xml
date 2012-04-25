@@ -1,0 +1,40 @@
+<!-- 
+
+Pipeline for testing and debugging pipeline setup.   
+
+ -->
+
+<?xml-stylesheet type="text/xsl"?>
+
+<dataset>		
+
+	<source>
+	  <name>theSource</name>
+	  <type>null_source</type>
+	  <arguments>arg1 arg2 arg3</arguments>
+	  <output-directory>test/crawler-output</output-directory>
+	  <compression-format>gz</compression-format>
+	  <storage-time>-1</storage-time>	    
+	  <description>A description</description>    
+	</source>	
+
+	<pipeline>		
+	  <stage>
+	    <name>theStage</name>
+	    <type>null_stage</type>
+	    <arguments>arg1 arg2</arguments>
+	    <output-directory>test/stage1-output</output-directory>
+	    <compression-format>none</compression-format>
+	    <storage-time>1</storage-time>
+	    <description>A 
+	      multi-line
+	      description.</description>	
+	  </stage> 
+	</pipeline>	
+	<sink>
+	  <name>theSink</name>
+	  <type>null_sink</type>
+	  <arguments>arg1</arguments>
+	  <description>A description.</description>
+	</sink>			
+</dataset>

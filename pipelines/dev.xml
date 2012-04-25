@@ -1,0 +1,35 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Pipeline for developing and testing pipeline stages -->
+
+<dataset>
+ <source>
+		<name>geo_meta_source</name>
+		<type>hbase_source</type>
+	    <arguments>troilkatt-geo-meta meta:organisms 'Schizosaccharomyces pombe' meta:id</arguments>	    
+	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Get list of GEO GSE PCL files with fission yeast in the organisms meta-data field.</description>    
+	</source> 
+	<pipeline>	
+<stage>
+			<name>save_filelist</name>
+			<type>save_filelist</type>
+			<arguments>tmp/spombe</arguments>
+			<output-directory></output-directory>
+			<compression-format></compression-format>
+			<storage-time>0</storage-time>
+			<description>Save a list of input files in the global-meta dir. This list
+			is later used by the find_gsm_overlap stage</description>						
+		</stage>
+	</pipeline>
+	
+	<sink>
+		<name>test_sink</name>
+		<type>null_sink</type>
+		<arguments>/tmp/dev/gse-pcl</arguments>
+		<description>Copy MapReduce output files to the local FS.</description>
+	</sink>
+		
+</dataset>
