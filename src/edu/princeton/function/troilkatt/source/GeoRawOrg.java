@@ -279,6 +279,8 @@ public class GeoRawOrg extends GeoGDSMirror {
 		}
 		else {
 			logger.warn("Creating new metadata file: " + filename);			
+			metaFiles.add(OsPath.join(stageMetaDir, filename));
+			// The file will be updated after each file download
 		}
 		
 		return oldIDs;

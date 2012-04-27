@@ -18,6 +18,7 @@ import edu.princeton.function.troilkatt.fs.FSUtils;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
+import edu.princeton.function.troilkatt.tools.FilenameUtils;
 
 /**
  * Mirror GEO raw files
@@ -26,6 +27,8 @@ import edu.princeton.function.troilkatt.pipeline.StageInitException;
 public class GeoRawMirror extends GeoGDSMirror {
 	public static final String rawFtpDir = "/pub/geo/DATA/supplementary/series";
 	
+	private HashSet<String> currentIDList;
+	
 	public GeoRawMirror(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, 
 			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
@@ -33,6 +36,29 @@ public class GeoRawMirror extends GeoGDSMirror {
 			throws TroilkattPropertiesException, StageInitException {
 		super(name, arguments, outputDir, compressionFormat, storageTime,
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, rawFtpDir);		
+		
+		// Debug
+		String[] argsParts = splitArgs(this.args);
+		if (argsParts.length != 1) {
+			logger.fatal("Debug mode requires second argument that specifies files to download");
+			throw new StageInitException("Missing ID file");
+		}
+		else { 
+			String[] lines = null;
+			try {
+				lines = FSUtils.readTextFile(argsParts[0]);
+			} catch (IOException e) {
+				logger.fatal("could not read from ID file");
+			}
+			currentIDList = new HashSet<String>();
+			for (String l: lines) {
+				String id = FilenameUtils.getDsetID(l);
+				if (! id.startsWith("GSE")) {
+					throw new StageInitException("Invalid ID: " + id);
+				}
+				currentIDList.add(id);
+			}
+		}
 	}
 
 	/**
@@ -61,11 +87,12 @@ public class GeoRawMirror extends GeoGDSMirror {
 			logger.warn(e1.toString());
 		}
 	
+		
 		FTPClient ftp = new FTPClient();		
-	    try {
-	    	if (connectFTP(ftp) == false) {
-	    		throw new StageException("Could not connect to GEO FTP server");
-	    	}			
+		try {
+			if (connectFTP(ftp) == false) {
+				throw new StageException("Could not connect to GEO FTP server");
+			}			
 		} catch (SocketException e) {
 			logger.fatal("Could not connect to GEO FTP server: " + e);
 			throw new StageException("Could not connect to GEO FTP server");
@@ -74,7 +101,14 @@ public class GeoRawMirror extends GeoGDSMirror {
 			throw new StageException("Could not connect to GEO FTP server");
 		}
 		
-		ArrayList<String> newFiles = getNewFiles(ftp, oldIDs);
+		//DEBUG ArrayList<String> newFiles = getNewFiles(ftp, oldIDs);
+		ArrayList<String> newFiles = new ArrayList<String>();		
+		for (String i: currentIDList) {
+			if (! oldIDs.contains(i)) {
+				newFiles.add(OsPath.join(ftpDir, i + "/" + i + "_RAW.tar"));
+			}
+		}
+		
 		// Create log file with new files to be downloaded
 		String newLog = OsPath.join(stageLogDir, "new");
 		try {			
@@ -100,7 +134,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 
 			// Upload file to HDFS
 			String hdfsFilename = tfs.putLocalFile(outputFilename, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);
-			String id = OsPath.basename(n).split(".")[0];
+			String id = FilenameUtils.getDsetID(n, false);
 			if (hdfsFilename != null) {
 				outputFiles.add(hdfsFilename);
 				outputIDs.add(id);
