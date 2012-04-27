@@ -1,5 +1,8 @@
 package edu.princeton.function.troilkatt.tools;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class GeoGSEParser extends GeoSoftParser {
@@ -76,5 +79,45 @@ public class GeoGSEParser extends GeoSoftParser {
 		}
 
 		return super.getSingleValue(key);
+	}
+
+	/**
+	 * Parse a GEO GDS soft file
+	 *  
+	 * @param argv command line arguments. 
+	 *  0: input filename (GSEXXX_family.soft)		 
+	 * @throws IOException 
+	 * @throws ParseException 
+	 */
+	public static void main(String[] argv) throws IOException, ParseException {
+
+		if (argv.length < 1) {
+			System.err.println("Usage: java GeoGSEParser inputFilename.soft");
+			System.exit(2);
+		}
+
+		BufferedReader ins = new BufferedReader(new FileReader(argv[0]));
+		GeoGSEParser parser = new GeoGSEParser();
+		String line;
+		while ((line = ins.readLine()) != null) {
+			parser.parseLine(line);
+		}			
+		ins.close();
+
+		for (String k: parser.singleKeys) {
+			String val = parser.getSingleValue(k);
+			if (val != null) {
+				System.out.println(k + ": " + val);
+			}
+		}
+		for (String k: parser.multiKeys) {
+			ArrayList<String> vals = parser.getValues(k);					
+			if (vals != null) {
+				System.out.println(k + ":");
+				for (String v: vals) {
+					System.out.println("\t" + v);
+				}
+			}
+		}
 	}
 }

@@ -30,8 +30,8 @@ import java.util.HashMap;
 public class GeoSoftParser {
 	/* Lists of meta field names: first for fields with only one value, and the second for fields
 	 * with multiple values. id is not included in the list. */
-	public final String[] singleKeys = {"id", "title", "date", "pmid", "description"};
-	public final String[] multiKeys = {"organisms", "platformIDs", "platformTitles", "rowCounts", "sampleIDs",
+	public final String[] singleKeys = {"id", "title", "date", "description"};
+	public final String[] multiKeys = {"pmid", "organisms", "platformIDs", "platformTitles", "rowCounts", "sampleIDs",
 			"sampleTitles", "channelCounts", "valueTypes"};
 	
 	/* Map soft file tags to meta data fields
