@@ -56,9 +56,9 @@ public class GeoGSE2Pcl {
 	 * Data structures set on first pass of file (stage1)
 	 */	
 	// Per-platform, index of column with unique platform IDs
-	public HashMap<String, Integer> platformIDColumns; 
+	//public HashMap<String, Integer> platformIDColumns; 
 	// Per-platform, index of column with gene names
-	public HashMap<String, Integer> platformGeneNameColumns;
+	//public HashMap<String, Integer> platformGeneNameColumns;
 
 	// Per-sample, index of columns of the sample table for the unique IDs
 	public HashMap<String, Integer>sampleGeneIDColumns;
@@ -169,10 +169,10 @@ public class GeoGSE2Pcl {
 		/*
 		 * Output data structures
 		 */
-		platformIDColumns = new HashMap<String, Integer>();
-		platformGeneNameColumns = new HashMap<String, Integer>();
+		//platformIDColumns = new HashMap<String, Integer>();
+		//platformGeneNameColumns = new HashMap<String, Integer>();
 	
-		sampleGeneIDColumns = new  HashMap<String, Integer>();
+		//sampleGeneIDColumns = new  HashMap<String, Integer>();
 		sampleValueColumns = new HashMap<String, Integer>();
 	
 		platformSampleIDs = new HashMap<String, ArrayList<String>>();
@@ -219,7 +219,7 @@ public class GeoGSE2Pcl {
 				}
 				if (platformIDColumns.get(currentPlatformID) == null) {
 					platformIDColumns.put(currentPlatformID, currentPlatformIDCol);
-					platformGeneNameColumns.put(currentPlatformID, currrentGeneNamesCol);               	
+					//platformGeneNameColumns.put(currentPlatformID, currrentGeneNamesCol);               	
 				}
 				else {
 					throw new ParseException("Platform columns already set for platform: " + currentPlatformID);
@@ -354,7 +354,8 @@ public class GeoGSE2Pcl {
 		        }
 		        if (nGeneNameColFound == 0) {
 		        	// TODO attempt to predict gene name column
-		        	throw new ParseException("Could not find a column with gene names");
+		        	//throw new ParseException("Could not find a column with gene names");
+		        	logger.warn("Could not find a column with gene names");
 		        }
 		        
 		        inPlatformTableHeader = false; // Parsed header line
@@ -505,8 +506,8 @@ public class GeoGSE2Pcl {
 	private void writeStage1Results(FileOutputStream fos) throws IOException {
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
 		oos.writeObject(dsetID);
-		oos.writeObject(platformIDColumns);
-		oos.writeObject(platformGeneNameColumns);
+		//oos.writeObject(platformIDColumns);
+		//oos.writeObject(platformGeneNameColumns);
 		oos.writeObject(sampleGeneIDColumns);
 		oos.writeObject(sampleValueColumns);
 		oos.writeObject(platformSampleIDs);

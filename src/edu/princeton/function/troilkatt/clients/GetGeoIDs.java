@@ -31,6 +31,7 @@ public class GetGeoIDs extends TroilkattClient {
 				"\t-t TIMESTAMP  Specify a timestamp for which to retrieve files for (default: newest).\n" +
 				"\t-c FILE       Specify troilkatt configuration FILE to use (default: %s).\n" +
 				"\t-l FILE       log4j.properties FILE to use (default: %s).\n" +
+				"\t-i            Ignore platform.\n" + 
 				"\t-h            Display command line options.", 
 				progName, DEFAULT_ARGS.get("configFile"), DEFAULT_ARGS.get("logProperties")));
 	}
@@ -50,8 +51,9 @@ public class GetGeoIDs extends TroilkattClient {
 		argDict.put("configFile", DEFAULT_ARGS.get("configFile"));
 		argDict.put("logging",    DEFAULT_ARGS.get("logProperties"));		
 		argDict.put("timestamp",  "newest");
+		argDict.put("ignorePlatform",  "false");
 
-		Getopt g = new Getopt("troilkatt", argv, "hc:l:t:");
+		Getopt g = new Getopt("troilkatt", argv, "hic:l:t:");
 		int c;		
 
 		while ((c = g.getopt()) != -1) {
@@ -72,6 +74,9 @@ public class GetGeoIDs extends TroilkattClient {
 					System.exit(2);
 				}
 				argDict.put("timestamp", timestampStr);
+				break;
+			case 'i':
+				argDict.put("ignorePlatform",  "true");
 				break;
 			case 'h':
 				usage(progName);
@@ -119,8 +124,16 @@ public class GetGeoIDs extends TroilkattClient {
 				
 		if (files != null) {
 			Collections.sort(files);
-			for (String f: files) {	
-				System.out.println(FilenameUtils.getDsetID(f, true));
+			
+			if (args.get("ignorePlatform").equals("false")) {
+				for (String f: files) {	
+					System.out.println(FilenameUtils.getDsetID(f, true));
+				}
+			}
+			else {
+				for (String f: files) {	
+					System.out.println(FilenameUtils.getDsetID(f, false));
+				}
 			}
 		}
 	}
