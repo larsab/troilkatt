@@ -15,8 +15,8 @@
 #pipelines/brainarray2.xml
 #
 # GEO Series
-#pipelines/geo-gse-mirror.xml
-#pipelines/geo-gse-meta.xml
+pipelines/geo-gse-mirror.xml
+pipelines/geo-gse-meta.xml
 #
 # GEO Datasets
 #
@@ -54,8 +54,13 @@
 #pipelines/imp-geo-gse-dog.xml
 #pipelines/imp-geo-gse-cow.xml
 #
-pipelines/imp-geo-raw-human.xml
-pipelines/imp-geo-raw-mouse.xml
+#pipelines/imp-geo-raw-human.xml
+#pipelines/imp-geo-raw-mouse.xml
+#pipelines/imp-geo-raw-rat.xml
+#pipelines/imp-geo-raw-arabidopsis.xml
+#pipelines/imp-geo-raw-fly.xml
+#pipelines/imp-geo-raw-worm.xml
+#pipelines/imp-geo-raw-zebrafish.xml
 #pipelines/imp-geo-raw-fissionyeast.xml
 #pipelines/imp-geo-raw-dog.xml
 #pipelines/imp-geo-raw-cow.xml

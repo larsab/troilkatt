@@ -56,11 +56,13 @@ public class GeoGSE2Pcl {
 	 * Data structures set on first pass of file (stage1)
 	 */	
 	// Per-platform, index of column with unique platform IDs
-	//public HashMap<String, Integer> platformIDColumns; 
+	// The platform IDs are used to build a data structure with gene ID -> expression values mapping
+	public HashMap<String, Integer> platformIDColumns; 
 	// Per-platform, index of column with gene names
-	//public HashMap<String, Integer> platformGeneNameColumns;
+	public HashMap<String, Integer> platformGeneNameColumns;
 
 	// Per-sample, index of columns of the sample table for the unique IDs
+	// The sample IDs are used as index in the platformID->values data structure
 	public HashMap<String, Integer>sampleGeneIDColumns;
 	// Per-sample index of expression value columns
 	public HashMap<String, Integer>sampleValueColumns;
@@ -120,11 +122,12 @@ public class GeoGSE2Pcl {
 	 * @param br input SOFT file
 	 * @param fos output file which contains the stage1 data structures in serialized form.
 	 * If null no output file is written.
-	 * @return none
-	 * @throws ParseException 
+	 * @return true if file could successfully be parsed to find gene IDs and sample values.
+	 * Note that missing gene names are not considered an error
+	 * @throws ParseException if series file contains invalid entries that prevent
 	 * @throws IOException 
 	 */
-	public void stage1(BufferedReader br, FileOutputStream fos) throws ParseException, IOException {
+	public boolean stage1(BufferedReader br, FileOutputStream fos) throws ParseException, IOException {
 		/*
 		 * Parser state
 		 */
@@ -142,6 +145,10 @@ public class GeoGSE2Pcl {
 		int currentExpressionValueCol = -1;
 		// Column header for expression values column
 		String currentExpressionValueHeader = null;
+		
+		// Set to true if an error occurs. That is, if sampleIDs or Expression values
+		// columns could not be found
+		boolean parseErrors = false;
 		
 		/*
 		 * Errors encountered during the parsing
@@ -169,10 +176,10 @@ public class GeoGSE2Pcl {
 		/*
 		 * Output data structures
 		 */
-		//platformIDColumns = new HashMap<String, Integer>();
-		//platformGeneNameColumns = new HashMap<String, Integer>();
+		platformIDColumns = new HashMap<String, Integer>();
+		platformGeneNameColumns = new HashMap<String, Integer>();
 	
-		//sampleGeneIDColumns = new  HashMap<String, Integer>();
+		sampleGeneIDColumns = new  HashMap<String, Integer>();
 		sampleValueColumns = new HashMap<String, Integer>();
 	
 		platformSampleIDs = new HashMap<String, ArrayList<String>>();
@@ -193,10 +200,14 @@ public class GeoGSE2Pcl {
 			if (line.contains("!Series_geo_accession")) {
 				dsetID = getVal(line);
 				if (dsetID == null) {
-					throw new ParseException("Invalid series ID: " + line);
+					throw new ParseException("Invalid series ID: " + line);					
 				}									
 			}
 			else if (line.contains("^PLATFORM")) {
+				/*
+				 * This is the only exception that is thrown, since invalid plarformIDs
+				 * makes it impossible to split the file by platform
+				 */
 				currentPlatformID = getVal(line);
 				if (currentPlatformID == null) {
 					throw new ParseException("Invalid ^PLATFORM line: " + line);
@@ -219,7 +230,7 @@ public class GeoGSE2Pcl {
 				}
 				if (platformIDColumns.get(currentPlatformID) == null) {
 					platformIDColumns.put(currentPlatformID, currentPlatformIDCol);
-					//platformGeneNameColumns.put(currentPlatformID, currrentGeneNamesCol);               	
+					platformGeneNameColumns.put(currentPlatformID, currrentGeneNamesCol);               	
 				}
 				else {
 					throw new ParseException("Platform columns already set for platform: " + currentPlatformID);
@@ -234,7 +245,7 @@ public class GeoGSE2Pcl {
 					throw new ParseException("Invalid ^SAMPLE line: " + line);
 				}
 				if (orderedSampleIDs.contains(currentSampleID)) {
-					throw new ParseException("Duplicate Platform ID: " + currentSampleID);
+					throw new ParseException("Duplicate sample ID: " + currentSampleID);
 				}
 				orderedSampleIDs.add(currentSampleID);			
 			}
@@ -248,7 +259,7 @@ public class GeoGSE2Pcl {
 			else if (line.contains("!Sample_platform_id")) {
 				String platformID = getVal(line);
 				if (platformID == null) {
-					throw new ParseException("!Sample_platform_id: " + line);
+					throw new ParseException("Invalid platform ID: " + line);
 				}	
 				
 				ArrayList<String> samples = platformSampleIDs.get(platformID);
@@ -311,7 +322,7 @@ public class GeoGSE2Pcl {
 		        String[] parts = line.split("\t");
 		
 		        // Attempt to find one or more platform probe ID columns
-		        int nPlatfomProbeIDColFound = 0;
+		        int nPlatfomProbeIDColsFound = 0;
 		        for (String s: platformProbeIDs) {	        
 		        	for (int i = 0 ; i < parts.length; i++) {
 		        		String header = parts[i].trim().toUpperCase();
@@ -324,15 +335,17 @@ public class GeoGSE2Pcl {
 		        				logger.warn("Multiple proble IDs col: " + header + " (col: " + i + ")");
 		        			}
 		
-		        			nPlatfomProbeIDColFound++;
+		        			nPlatfomProbeIDColsFound++;
 		        		}	        			
 		        	}
 		        }	   
-		        if (nPlatfomProbeIDColFound > 1) {
-		        	throw new ParseException("Multiple platform probe ID columns found");
+		        if (nPlatfomProbeIDColsFound > 1) {
+		        	logger.error("Multiple platform probe ID columns found");
+		        	parseErrors = true;
 		        }
-		        else if (nPlatfomProbeIDColFound == 0) {
-		        	throw new ParseException("Platform probe ID column was not found");
+		        else if (nPlatfomProbeIDColsFound == 0) {
+		        	logger.error("Platform probe ID column was not found");
+		        	parseErrors = true;
 		        }
 		        
 		        // Attempt to find one or more columns with gene names
@@ -353,8 +366,8 @@ public class GeoGSE2Pcl {
 		        	}	                	
 		        }
 		        if (nGeneNameColFound == 0) {
-		        	// TODO attempt to predict gene name column
-		        	//throw new ParseException("Could not find a column with gene names");
+		        	// It is not considered an error if the gene names column could not be found
+		        	// since the geneIDs can be mappped to gene names later 
 		        	logger.warn("Could not find a column with gene names");
 		        }
 		        
@@ -365,7 +378,7 @@ public class GeoGSE2Pcl {
 				String[] parts = line.split("\t");	        	
 		        	
 				// Attempt to find sample probe ID column
-				int nSampleProbeIDFound = 0;
+				int nSampleProbeIDsFound = 0;
 				for (String s: sampleProbeIDs) {
 					for (int i = 0; i < parts.length; i++) {
 						String header = parts[i].trim().toUpperCase();
@@ -374,24 +387,26 @@ public class GeoGSE2Pcl {
 							if (currentSampleProbeIDCol == -1) {	               
 								logger.info("Sample probe ID col: " + header + " (col: " + i + ")");
 								currentSampleProbeIDCol = i;
-								nSampleProbeIDFound++;
+								nSampleProbeIDsFound++;
 							}
 							else if (currentSampleProbeIDCol != i) {
 								logger.warn("Inconsistent sample probe IDs cols: new: " + i + " previous: " + currentSampleProbeIDCol + ")");
-								nSampleProbeIDFound++;
+								nSampleProbeIDsFound++;
 							}	        											
 						}
 					}
 				}
-				if (nSampleProbeIDFound > 1) {
-					throw new ParseException("Multiple sample probe ID columns found");
+				if (nSampleProbeIDsFound > 1) {
+					logger.error("Multiple sample probe ID columns found");
+					parseErrors = true;
 				}
-				else if (nSampleProbeIDFound == 0) {
-					throw new ParseException("Sample probe ID column not found");
+				else if (nSampleProbeIDsFound == 0) {
+					logger.error("Sample probe ID column not found");
+					parseErrors = true;
 				}
 		
 				// Attempt to find expression values column
-				int nExpressionValueColFound = 0;
+				int nExpressionValueColsFound = 0;
 				for (String s: expressionValues) {
 					for (int i = 0; i < parts.length; i++) {
 						String header = parts[i].trim().toUpperCase();
@@ -401,20 +416,22 @@ public class GeoGSE2Pcl {
 								logger.info("Expression value col: " + header + " (col: " + i + ")");
 								currentExpressionValueCol = i;
 								currentExpressionValueHeader = header;
-								nExpressionValueColFound++;
+								nExpressionValueColsFound++;
 							}
 							else if (currentExpressionValueCol != i) {
 								logger.warn("Inconsistent expression value cols: new: " + i + " previous: " + currentExpressionValueCol + ")");
-								nExpressionValueColFound++;
+								nExpressionValueColsFound++;
 							}	        											
 						}
 					}
 				}
-		        if (nExpressionValueColFound > 1) {
-		        	throw new ParseException("Multiple expression value columns found");
+		        if (nExpressionValueColsFound > 1) {
+		        	logger.error("Multiple expression value columns found");
+		        	parseErrors = true;
 		        }
-		        else if (nExpressionValueColFound == 0) {
-		        	throw new ParseException("Expression value column not found");
+		        else if (nExpressionValueColsFound == 0) {
+		        	logger.error("Expression value column not found");
+		        	parseErrors = true;
 		        }
 				
 				inSampleTableHeader = false; // Done parsing sample table header
@@ -487,9 +504,17 @@ public class GeoGSE2Pcl {
 			zerosAsMissingVals = true;
 		}
 		
-		// If output file is specified then stage1 parameters should be written to an output file
-		if (fos != null) {
-			writeStage1Results(fos);
+		if (parseErrors) {
+			// Do not write output if parsing failed
+			return false; // failure
+		}
+		else {
+			// If output file is specified then stage1 parameters should be written to an output file
+			if (fos != null) {
+				writeStage1Results(fos);
+			}
+			
+			return true; // success
 		}
 	}
 	
@@ -506,8 +531,8 @@ public class GeoGSE2Pcl {
 	private void writeStage1Results(FileOutputStream fos) throws IOException {
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
 		oos.writeObject(dsetID);
-		//oos.writeObject(platformIDColumns);
-		//oos.writeObject(platformGeneNameColumns);
+		oos.writeObject(platformIDColumns);
+		oos.writeObject(platformGeneNameColumns);
 		oos.writeObject(sampleGeneIDColumns);
 		oos.writeObject(sampleValueColumns);
 		oos.writeObject(platformSampleIDs);
@@ -823,6 +848,7 @@ public class GeoGSE2Pcl {
 
 				String name = null;			
 				int nameIndex = platformGeneNameColumns.get(currentPlatformID);
+				// Note! nameIndex can be -1 if gene name column was not found
 				if (nameIndex < parts.length) {		
 					name = parts[nameIndex].toUpperCase();
 				}

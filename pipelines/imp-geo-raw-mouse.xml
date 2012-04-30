@@ -5,14 +5,15 @@
 
 	<source>
 		<name>geo_ftp</name>
-		<type>geo_raw_org</type>
-	    <arguments>'Mus musculus' /home/larsab/troilkatt/mas5/pcl_lists/mouse_pcl_test.txt</arguments>	    
+		<type>geo_raw_mirror</type>
+	    <arguments>/home/larsab/troilkatt/mas5/pcl_lists/mouse_pcl_test.txt</arguments>	    
 	    <output-directory>geo/raw/mouse</output-directory>
 	    <compression-format>none</compression-format>
 	    <storage-time>-1</storage-time>	    
 	    <description>Download RAW files from the GEO FTP server that match the specified organism.</description>    
 	</source>
 <!-- 	
+	    <arguments>'Mus musculus' /home/larsab/troilkatt/mas5/pcl_lists/mouse_pcl_test.txt</arguments>	    
 	<pipeline>	
 	</pipeline>
 

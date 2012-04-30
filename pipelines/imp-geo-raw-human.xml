@@ -2,7 +2,7 @@
 
 <!-- Process human raw files -->
 <dataset>	
-<!-- 
+<!-- 	
 	<source>
 		<name>geo_ftp</name>
 		<type>geo_raw_org</type>
@@ -12,10 +12,10 @@
 	    <storage-time>-1</storage-time>	    
 	    <description>Download RAW files from the GEO FTP server that match the specified organism.</description>    
 	</source>
-	
+
 	<pipeline>	
 	</pipeline>
--->
+
 	<source>
 		<name>geo_raw_dir</name>
 		<type>list_dir</type>
@@ -25,7 +25,18 @@
 	    <storage-time>-1</storage-time>	    
 	    <description>Read in files from the platform specific GEO raw HDFS directory.</description>    
 	</source> 
- 
+-->
+<source>
+		<name>geo_ftp</name>
+		<type>geo_raw_mirror</type>
+	    <arguments>/home/larsab/troilkatt/mas5/pcl_lists/human_pcl_test.txt</arguments>	    
+	    <output-directory>geo/raw/human</output-directory>
+	    <compression-format>none</compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Download RAW files from the GEO FTP server that match the specified organism.</description>    
+	</source>
+
+
 	<pipeline>	
 	    <stage>
 			<name>remove_overlapping</name>
@@ -91,7 +102,6 @@
 			<description>Do distance calculation and convert .dat files to .dab files</description>
 		</stage>     
 	</pipeline>
-	 -->
 	<sink>
 		<name>imp_human_raw_pcl_sink</name>
 		<type>null_sink</type>

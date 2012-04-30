@@ -12,7 +12,18 @@
 	    <storage-time>-1</storage-time>
 	    <description>Mirror all series (GSEXXX) files from GEO and keep them forever.</description>    
 	</source>
+
+<source>
+		<name>geo_meta_source</name>
+		<type>hbase_source</type>
+	    <arguments>troilkatt-geo-meta meta:organisms 'Homo sapiens' files:softFilename</arguments>	    
+	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Get list of GEO GSE PCL files with fission yeast in the organisms meta-data field.</description>    
+	</source> 
 	 
+	 -->
 	
 	 <source>
      	<name>geo_gse_soft_dir</name>
@@ -23,20 +34,11 @@
         <storage-time>-1</storage-time>
         <description>Read in files from the GEO GSE SOFT HDFS directory.</description>
      </source>
-	 -->
 	 
-	 <source>
-		<name>geo_meta_source</name>
-		<type>hbase_source</type>
-	    <arguments>troilkatt-geo-meta meta:organisms 'Homo sapiens' files:softFilename</arguments>	    
-	    <output-directory></output-directory>
-	    <compression-format></compression-format>
-	    <storage-time>-1</storage-time>	    
-	    <description>Get list of GEO GSE PCL files with fission yeast in the organisms meta-data field.</description>    
-	</source> 
+	 
 	 
 	<pipeline>	
-	<!-- 
+	
 	    <stage>
 			<name>soft2pcl</name>
 			<type>mapreduce</type>
@@ -55,7 +57,7 @@
             <storage-time>-1</storage-time>                                                                                                                 
             <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
         </stage>
- -->
+<!-- 
          <stage>                                                                                                                                                                 
             <name>null</name>                                                                                                                    
             <type>null_stage</type>                                                                                                                             
@@ -74,6 +76,8 @@
             <storage-time>0</storage-time>                                                                                                                 
             <description>Null stage to keep stage numbering consistent.</description>                                                             
         </stage>         
+
+ -->
         <stage>
 			<name>soft2pcl</name>
 			<type>mapreduce</type>

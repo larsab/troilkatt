@@ -37,9 +37,11 @@ public class BatchGeoGSESplit extends PerFile {
 		FILES_READ,
 		INVALID_INPUT_FILES,		
 		FILES_WRITTEN,
+		SER_FILES_WRITTEN,
 		STAGE1_COMPLETE,		
 		META_ERRORS,
 		PARSER_EXCEPTIONS,
+		PARSER_ERRORS,
 		OUT_OF_MEMORY
 	}
 
@@ -51,9 +53,11 @@ public class BatchGeoGSESplit extends PerFile {
 		protected Counter filesRead;
 		protected Counter invalidInputFiles;		
 		protected Counter filesWritten;
+		protected Counter serFilesWritten;
 		protected Counter stage1Complete;
 		protected Counter metaErrors;
 		protected Counter parserExceptions;		
+		protected Counter parserErrors;
 		protected Counter outOfMemory;
 
 		// Parser object
@@ -71,11 +75,11 @@ public class BatchGeoGSESplit extends PerFile {
 			filesRead = context.getCounter(BatchCounters.FILES_READ);
 			invalidInputFiles = context.getCounter(BatchCounters.INVALID_INPUT_FILES);			
 			filesWritten = context.getCounter(BatchCounters.FILES_WRITTEN);
-			//linesParsed = context.getCounter(BatchCounters.LINES_PARSED);
-			//linesWritten = context.getCounter(BatchCounters.LINES_WRITTEN);
+			serFilesWritten = context.getCounter(BatchCounters.SER_FILES_WRITTEN);
 			stage1Complete = context.getCounter(BatchCounters.STAGE1_COMPLETE);
 			metaErrors = context.getCounter(BatchCounters.META_ERRORS);
 			parserExceptions = context.getCounter(BatchCounters.PARSER_EXCEPTIONS);
+			parserErrors = context.getCounter(BatchCounters.PARSER_ERRORS);
 			outOfMemory = context.getCounter(BatchCounters.OUT_OF_MEMORY);
 
 			parser = new GeoGSE2Pcl();			
@@ -120,7 +124,16 @@ public class BatchGeoGSESplit extends PerFile {
 			serFile = new FileOutputStream(serFilename);
 
 			try {
-				parser.stage1(br, serFile);								
+				if (parser.stage1(br, serFile) == false) {
+					parserExceptions.increment(1);
+					// File could not be parsed
+					serFile.close(); // close before deleting
+					OsPath.delete(serFilename);									
+				}
+				else {
+					serFilesWritten.increment(1);					
+					serFile.close(); // always close
+				}
 			} catch (ParseException e) {
 				parserExceptions.increment(1);
 				serFile.close();

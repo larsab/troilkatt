@@ -74,7 +74,7 @@
 	
 	<sink>
 		<name>geo_gse_meta_sink</name>
-		<type>global_meta</type>
+		<type>global_meta_sink</type>
 		<arguments></arguments>
 		<description>Copy overlap file to global-meta dir.</description>
 	</sink>
