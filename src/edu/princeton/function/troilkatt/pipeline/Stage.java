@@ -250,12 +250,14 @@ public class Stage {
  
 		// Always save log files and do cleanup
 		saveLogFiles(logFiles, timestamp);
-		cleanup();
-		
+				
 		if (eThrown != null) {
-			// Log files saved and cleanup done, so can throw exception
+			// Log files saved so can throw exception
 			throw eThrown;
 		}
+		
+		// Do not cleanup in case of failure
+		cleanup();
 		
 		return hdfsOutputFiles;
 	}
