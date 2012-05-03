@@ -117,6 +117,7 @@ public class BatchGeoGSESplit extends PerFile {
 			 * the soft file into platform specific parts
 			 */			
 			context.setStatus("Parse: " + basename);
+			mapLogger.info("Parse: " + basename);
 			String serFilename = OsPath.join(taskOutputDir, dsetID + ".stage1.ser");
 			FileOutputStream serFile = null;
 			

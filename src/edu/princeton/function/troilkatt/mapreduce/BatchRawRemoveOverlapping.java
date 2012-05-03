@@ -193,8 +193,10 @@ public class BatchRawRemoveOverlapping extends PerFile {
 			// Need a scanner to iterate over all MapReduce task rows
 			Scan scan = new Scan(Bytes.toBytes(rowStartKey), Bytes.toBytes(rowEndKey));		
 			scan.setFilter(filter);
-			byte[] fam = Bytes.toBytes("calculated");
-			byte[] qual = Bytes.toBytes("sampleIDs-overlapRemoved");
+			//byte[] fam = Bytes.toBytes("calculated");
+			//byte[] qual = Bytes.toBytes("sampleIDs-overlapRemoved");
+			byte[] fam = Bytes.toBytes("meta");
+			byte[] qual = Bytes.toBytes("sampleIDs");
 			scan.addColumn(fam, qual);
 			
 			// Get rows
