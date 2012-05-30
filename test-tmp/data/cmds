@@ -1,0 +1,6 @@
+echo 'foo bar' > TROILKATT.TMP_DIR/OsCmds.tmp
+cp TROILKATT.TMP_DIR/OsCmds.tmp TROILKATT.TMP_DIR/OsCmds.tmp.copy
+# A comment
+
+wc TROILKATT.TMP_DIR/OsCmds.tmp > TROILKATT.TMP_DIR/OsCmds.tmp.wc
+rm TROILKATT.TMP_DIR/OsCmds.tmp.copy

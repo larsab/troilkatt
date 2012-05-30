@@ -9,6 +9,7 @@ import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
+import edu.princeton.function.troilkatt.tools.FilenameUtils;
 
 /**
  * Compare the content of two directories A and B, and return a list of files that are 
@@ -101,7 +102,8 @@ public class ListDirDiff extends HDFSSource {
 		HashSet<String> setB = new HashSet<String>();
 		for (String s: filesB) {
 			String basename = OsPath.basename(s);
-			String noExts = basename.split("\\.")[0];
+			//String noExts = basename.split("\\.")[0];
+			String noExts = FilenameUtils.getDsetID(basename, false);
 			setB.add(noExts);
 		}
 		
@@ -109,7 +111,8 @@ public class ListDirDiff extends HDFSSource {
 		ArrayList<String> outputFiles = new ArrayList<String>();
 		for (String s: filesA) {
 			String basename = OsPath.basename(s);
-			String noExts = basename.split("\\.")[0];
+			//String noExts = basename.split("\\.")[0];
+			String noExts = FilenameUtils.getDsetID(basename, false);
 			if (! setB.contains(noExts)) {
 				outputFiles.add(s);
 			}
