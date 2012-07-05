@@ -1,0 +1,44 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Install R libraries files from Brainarray -->
+<dataset>		
+
+	<source>
+	  <name>download_packages</name>
+	  <type>href_source</type>
+	  <arguments>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/15.0.0/entrezg.asp .*entrezgcdf_.*\.tar.gz</arguments>
+	  <output-directory>brainarray/packages</output-directory>
+	  <compression-format>none</compression-format>
+	  <storage-time>-1</storage-time>	    
+	  <description>
+	  
+	  Download CDF fles from Brainarray.
+	  
+	  Note! the link to the latest download page must be manually changed.
+	  
+	  </description>    
+	</source>	
+
+	<pipeline>		
+	  <stage>
+		<name>install</name>
+		<type>execute_per_file</type>
+		<arguments>TROILKATT.BIN/R CMD INSTALL TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.LOG_DIR/TROILKATT.FILE.R.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.R.err</arguments>
+		<output-directory></output-directory>
+		<compression-format>none</compression-format>
+		<storage-time>0</storage-time>
+		<description>
+		
+		Install downloaded packages.
+		
+		</description>						
+	  </stage>
+	</pipeline>	
+	
+	<sink>
+	  <name>null-sink</name>
+	  <type>null_sink</type>
+	  <arguments></arguments>
+	  <description>No output files from source.</description>
+	</sink>			
+</dataset>

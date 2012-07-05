@@ -1,0 +1,180 @@
+#!/bin/bash
+# Copyright (c) 2010-2011 peak@princeton.edu
+# License: Creative Commons Attribution-NonCommerical-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
+# See http://creativecommons.org/licenses/by-nc/3.0/
+# Attribution shall include the copyright notice above.
+
+# peak@princeton.edu 06/2010
+# For help: $0 --help
+
+# Revisions:
+# 2010.10.16
+# 2010.10.26 - genes.table - let column 3 be an integer
+# 2010.12.03 - bugfix if --HGNC is NOT specified ; --type TYPE 
+
+# Requires: 
+
+BN=`basename $0`
+DN=`dirname $0`
+
+TAX_ID=9606
+TYPE=
+
+function help {
+cat <<EOF
+Syntax: $BN [OPTIONS]
+
+This script can be used to generate the "genes.txt" file for an organism
+or a "genes.table" file for uploading to the genes table.
+
+In all cases, input is taken from stdin, which should be in gene_info format.
+
+Lines beginning with "#" are ignored.
+
+The 'systematic name' is extracted from COLUMN 1 of the input.
+
+The "genes.txt" format is as follows:
+
+id<TAB>name
+
+where id is a suitable MySQL integer id,
+and 'name' is the "systematic name" of the gene.
+
+
+Options:
+--tax_id TAX_ID : the tax_id to be used for selection (default: $TAX_ID)
+--human : set tax_id to be 9606
+--HGNC  : only extract entries with HGNC:N in column 6
+--type TYPE : select only the specified type_of_gene in column 10
+--name  : emit the names without the "id"
+--genes : emit data for the MySQL genes table
+
+-o OUTPUTFILE
+
+
+Example 1: 
+
+To create genes.txt using only protein-coding genes:
+
+cat Homo_sapiens.gene_info | $BN --type protein-coding > genes.txt
+
+
+Example 2: 
+
+To create a file named genes.table in a format suitable for uploading to the database:
+
+cat Homo_sapiens.gene_info | $BN --genes --type protein-coding > genes.table
+
+The following MySQL command can then be used to populate the genes table:
+
+
+LOAD DATA INFILE 'genes.table' INTO TABLE genes FIELDS TERMINATED BY '\t';
+
+EOF
+}
+
+OUTPUTFILE=
+TMP=/tmp/hefalmp_generate_genes.txt.$$
+GENES=0
+
+while [ "$1" ]
+do case "$1" in
+      -h | --help ) help
+           exit
+           ;;
+      --HGNC ) HGNC=1
+           shift
+           ;;
+      --tax_id | --taxid ) TAX_ID="$2"
+           shift 2
+           ;;
+      --type  | --type_of_gene ) TYPE="$2"
+           shift 2
+           ;;
+      --human ) TAX_ID=9606
+           shift 1
+           ;;
+      --name ) NAME=1
+           shift
+           ;;
+      --genes ) GENES=1
+           shift
+           ;;
+      -o  ) OUTPUTFILE="$2"
+           shift 2
+           ;;
+      -* ) help
+           exit 1
+           ;;
+      *  ) break
+           ;;
+  esac
+done
+
+TAB=`echo -e "\t"`
+
+
+if [ "$NAME" = 1 -a "$OUTPUTFILE" ] ; then
+   TMP="$OUTPUTFILE"
+fi
+
+# If HGNC, then we must unconditionally parse for HGNC:N
+if [ "$HGNC" = 1 ] ; then
+ awk -v tax_id="$TAX_ID" -v genes="$GENES" -v type="$TYPE" "-F	" '
+   BEGIN {TAB="	"}
+   substr($1,1,1) == "#" { next }
+   type != "" && type != $10 { next }
+   $1 != tax_id { next }
+   { canonical = "";
+     n=split($6, dbs, "|");
+     for (i=1; i<=n; i++) { 
+	gsub("  *", "", dbs[i]);
+        if (index(dbs[i],"HGNC:") == 1) {
+	  canonical = substr(dbs[i],6); break;
+        }
+     }
+     if (canonical) {
+        if (genes == 1) { print $2 TAB canonical TAB $12 }
+        else {print $2 }
+     }
+   }'  | sort -n > "$TMP"
+
+else
+
+ awk -v tax_id="$TAX_ID" -v genes="$GENES" -v type="$TYPE" "-F	" '
+   BEGIN {TAB="	"}
+   substr($1,1,1) == "#" { next }
+   type != "" && type != $10 { next }
+   $1 != tax_id { next }
+   { if (genes == 1) {
+       canonical = "";
+       n=split($6, dbs, "|");
+       for (i=1; i<=n; i++) { 
+         gsub("  *", "", dbs[i]);
+         if (index(dbs[i],"HGNC:") == 1) {
+           canonical = substr(dbs[i],6); break; 
+         }
+       }
+       print $2 TAB canonical TAB $12 
+     } else {
+       print $2 
+     }
+   }' | sort -n > "$TMP"
+fi
+
+if [ "$NAME" = 1 -a "$OUTPUTFILE" ] ; then
+  exit
+fi
+
+
+if [ "$OUTPUTFILE" ] ; then
+  nl -s "$TAB" < "$TMP" > "$OUTPUTFILE"
+else
+  if [ "$NAME" = 1 ] ; then
+    cat "$TMP"
+  else
+  nl -s "$TAB" < "$TMP"
+  fi
+fi
+
+/bin/rm $TMP
