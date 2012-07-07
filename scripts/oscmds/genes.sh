@@ -4,7 +4,7 @@
 # Human
 wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz | gunzip -c > TROILKATT.META_DIR/Homo_sapiens.gene_info
 # Mouse  
-wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz | gunzip -c > TROILKATT.META_DIR/Mus_musculus.gene_info  
+wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz | gunzip -c > TROILKATT.META_DIR/Mus_musculus.gene_info
 # Rat
 wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Rattus_norvegicus.gene_info.gz | gunzip -c > TROILKATT.META_DIR/Rattus_norvegicus.gene_info
 # Yeast
@@ -29,8 +29,6 @@ wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Canis_familiari
 wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Bos_taurus.gene_info.gz | gunzip -c > TROILKATT.META_DIR/Bos_taurus.gene_info
 # Bacterias
 wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Archaea_Bacteria/Bacteria.gene_info.gz | gunzip -c > TROILKATT.META_DIR/Bacteria.gene_info
-# Protozoa 
-wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Protozoa/All_Protozoa.gene_info.gz | gunzip -c > TROILKATT.META_DIR/All_Protozoa.gene_info
 # Organelles
 wget -q -O - ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Organelles.gene_info.gz | gunzip -c > TROILKATT.META_DIR/Organelles.gene_info
 
@@ -97,9 +95,11 @@ python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmappin
 python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k vch > TROILKATT.LOG_DIR/parseUniProtBacteria_vch.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_vch.err
 python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k atu > TROILKATT.LOG_DIR/parseUniProtBacteria_atu.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_atu.err
 python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k ftu > TROILKATT.LOG_DIR/parseUniProtBacteria_ftu.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_ftu.err
-python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k mtc > TROILKATT.LOG_DIR/parseUniProtBacteria_mtc.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_mtc.err
+# No uniprot mapping
+#python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k mtc > TROILKATT.LOG_DIR/parseUniProtBacteria_mtc.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_mtc.err
 python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k ebr > TROILKATT.LOG_DIR/parseUniProtBacteria_ebr.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_ebr.err
-python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k ban > TROILKATT.LOG_DIR/parseUniProtBacteria_ban.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_ban.err
+# No uniprot mapping
+#python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k ban > TROILKATT.LOG_DIR/parseUniProtBacteria_ban.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_ban.err
 python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k mtu > TROILKATT.LOG_DIR/parseUniProtBacteria_mtu.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_mtu.err
 python TROILKATT.SCRIPTS/parseUniprotIDMapping.py -i TROILKATT.META_DIR/idmapping_selected.tab -o TROILKATT.META_DIR -k hpy > TROILKATT.LOG_DIR/parseUniProtBacteria_hpy.out 2> TROILKATT.LOG_DIR/parseUniProtBacteria_hpy.err
 python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k ece -a TROILKATT.META_DIR/ece_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_ece.out 2> TROILKATT.LOG_DIR/parseBacteria_ece.err
@@ -116,9 +116,11 @@ python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.g
 python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k vch -a TROILKATT.META_DIR/vch_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_vch.out 2> TROILKATT.LOG_DIR/parseBacteria_vch.err
 python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k atu -a TROILKATT.META_DIR/atu_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_atu.out 2> TROILKATT.LOG_DIR/parseBacteria_atu.err
 python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k ftu -a TROILKATT.META_DIR/ftu_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_ftu.out 2> TROILKATT.LOG_DIR/parseBacteria_ftu.err
-python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k mtc -a TROILKATT.META_DIR/mtc_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_mtc.out 2> TROILKATT.LOG_DIR/parseBacteria_mtc.err
+# No uniprot mapping
+python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k mtc > TROILKATT.LOG_DIR/parseBacteria_mtc.out 2> TROILKATT.LOG_DIR/parseBacteria_mtc.err
 python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k ebr -a TROILKATT.META_DIR/ebr_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_ebr.out 2> TROILKATT.LOG_DIR/parseBacteria_ebr.err
-python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k ban -a TROILKATT.META_DIR/ban_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_ban.out 2> TROILKATT.LOG_DIR/parseBacteria_ban.err
+# No uniprot mapping
+python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k ban > TROILKATT.LOG_DIR/parseBacteria_ban.out 2> TROILKATT.LOG_DIR/parseBacteria_ban.err
 python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k mtu -a TROILKATT.META_DIR/mtu_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_mtu.out 2> TROILKATT.LOG_DIR/parseBacteria_mtu.err
 python TROILKATT.SCRIPTS/parseEntrezGeneInfo.py -i TROILKATT.META_DIR/Bacteria.gene_info -o TROILKATT.GLOBALMETA_DIR/genes/imp/ -k hpy -a TROILKATT.META_DIR/hpy_uniprot2entrez.tab > TROILKATT.LOG_DIR/parseBacteria_hpy.out 2> TROILKATT.LOG_DIR/parseBacteria_hpy.err
 # Protozoa

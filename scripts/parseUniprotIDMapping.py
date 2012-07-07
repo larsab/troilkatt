@@ -57,29 +57,30 @@ org2ID = {
                  'spo': "_SCHPO", # Fission yeast
                  'cfa': "_CANFA", # Dog
                  'bta': "_BOVIN", # Cow
-                 'eco': 511145, # Escherichia coli K-12 MG1655
-                 'lma': 347515, # Leishmania major strain Friedlin
-                 'atu': 176299, # Agrobacterium tumefaciens C58
+                 'eco': "_ECOLI", # 511145, # Escherichia coli K-12 MG1655
+                 'lma': "_LEIMA", # Leishmania major strain Friedlin
+                 'atu': "_AGRT5", # Agrobacterium tumefaciens C58
                  #Aurantimonas manganoxydans SI85-9A1
-                 'ban': 198094, # Bacillus anthracis Ames
-                 'bsu': 224308, # Bacillus subtilis subtilis 168
-                 'ccr': 190650, # Caulobacter crescentus CB15
-                 'ccs': 565050, # Caulobacter crescentus NA1000
-                 'cre': 3055,   # Chlamydomonas reinhardtii
-                 'ebr': 413997, # Escherichia coli B str. REL606
-                 'ecc': 199310, # Escherichia coli CFT073
-                 'ecj': 316407, # Escherichia coli K-12 substr. W3110
-                 'ece': 155864, # Escherichia coli O157:H7 str. EDL933
-                 'ftu': 177416, # Francisella tularensis tularensis SCHU S4
-                 'hpy': 85962,  # Helicobacter pylori 26695
-                 'lmt': 393133, # Listeria monocytogenes 10403S
+                  #'ban': 198094, # Bacillus anthracis Ames
+                 'bsu': "_BACSU", # Bacillus subtilis subtilis 168
+                 'ccr': "_CAUCR", # Caulobacter crescentus CB15
+                 'ccs': "_CAUCN", # Caulobacter crescentus NA1000
+                 'cre': "_CHLRE",   # Chlamydomonas reinhardtii
+                 'ebr': "_ECOBR", # Escherichia coli B str. REL606
+                 'ecc': "_ECOL6", # Escherichia coli CFT073
+                 'ecj': "_ECOW3", # Escherichia coli K-12 substr. W3110
+                 'ece': "_ECO57", # Escherichia coli O157:H7 str. EDL933
+                 'ftu': "_FRATT", # Francisella tularensis tularensis SCHU S4
+                 'hpy': "_HELPY",  # Helicobacter pylori 26695
+                 'lmt': "_LISMN", # Listeria monocytogenes 10403S
                  # Methylosinus trichosporium OB3b
-                 'mtc': 83331,  # Mycobacterium tuberculosis CDC1551
-                 'mtu': 83332,  # Mycobacterium tuberculosis H37Rv
-                 'sfx': 198215, # Shigella flexneri 2a str. 2457T
-                 'sco': 100226, # Streptomyces coelicolor A3(2)
-                 'syf': 1140,   # Synechococcus elongatus PCC 7942
-                 'vch': 243277  # Vibrio cholerae O1 biovar El Tor str. N16961  
+                 #'mtc': 83331,  # Mycobacterium tuberculosis CDC1551
+                 'mtu': "_MYCTU",  # Mycobacterium tuberculosis H37Rv
+                 'sfx': "_SHIFL", # Shigella flexneri 2a str. 2457T
+                 'sco': "_STRCO", # Streptomyces coelicolor A3(2)
+                 'syf': "_SYNE7",   # Synechococcus elongatus PCC 7942
+                 'vch': "_VIBCH"  # Vibrio cholerae O1 biovar El Tor str. N16961
+                 }  
 
 """
 Print usage description
