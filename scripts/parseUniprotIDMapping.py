@@ -56,7 +56,30 @@ org2ID = {
                  'dre': "_DANRE", # Zebrafish
                  'spo': "_SCHPO", # Fission yeast
                  'cfa': "_CANFA", # Dog
-                 'bta': "_BOVIN"} # Cow
+                 'bta': "_BOVIN", # Cow
+                 'eco': 511145, # Escherichia coli K-12 MG1655
+                 'lma': 347515, # Leishmania major strain Friedlin
+                 'atu': 176299, # Agrobacterium tumefaciens C58
+                 #Aurantimonas manganoxydans SI85-9A1
+                 'ban': 198094, # Bacillus anthracis Ames
+                 'bsu': 224308, # Bacillus subtilis subtilis 168
+                 'ccr': 190650, # Caulobacter crescentus CB15
+                 'ccs': 565050, # Caulobacter crescentus NA1000
+                 'cre': 3055,   # Chlamydomonas reinhardtii
+                 'ebr': 413997, # Escherichia coli B str. REL606
+                 'ecc': 199310, # Escherichia coli CFT073
+                 'ecj': 316407, # Escherichia coli K-12 substr. W3110
+                 'ece': 155864, # Escherichia coli O157:H7 str. EDL933
+                 'ftu': 177416, # Francisella tularensis tularensis SCHU S4
+                 'hpy': 85962,  # Helicobacter pylori 26695
+                 'lmt': 393133, # Listeria monocytogenes 10403S
+                 # Methylosinus trichosporium OB3b
+                 'mtc': 83331,  # Mycobacterium tuberculosis CDC1551
+                 'mtu': 83332,  # Mycobacterium tuberculosis H37Rv
+                 'sfx': 198215, # Shigella flexneri 2a str. 2457T
+                 'sco': 100226, # Streptomyces coelicolor A3(2)
+                 'syf': 1140,   # Synechococcus elongatus PCC 7942
+                 'vch': 243277  # Vibrio cholerae O1 biovar El Tor str. N16961  
 
 """
 Print usage description

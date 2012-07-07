@@ -177,7 +177,7 @@ org2taxID = {
                  'sfx': 198215, # Shigella flexneri 2a str. 2457T
                  'sco': 100226, # Streptomyces coelicolor A3(2)
                  'syf': 1140,   # Synechococcus elongatus PCC 7942
-                 'vch': 243277, # Vibrio cholerae O1 biovar El Tor str. N16961        
+                 'vch': 243277  # Vibrio cholerae O1 biovar El Tor str. N16961        
                  }
 
 """
