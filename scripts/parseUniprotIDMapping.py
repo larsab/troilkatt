@@ -68,7 +68,7 @@ org2ID = {
                  'cre': "_CHLRE",   # Chlamydomonas reinhardtii
                  'ebr': "_ECOBR", # Escherichia coli B str. REL606
                  'ecc': "_ECOL6", # Escherichia coli CFT073
-                 'ecj': "_ECOW3", # Escherichia coli K-12 substr. W3110
+                 'ecj': "_ECOW3", # Escherichia coli K-12 substr. W3110  <== problem
                  'ece': "_ECO57", # Escherichia coli O157:H7 str. EDL933
                  'ftu': "_FRATT", # Francisella tularensis tularensis SCHU S4
                  'hpy': "_HELPY",  # Helicobacter pylori 26695

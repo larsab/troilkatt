@@ -6,16 +6,24 @@ Convert a set of CEL files to a PCL file
 """
 class Cel2Pcl(TroilkattScript):
     """
-    arguments: 
-    [0] Directory with R binary
-    [1] Directory with R scripts
+    arguments (read from sys.argv by the superclass constructor): 
+    [0] R binary
+    [1] R script to run
     [2] Organism code (hs = human, rn = rat, and so on)
         
     @param: see description for super-class
     """
     def __init__(self):
         TroilkattScript.__init__(self)
-                
+        self.parseScriptArgs()
+        
+    def parseScriptArgs(self):
+        """
+        Parse script specific arguments
+        """
+        if self.args == None:
+            raise Exception("Invalid arguments: None")
+        
         argsParts = self.args.split(" ")
         if (len(argsParts) != 3):
             raise Exception('Invalid arguments: %s' % (self.args))
@@ -36,7 +44,7 @@ class Cel2Pcl(TroilkattScript):
         os.mkdir(self.tmpDir)
     
     """
-    Merge partial files output from the R script
+    Merge partial files output from the R script        
     
     @param R output filename prefix
     """
@@ -181,8 +189,7 @@ class Cel2Pcl(TroilkattScript):
         else:
             self.cleanupTmpDir()
             os.chdir(oldCwd)
-                        
-                
+                                        
         
 """
 Run a troilkatt script
@@ -201,7 +208,6 @@ Command line arguments: %s input-dir output-dir log-dir args, where
 The decription in usage() has additional details. 
 """
 if __name__ == '__main__':
-    import os
-    #os.chdir('/nhome/larsab/skarntyde/troilkatt-java')
+    import os    
     s = Cel2Pcl()
     s.run()

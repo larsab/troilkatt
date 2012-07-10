@@ -299,6 +299,10 @@ if __name__ == '__main__':
     lineCnt = 0
     taxIDMismatch = 0
     duplicateSymbols = 0
+    # Header line
+    headerLine = inputFile.readline()
+    assert(headerLine.startswith("#Format"), 'File does not have header line: %s' % (args['geneInfoFile']))
+    
     while 1:
         line = inputFile.readline()        
         if line == '':
