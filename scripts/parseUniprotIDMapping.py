@@ -56,7 +56,31 @@ org2ID = {
                  'dre': "_DANRE", # Zebrafish
                  'spo': "_SCHPO", # Fission yeast
                  'cfa': "_CANFA", # Dog
-                 'bta': "_BOVIN"} # Cow
+                 'bta': "_BOVIN", # Cow
+                 'eco': "_ECOLI", # 511145, # Escherichia coli K-12 MG1655
+                 'lma': "_LEIMA", # Leishmania major strain Friedlin
+                 'atu': "_AGRT5", # Agrobacterium tumefaciens C58
+                 #Aurantimonas manganoxydans SI85-9A1
+                  #'ban': 198094, # Bacillus anthracis Ames
+                 'bsu': "_BACSU", # Bacillus subtilis subtilis 168
+                 'ccr': "_CAUCR", # Caulobacter crescentus CB15
+                 'ccs': "_CAUCN", # Caulobacter crescentus NA1000
+                 'cre': "_CHLRE",   # Chlamydomonas reinhardtii
+                 'ebr': "_ECOBR", # Escherichia coli B str. REL606
+                 'ecc': "_ECOL6", # Escherichia coli CFT073
+                 'ecj': "_ECOW3", # Escherichia coli K-12 substr. W3110  <== problem
+                 'ece': "_ECO57", # Escherichia coli O157:H7 str. EDL933
+                 'ftu': "_FRATT", # Francisella tularensis tularensis SCHU S4
+                 'hpy': "_HELPY",  # Helicobacter pylori 26695
+                 'lmt': "_LISMN", # Listeria monocytogenes 10403S
+                 # Methylosinus trichosporium OB3b
+                 #'mtc': 83331,  # Mycobacterium tuberculosis CDC1551
+                 'mtu': "_MYCTU",  # Mycobacterium tuberculosis H37Rv
+                 'sfx': "_SHIFL", # Shigella flexneri 2a str. 2457T
+                 'sco': "_STRCO", # Streptomyces coelicolor A3(2)
+                 'syf': "_SYNE7",   # Synechococcus elongatus PCC 7942
+                 'vch': "_VIBCH"  # Vibrio cholerae O1 biovar El Tor str. N16961
+                 }  
 
 """
 Print usage description

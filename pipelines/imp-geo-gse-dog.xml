@@ -65,7 +65,7 @@
 			<output-directory>imp/gse/dog/exp</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
-			<description>Expoentiate log transformed datasets so that probe averaging isn't affected.</description>						
+			<description>Expoeniate log transformed datasets so that probe averaging isn't affected.</description>						
 		</stage>
 		<stage>
 			<name>map_genes</name>

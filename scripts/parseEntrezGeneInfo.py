@@ -177,7 +177,7 @@ org2taxID = {
                  'sfx': 198215, # Shigella flexneri 2a str. 2457T
                  'sco': 100226, # Streptomyces coelicolor A3(2)
                  'syf': 1140,   # Synechococcus elongatus PCC 7942
-                 'vch': 243277, # Vibrio cholerae O1 biovar El Tor str. N16961        
+                 'vch': 243277  # Vibrio cholerae O1 biovar El Tor str. N16961        
                  }
 
 """
@@ -299,6 +299,10 @@ if __name__ == '__main__':
     lineCnt = 0
     taxIDMismatch = 0
     duplicateSymbols = 0
+    # Header line
+    headerLine = inputFile.readline()
+    assert(headerLine.startswith("#Format"), 'File does not have header line: %s' % (args['geneInfoFile']))
+    
     while 1:
         line = inputFile.readline()        
         if line == '':

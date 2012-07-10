@@ -100,7 +100,8 @@ public class BatchGeoGSESplit extends PerFile {
 			String inputFilename = key.toString();
 			context.setStatus("Split: " + inputFilename);
 			String basename = tfs.getFilenameName(inputFilename);
-			String dsetID = FilenameUtils.getDsetID(basename);
+			// Series ID without platform
+			String dsetID = FilenameUtils.getDsetID(basename, false);
 
 			filesRead.increment(1);
 
@@ -117,12 +118,18 @@ public class BatchGeoGSESplit extends PerFile {
 			 * the soft file into platform specific parts
 			 */			
 			context.setStatus("Parse: " + basename);
-			mapLogger.info("Parse: " + basename);
-			String serFilename = OsPath.join(taskOutputDir, dsetID + ".stage1.ser");
-			FileOutputStream serFile = null;
+			mapLogger.info("Parse: " + basename);			
 			
 			// stage2 is to be run later so the stage1 data structures must be saved
-			serFile = new FileOutputStream(serFilename);
+			String serFilename = null;
+			if (FilenameUtils.hasPlatID(inputFilename)) {
+				// include the platform name in the ser filename
+				serFilename = OsPath.join(taskOutputDir, FilenameUtils.getDsetID(basename) + ".stage1.ser");
+			}
+			else {
+				serFilename = OsPath.join(taskOutputDir, dsetID + ".stage1.ser");
+			}
+			FileOutputStream serFile = new FileOutputStream(serFilename);
 
 			try {
 				if (parser.stage1(br, serFile) == false) {
@@ -155,7 +162,20 @@ public class BatchGeoGSESplit extends PerFile {
 			 */
 			ArrayList<String> pids = parser.getPlatformIDs();
 			ArrayList<String> basenames = new ArrayList<String>();
-			for (String pid: pids) {					
+			for (String pid: pids) {
+				// Make sure that the same platform IDs are used in case the input file specified 
+				// a platform. Otherwise the ser filename may be wrong
+				if (FilenameUtils.hasPlatID(inputFilename)) {
+					String platID = FilenameUtils.getPlatID(inputFilename);
+					if (! platID.equals(pid)) {
+						parserExceptions.increment(1);
+						// platform IDs do not match
+						mapLogger.error("Platform IDs do not match: input platform: " + platID + ", split platform: " + pid);
+						OsPath.delete(serFilename);
+						return;
+					}
+				}
+				
 				String outputBasename = FilenameUtils.mergeDsetPlatIDs(dsetID, pid) + ".soft";
 				context.setStatus("Write: " + outputBasename);
 

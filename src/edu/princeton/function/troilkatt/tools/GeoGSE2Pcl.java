@@ -849,7 +849,7 @@ public class GeoGSE2Pcl {
 				String name = null;			
 				int nameIndex = platformGeneNameColumns.get(currentPlatformID);
 				// Note! nameIndex can be -1 if gene name column was not found
-				if (nameIndex < parts.length) {		
+				if ((nameIndex > 0) && (nameIndex < parts.length)) {		
 					name = parts[nameIndex].toUpperCase();
 				}
 				else {

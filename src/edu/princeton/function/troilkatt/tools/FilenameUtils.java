@@ -77,4 +77,16 @@ public class FilenameUtils {
 			return parts[1];
 		}
 	}
+	
+	/**
+	 * @return True if the filename contains a platform ID, False otherwise
+	 */
+	public static boolean hasPlatID(String filename) {
+		if (FilenameUtils.getPlatID(filename).isEmpty()) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
 }
