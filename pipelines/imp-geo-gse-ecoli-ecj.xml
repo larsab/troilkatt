@@ -1,0 +1,118 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Process ecoli-esj GSE PCL files -->
+<dataset>	
+	<source>
+		<name>geo_meta</name>
+		<type>hbase_source</type>
+	    <arguments>troilkatt-geo-meta meta:organisms 'Escherichia coli' files:pclFilename</arguments>	    
+	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Get list of GEO GSE PCL files with ecoli-esj in the organisms meta-data field.</description>    
+	</source> 
+	 
+	<pipeline>	
+	    <stage>                                                                                                                                                                 
+            <name>gse_filter</name>                                                                                                                    
+            <type>filter</type>                                                                                                                             
+            <arguments>GSE.*</arguments>                                                                                                                 
+            <output-directory></output-directory>                                                                                                           
+            <compression-format></compression-format>                                                                                                       
+            <storage-time>-1</storage-time>                                                                                                                 
+            <description>Only forward GSE files.</description>                                                             
+        </stage>
+	    <stage>
+			<name>remove_overlapping</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclRemoveOverlapping TROILKATT.GLOBALMETA_DIR/gse.excluded</arguments>
+			<output-directory>imp/gse/ecoli-esj/rmo</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>
+			<description>Remove overlapping samples.</description>						
+		</stage>
+		<stage>
+			<name>missing_values</name>			
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMissingValues 50 3 50</arguments>
+			<output-directory>imp/gse/ecoli-esj/mv</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>			
+			<description>Fill in missing values and set some values that are better characterized as missing.</description>						
+		</stage>
+		<stage>
+			<name>log_transform</name>			
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclLogTransform</arguments>
+			<output-directory>imp/gse/ecoli-esj/log</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>			
+			<description>Log transform datasets that have not already been log transformed.</description>						
+		</stage>
+		<stage>
+			<name>knnimpute</name>
+			<type>mapreduce_stage</type>
+			<arguments>execute_per_file TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
+			<output-directory>imp/gse/ecoli-esj/knn</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>		
+			<description>Fill in missing values with their most likely values.</description>
+		</stage>
+		<stage>
+			<name>exponentiate</name>			
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclExponentiate</arguments>
+			<output-directory>imp/gse/ecoli-esj/exp</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>			
+			<description>Expoentiate log transformed datasets so that probe averaging isn't affected.</description>						
+		</stage>
+		<stage>
+			<name>map_genes</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMapGeneNames TROILKATT.GLOBALMETA_DIR/genes/imp/ecj.map</arguments>
+			<output-directory>imp/gse/ecoli-esj/map</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>			
+			<description>Translate all gene names to a common standard</description>
+		</stage>
+				
+		<stage>
+			<name>average_duplicates</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMeanGenesThatAgree 0</arguments>
+			<output-directory>imp/gse/ecoli-esj/avg</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>					
+			<description>Average together duplicate genes</description>
+		</stage>
+		
+		<stage>
+			<name>cleanup_consolidation</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclCleanupConsolidation</arguments>
+			<output-directory>imp/gse/ecoli-esj/final</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>									
+			<description>Final numeric cleanup and consolidation</description>
+		</stage>    
+		
+		<stage>
+			<name>pcl2qdab</name>
+			<type>mapreduce_stage</type>
+			<arguments>execute_per_file /usr/bin/python TROILKATT.SCRIPTS/pcl2qdab.py TROILKATT.BIN TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.TMP_DIR/TROILKATT.FILE_NOEXT.dat TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.qdab TROILKATT.GLOBALMETA_DIR/imp/GSE.quant > TROILKATT.LOG_DIR/TROILKATT.FILE.output 2> TROILKATT.LOG_DIR/TROILKATT.FILE.error</arguments>
+			<output-directory>imp/gse/ecoli-esj/qdab</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>	
+			<description>Do distance calculation and convert .dat files to .dab files</description>
+		</stage>   
+	</pipeline>
+	
+	<sink>
+		<name>imp_ecoli-esj_gse_pcl_sink</name>
+		<type>null_sink</type>
+		<arguments></arguments>
+		<description>There is no sink for the final PCL files.</description>
+	</sink>
+				
+</dataset>
