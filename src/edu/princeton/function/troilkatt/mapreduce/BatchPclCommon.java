@@ -64,7 +64,7 @@ public class BatchPclCommon extends PerFile {
 			filesDiscarded = context.getCounter(BatchPclCounters.FILES_DISCARDED); 
 			rowsRead = context.getCounter(BatchPclCounters.ROWS_READ);
 			rowsWritten = context.getCounter(BatchPclCounters.ROWS_WRITTEN);
-			rowsWritten = context.getCounter(BatchPclCounters.ROWS_DISCARDED);			
+			rowsDiscarded = context.getCounter(BatchPclCounters.ROWS_DISCARDED);			
 			
 			// Setup meta-data table
 			Configuration hbConf = HBaseConfiguration.create();

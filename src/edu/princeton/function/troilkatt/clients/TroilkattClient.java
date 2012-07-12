@@ -48,7 +48,7 @@ public class TroilkattClient extends Troilkatt {
 	 * Print usage information.
 	 */
 	protected void usage(String progName) {
-		System.out.println(String.format("%s [args] [options]\n\n" + 	
+		System.out.println(String.format("%s [options]\n\n" + 	
 				"Options:\n" +				
 				"\t-c FILE       Specify troilkatt configuration FILE to use (default: %s).\n" +
 				"\t-l FILE       log4j.properties FILE to use (default: %s).\n" +

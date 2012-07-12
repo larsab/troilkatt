@@ -44,6 +44,7 @@ import org.apache.log4j.Logger;
  * - samplesIDs-overlapRemoved: list of GSM sample IDs included after overlapping samples
  *   have been removed. If entire dataset is deleted, this field is set to "none". This 
  *   field is not set if overlap calculation is not done for this dataset.
+ * - nGenes-<basename>: number of genes in the file with basename basename  
  * 
  * family "files":
  * - softFilename: filename of the soft file for this dataset/series

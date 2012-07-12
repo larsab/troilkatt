@@ -97,8 +97,8 @@ public class MapReduce extends Stage {
 	 * Helper function to create an arguments file. The filename is given by the argsFilename global
 	 * variable.
 	 * 
-	 * edu.princeton.function.troilkatt.mapreduce.TroilkattMapublicas the corresponding
-	 * read arguments file.
+	 * edu.princeton.function.troilkatt.mapreduce.TroilkattMapreduce.readMapReduceArgsfile is the corresponding
+	 * to read the arguments file
 	 * 
 	 * @param inputFiles of input files to process
 	 * @param hdfsTmpOutputDir output directory for MapReduce job

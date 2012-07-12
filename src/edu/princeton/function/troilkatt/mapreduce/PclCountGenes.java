@@ -6,23 +6,45 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import edu.princeton.function.troilkatt.hbase.GeoMetaTableSchema;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
-import edu.princeton.function.troilkatt.tools.PclLogTransform;
 
 /**
- * Log transform PCL files that have not already been transformed
+ * Count the number of rows (genes) in each file and write the count to the GEO MetaTable
+ *
  */
-public class BatchPclLogTransform extends BatchPclCommon {
+public class PclCountGenes extends BatchPclCommon {
+	enum BatchPclGeneCounters {
+		FILES_READ,
+		TABLE_UPDATED,
+		GENES_COUNTED,			
+	}
 	
 	/**
 	 * Mapper
 	 */
-	public static class LogTransformMapper extends PclMapper {				
+	public static class CountMapper extends PclMapper {		
+		// Additional couners
+		protected Counter genesCounted;
+		
+		/**
+		 * Setup global variables. This function is called before map()
+		 * @throws IOException 
+		 */
+		@Override
+		public void setup(Context context) throws IOException {
+			super.setup(context);	
+			filesRead = context.getCounter(BatchPclGeneCounters.FILES_READ);
+			rowsWritten = context.getCounter(BatchPclGeneCounters.TABLE_UPDATED);
+			genesCounted = context.getCounter(BatchPclGeneCounters.GENES_COUNTED);
+		}
+		
 		
 		/**
 		 * Helper function to read rows from the input file, process each row, and write the row 
@@ -37,31 +59,38 @@ public class BatchPclLogTransform extends BatchPclCommon {
 		protected void processFile(BufferedReader br, BufferedWriter bw,
 				String inputFilename) throws IOException {
 			String gid = FilenameUtils.getDsetID(inputFilename);
-			String loggedStr = GeoMetaTableSchema.getInfoValue(metaTable, gid, "logged", mapLogger);
-			if (loggedStr == null) {
-				mapLogger.fatal("Could not read meta data for: " + gid);
-				errors.increment(1);
-				return;
+			String basename = tfs.getFilenameName(inputFilename);
+			
+			filesRead.increment(1);
+			
+			/*
+			 * Count genes
+			 */
+			// Initialized to -2 since the two first lines are headers, and eweight
+			int cnt = -2;
+			@SuppressWarnings("unused")
+			String line;
+			while ((line = br.readLine()) != null) {
+				cnt++;
 			}
-			boolean logged = loggedStr.equals("1");
-			if (! logged) {			
-				PclLogTransform.process(br, bw);
-			}
-			else {
-				copy(br, bw);
-			}
-		}
-		
-		/**
-		 * Helper function to get the output file basename
-		 * 
-		 * @param inputBasename basename of input file
-		 * @return basename of output file
-		 */
-		@Override
-		protected String getOutputBasename(String inputBasename) {
-			return inputBasename + ".log";	
-		}
+			
+			genesCounted.increment(cnt);
+			
+			/*
+			 * Update meta data table with the gene count 
+			 */			
+			try {
+				Put update = new Put(Bytes.toBytes(gid));
+				update.add(Bytes.toBytes("processed"), Bytes.toBytes("nGenes-" + basename), Bytes.toBytes(cnt));				
+				mapLogger.info("Set " + geoMetaTable.tableName + ":"  + gid + ":processed:nGenes-" + basename + " to " + cnt);
+				metaTable.put(update);			
+			} catch (IOException e) {				
+				mapLogger.warn("Could not save updated row in Hbase: " + e);				
+			}  
+			rowsWritten.increment(1);
+			
+			System.out.println(basename + ": " + cnt);
+		}		
 	}
 	
 	/**
@@ -99,10 +128,10 @@ public class BatchPclLogTransform extends BatchPclCommon {
 		Job job;
 		try {
 			job = new Job(conf, progName);
-			job.setJarByClass(BatchPclLogTransform.class);
+			job.setJarByClass(PclCountGenes.class);
 
 			/* Setup mapper */
-			job.setMapperClass(LogTransformMapper.class);	    				
+			job.setMapperClass(CountMapper.class);	    				
 
 			/* Specify that no reducer should be used */
 			job.setNumReduceTasks(0);
