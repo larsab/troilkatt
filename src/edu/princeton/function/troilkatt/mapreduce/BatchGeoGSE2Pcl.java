@@ -123,12 +123,21 @@ public class BatchGeoGSE2Pcl extends PerFile {
 			String serFilename = tfs.getFilenameDir(inputFilename) + "/" +  
 					FilenameUtils.getDsetID(inputFilename, false) + ".stage1.ser." + 
 					tfs.getFilenameTimestamp(inputFilename) + "." +
-					tfs.getFilenameCompression(inputFilename); 						
+					tfs.getFilenameCompression(inputFilename);
 			if (! tfs.isfile(serFilename)) {
-				mapLogger.fatal("File does not exist: " + serFilename);
-				invalidSerFiles.increment(1);
-				return;
+				// Also try file that includes platform ID
+				serFilename = tfs.getFilenameDir(inputFilename) + "/" +  
+						FilenameUtils.getDsetID(inputFilename, true) + ".stage1.ser." + 
+						tfs.getFilenameTimestamp(inputFilename) + "." +
+						tfs.getFilenameCompression(inputFilename);
+				
+				if (! tfs.isfile(serFilename)) {
+					mapLogger.fatal("File does not exist: " + serFilename);
+					invalidSerFiles.increment(1);
+					return;
+				}
 			}
+			// serFilename is a valid file
 			String localSerFilename = tfs.getFile(serFilename, taskTmpDir, taskTmpDir, taskLogDir);
 
 			if (localSerFilename == null) {

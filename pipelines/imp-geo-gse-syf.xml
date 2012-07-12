@@ -1,15 +1,15 @@
 <?xml-stylesheet type="text/xsl"?>
 
-<!-- Process dog GSE PCL files -->
+<!-- Process syf GSE PCL files -->
 <dataset>	
 	<source>
 		<name>geo_meta</name>
 		<type>hbase_source</type>
-	    <arguments>troilkatt-geo-meta meta:organisms 'Canis' files:pclFilename</arguments>	    
+	    <arguments>troilkatt-geo-meta meta:organisms 'Synechococcus elongatus' files:pclFilename</arguments>	    
 	    <output-directory></output-directory>
 	    <compression-format></compression-format>
 	    <storage-time>-1</storage-time>	    
-	    <description>Get list of GEO GSE PCL files with dog in the organisms meta-data field.</description>    
+	    <description>Get list of GEO GSE PCL files with syf in the organisms meta-data field.</description>    
 	</source> 
 	 
 	<pipeline>	
@@ -26,7 +26,7 @@
 			<name>remove_overlapping</name>
 			<type>mapreduce</type>
 			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclRemoveOverlapping TROILKATT.GLOBALMETA_DIR/gse.excluded</arguments>
-			<output-directory>imp/gse/dog/rmo</output-directory>
+			<output-directory>imp/gse/syf/rmo</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>
 			<description>Remove overlapping samples.</description>						
@@ -35,7 +35,7 @@
 			<name>missing_values</name>			
 			<type>mapreduce</type>
 			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMissingValues 50 3 50</arguments>
-			<output-directory>imp/gse/dog/mv</output-directory>
+			<output-directory>imp/gse/syf/mv</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
 			<description>Fill in missing values and set some values that are better characterized as missing.</description>						
@@ -44,7 +44,7 @@
 			<name>log_transform</name>			
 			<type>mapreduce</type>
 			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclLogTransform</arguments>
-			<output-directory>imp/gse/dog/log</output-directory>
+			<output-directory>imp/gse/syf/log</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
 			<description>Log transform datasets that have not already been log transformed.</description>						
@@ -53,7 +53,7 @@
 			<name>knnimpute</name>
 			<type>mapreduce_stage</type>
 			<arguments>execute_per_file TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
-			<output-directory>imp/gse/dog/knn</output-directory>
+			<output-directory>imp/gse/syf/knn</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>		
 			<description>Fill in missing values with their most likely values.</description>
@@ -62,16 +62,16 @@
 			<name>exponentiate</name>			
 			<type>mapreduce</type>
 			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclExponentiate</arguments>
-			<output-directory>imp/gse/dog/exp</output-directory>
+			<output-directory>imp/gse/syf/exp</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
-			<description>Expoeniate log transformed datasets so that probe averaging isn't affected.</description>						
+			<description>Expoentiate log transformed datasets so that probe averaging isn't affected.</description>						
 		</stage>
 		<stage>
 			<name>map_genes</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMapGeneNames TROILKATT.GLOBALMETA_DIR/genes/imp/cfa.map</arguments>
-			<output-directory>imp/gse/dog/map</output-directory>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMapGeneNames TROILKATT.GLOBALMETA_DIR/genes/imp/syf.map</arguments>
+			<output-directory>imp/gse/syf/map</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
 			<description>Translate all gene names to a common standard</description>
@@ -81,7 +81,7 @@
 			<name>average_duplicates</name>
 			<type>mapreduce</type>
 			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMeanGenesThatAgree 0</arguments>
-			<output-directory>imp/gse/dog/avg</output-directory>
+			<output-directory>imp/gse/syf/avg</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>					
 			<description>Average together duplicate genes</description>
@@ -91,7 +91,7 @@
 			<name>cleanup_consolidation</name>
 			<type>mapreduce</type>
 			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclCleanupConsolidation</arguments>
-			<output-directory>imp/gse/dog/final</output-directory>
+			<output-directory>imp/gse/syf/final</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>									
 			<description>Final numeric cleanup and consolidation</description>
@@ -101,7 +101,7 @@
 			<name>pcl2qdab</name>
 			<type>mapreduce_stage</type>
 			<arguments>execute_per_file /usr/bin/python TROILKATT.SCRIPTS/pcl2qdab.py TROILKATT.BIN TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.TMP_DIR/TROILKATT.FILE_NOEXT.dat TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.qdab TROILKATT.GLOBALMETA_DIR/imp/GSE.quant > TROILKATT.LOG_DIR/TROILKATT.FILE.output 2> TROILKATT.LOG_DIR/TROILKATT.FILE.error</arguments>
-			<output-directory>imp/gse/dog/qdab</output-directory>
+			<output-directory>imp/gse/syf/qdab</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>	
 			<description>Do distance calculation and convert .dat files to .dab files</description>
@@ -109,7 +109,7 @@
 	</pipeline>
 	
 	<sink>
-		<name>imp_dog_gse_pcl_sink</name>
+		<name>imp_syf_gse_pcl_sink</name>
 		<type>null_sink</type>
 		<arguments></arguments>
 		<description>There is no sink for the final PCL files.</description>

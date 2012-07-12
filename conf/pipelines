@@ -1,6 +1,6 @@
 # Add datasets to be crawled/analyzed to this file. Each dataset is identified by its
 # configuration file
-#
+# 
 #
 # Test and developement pipelines
 #
@@ -16,7 +16,7 @@
 #
 # GEO Series
 pipelines/geo-gse-mirror.xml
-pipelines/geo-gse-meta.xml
+#pipelines/geo-gse-meta.xml
 #
 # GEO Datasets
 #
@@ -48,11 +48,51 @@ pipelines/geo-gse-meta.xml
 #pipelines/imp-geo-gds-fissionyeast.xml
 #pipelines/imp-geo-gds-dog.xml
 #pipelines/imp-geo-gds-cow.xml
+#pipelines/imp-geo-gds-ecoli.xml
+#pipelines/imp-geo-gds-ecoli-ebr.xml
+#pipelines/imp-geo-gds-ecoli-ecc.xml
+#pipelines/imp-geo-gds-ecoli-ecj.xml
+#pipelines/imp-geo-gds-ecoli-ece.xml
+#pipelines/imp-geo-gds-tuberculosis-mtc.xml
+#pipelines/imp-geo-gds-tuberculosis-mtu.xml
+#pipelines/imp-geo-gds-bsu.xml
+#pipelines/imp-geo-gds-lmt.xml
+#pipelines/imp-geo-gds-sco.xml
+#pipelines/imp-geo-gds-vch.xml
+#pipelines/imp-geo-gds-cre.xml
+#pipelines/imp-geo-gds-hpy.xml
+#pipelines/imp-geo-gds-ccr.xml
+#pipelines/imp-geo-gds-ccs.xml
+#pipelines/imp-geo-gds-lma.xml
+#pipelines/imp-geo-gds-ban.xml
+#pipelines/imp-geo-gds-sfx.xml
+#pipelines/imp-geo-gds-syf.xml
+#pipelines/imp-geo-gds-ftu.xml
 #
 #pipelines/imp-geo-gse-human.xml
 #pipelines/imp-geo-gse-fissionyeast.xml
 #pipelines/imp-geo-gse-dog.xml
 #pipelines/imp-geo-gse-cow.xml
+#pipelines/imp-geo-gse-ecoli.xml
+#pipelines/imp-geo-gse-ecoli-ebr.xml
+#pipelines/imp-geo-gse-ecoli-ecc.xml
+#pipelines/imp-geo-gse-ecoli-ecj.xml
+#pipelines/imp-geo-gse-ecoli-ece.xml
+#pipelines/imp-geo-gse-tuberculosis-mtc.xml
+#pipelines/imp-geo-gse-tuberculosis-mtu.xml
+#pipelines/imp-geo-gse-bsu.xml
+#pipelines/imp-geo-gse-lmt.xml
+#pipelines/imp-geo-gse-sco.xml
+#pipelines/imp-geo-gse-vch.xml
+#pipelines/imp-geo-gse-cre.xml
+#pipelines/imp-geo-gse-hpy.xml
+#pipelines/imp-geo-gse-ccr.xml
+#pipelines/imp-geo-gse-ccs.xml
+#pipelines/imp-geo-gse-lma.xml
+#pipelines/imp-geo-gse-ban.xml
+#pipelines/imp-geo-gse-sfx.xml
+#pipelines/imp-geo-gse-syf.xml
+#pipelines/imp-geo-gse-ftu.xml
 #
 #pipelines/imp-geo-raw-human.xml
 #pipelines/imp-geo-raw-mouse.xml
@@ -64,6 +104,12 @@ pipelines/geo-gse-meta.xml
 #pipelines/imp-geo-raw-fissionyeast.xml
 #pipelines/imp-geo-raw-dog.xml
 #pipelines/imp-geo-raw-cow.xml
+#pipelines/imp-geo-raw-ecoli.xml
+#pipelines/imp-geo-raw-ecoli-ebr.xml
+#pipelines/imp-geo-raw-ecoli-ecc.xml
+#pipelines/imp-geo-raw-ecoli-ecj.xml
+#pipelines/imp-geo-raw-ecoli-ece.xml
+#pipelines/imp-geo-raw-sco.xml
 #
 # ArrayExpress
 #datasets/arrayexpress.xml
