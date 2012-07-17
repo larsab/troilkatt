@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.utils.Utils;
 import gnu.getopt.Getopt;
 
 /**
@@ -185,7 +185,7 @@ public class DeleteFile extends TroilkattClient {
 		}
 		else if (files.size() == 1) {		
 			String f =  files.get(0);
-			if (Troilkatt.getYesOrNo("Delete file: " +f, false) == false) {
+			if (Utils.getYesOrNo("Delete file: " +f, false) == false) {
 				System.exit(0);
 			}
 			try {
@@ -200,7 +200,7 @@ public class DeleteFile extends TroilkattClient {
 			for (String f: files) {
 				System.out.println("\t" + f);
 			}
-			if (Troilkatt.getYesOrNo("Delete ALL files", false)) {
+			if (Utils.getYesOrNo("Delete ALL files", false)) {
 				for (String f: files) {
 					try {					
 						tfs.deleteFile(f);
@@ -213,7 +213,7 @@ public class DeleteFile extends TroilkattClient {
 			else { // do not delete all
 				for (String f: files) {
 					try {
-						if (Troilkatt.getYesOrNo("Delete file: " + f , false)) {
+						if (Utils.getYesOrNo("Delete file: " + f , false)) {
 							tfs.deleteFile(f);
 						}
 					} catch (IOException e) {

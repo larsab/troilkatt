@@ -250,10 +250,10 @@ public class MapReduce extends Stage {
 			long timestamp) throws StageException {						
 		
 		// Temporary MapReduce output directory
-		String hdftTmpOutputDir = OsPath.join(hdfsTmpDir, getStageID() + "-" + timestamp);
+		String hdfsTmpOutputDir = OsPath.join(hdfsTmpDir, getStageID() + "-" + timestamp);
 		
 		// Create arguments file for MapReduce Job-task
-		writeMapReduceArgsFile(inputFiles, hdftTmpOutputDir, timestamp);
+		writeMapReduceArgsFile(inputFiles, hdfsTmpOutputDir, timestamp);
 		
 		// Redirect output and execute MapReduce job
 		String outputLogfile = OsPath.join(stageLogDir, "mapreduce.output");
@@ -269,7 +269,7 @@ public class MapReduce extends Stage {
 		}
 		
 		// Comrpess, timestamp and move MapReduce output files to output directory
-		ArrayList<String> outputFiles = moveMapReduceOutputFiles(hdftTmpOutputDir, timestamp);
+		ArrayList<String> outputFiles = moveMapReduceOutputFiles(hdfsTmpOutputDir, timestamp);
 		
 		// Update list of meta and log files 
 		updateMetaFiles(metaFiles);		

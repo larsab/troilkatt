@@ -1,5 +1,6 @@
 package edu.princeton.function.troilkatt.utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -8,6 +9,45 @@ import java.util.Vector;
  *
  */
 public class Utils {
+	/**
+	 * Get yes/no answer on stdin
+	 * 
+	 * @param label message to print to stdout. The format is "<label> [Y/n]: ", with 
+	 * the default value in uppercase.
+	 * @param defaultYes true if yes is default
+	 * @return true if yes, false if not
+	 */
+	public static boolean getYesOrNo(String label, boolean defaultYes) {
+		java.io.BufferedReader stdin = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+		
+		while (true)  {
+			if (defaultYes) {
+				System.out.println(label + " [Y/n]: ");
+			}
+			else {
+				System.out.println(label + " [y/N]: ");
+			}
+			String line = null;
+			try {
+				line = stdin.readLine().toLowerCase();
+			} catch (IOException e) {
+				System.err.println("IOException while reading from stdin: " + e);				
+			}
+			if (line.equals("y") || line.equals("yes")) {
+				return true;
+			}
+			else if (defaultYes && line.equals("")) {
+				return true;
+			}
+			else if (line.equals("n") || line.equals("no")) {
+				return false;
+			}
+			else if (! defaultYes && line.equals("")) {
+				return false;
+			}
+		}
+	}
+	
 	/**
 	 * Remove duplicates and merge two lists.
 	 * 

@@ -18,6 +18,7 @@ import org.apache.hadoop.fs.Path;
 
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.utils.Utils;
 
 /**
  * Troilkatt status file manipulation
@@ -67,7 +68,7 @@ public class TroilkattStatus {
 			
 			try {
 				if (tfs.hdfs.isFile(hdfsStatusPath)) {
-					if (Troilkatt.getYesOrNo("Download from HDFS?", true)) {
+					if (Utils.getYesOrNo("Download from HDFS?", true)) {
 						logger.debug(String.format("Copy HDFS file %s to local file %s\n", hdfsStatusPath, statusPath));
 						tfs.hdfs.copyToLocalFile(hdfsStatusPath, statusPath);
 						hdfsFileDownloaded = true;

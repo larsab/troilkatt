@@ -73,31 +73,6 @@ public class TroilkattTest extends TestSuper {
 		assertNull(t.status);
 	}
 
-	/**
-	 * Test method for {@link edu.princeton.function.troilkatt.Troilkatt#getYesOrNo(java.lang.String, boolean)}.
-	 */
-	//@Test
-	public void testGetYesOrNo() {
-		// Yes'
-		assertTrue(Troilkatt.getYesOrNo("Enter 'y'", true));
-		assertFalse(Troilkatt.getYesOrNo("Enter 'n'", true));
-		assertTrue(Troilkatt.getYesOrNo("Enter 'Y'", true));		
-		assertTrue(Troilkatt.getYesOrNo("Enter 'yes'", true));
-		assertTrue(Troilkatt.getYesOrNo("Enter 'Yes'", true));
-		assertTrue(Troilkatt.getYesOrNo("Press Enter", true));
-		
-		// No's
-		assertFalse(Troilkatt.getYesOrNo("Enter 'n'", true));
-		assertTrue(Troilkatt.getYesOrNo("Enter 'Y'", true));
-		assertFalse(Troilkatt.getYesOrNo("Enter 'N'", true));		
-		assertFalse(Troilkatt.getYesOrNo("Enter 'no'", true));
-		assertFalse(Troilkatt.getYesOrNo("Enter 'No'", true));
-		assertFalse(Troilkatt.getYesOrNo("Press Enter", false));
-	
-		// Invalid input
-		assertTrue(Troilkatt.getYesOrNo("Enter 'foo' then 'y'", true));
-		assertFalse(Troilkatt.getYesOrNo("Enter 'foo', then 'bar', and finally press Enter", false));
-	}
 
 	/**
 	 * Test method for {@link edu.princeton.function.troilkatt.Troilkatt#usage(java.lang.String)}.

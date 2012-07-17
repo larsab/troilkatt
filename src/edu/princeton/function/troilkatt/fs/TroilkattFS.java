@@ -1082,13 +1082,13 @@ public class TroilkattFS {
 	/**
 	 * Delete a directory recursively in HDFS
 	 * 
-	 * @param filename file to delete
+	 * @param directory to delete
 	 * @return true if directory was deleted, false otherwise
 	 * @throws IOException 
 	 */
-	public boolean deleteDir(String filename) throws IOException {
-		if (isdir(filename)) {
-			return hdfs.delete(new Path(filename), true);
+	public boolean deleteDir(String dirname) throws IOException {
+		if (isdir(dirname)) {
+			return hdfs.delete(new Path(dirname), true);
 		}
 		else {
 			// Not a directory

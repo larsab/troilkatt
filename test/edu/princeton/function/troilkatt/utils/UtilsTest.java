@@ -29,6 +29,32 @@ public class UtilsTest {
 	public void tearDown() throws Exception {
 	}
 
+	/**
+	 * Test method for {@link edu.princeton.function.troilkatt.Troilkatt#getYesOrNo(java.lang.String, boolean)}.
+	 */
+	//@Test
+	public void testGetYesOrNo() {
+		// Yes'
+		assertTrue(Utils.getYesOrNo("Enter 'y'", true));
+		assertFalse(Utils.getYesOrNo("Enter 'n'", true));
+		assertTrue(Utils.getYesOrNo("Enter 'Y'", true));		
+		assertTrue(Utils.getYesOrNo("Enter 'yes'", true));
+		assertTrue(Utils.getYesOrNo("Enter 'Yes'", true));
+		assertTrue(Utils.getYesOrNo("Press Enter", true));
+		
+		// No's
+		assertFalse(Utils.getYesOrNo("Enter 'n'", true));
+		assertTrue(Utils.getYesOrNo("Enter 'Y'", true));
+		assertFalse(Utils.getYesOrNo("Enter 'N'", true));		
+		assertFalse(Utils.getYesOrNo("Enter 'no'", true));
+		assertFalse(Utils.getYesOrNo("Enter 'No'", true));
+		assertFalse(Utils.getYesOrNo("Press Enter", false));
+	
+		// Invalid input
+		assertTrue(Utils.getYesOrNo("Enter 'foo' then 'y'", true));
+		assertFalse(Utils.getYesOrNo("Enter 'foo', then 'bar', and finally press Enter", false));
+	}
+	
 	@Test
 	public void testMergeArrays() {
 		String[] a1 = {"foo", "bar"};

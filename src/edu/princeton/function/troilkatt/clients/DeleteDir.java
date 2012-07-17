@@ -1,7 +1,7 @@
 package edu.princeton.function.troilkatt.clients;
 
-import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.utils.Utils;
 
 import java.io.IOException;
 
@@ -45,7 +45,7 @@ public class DeleteDir extends CleanupDir {
 		
 		String hdfsDir = getDirectory(args.get("hdfsDir"));	
 		
-		if (Troilkatt.getYesOrNo("Delete directory: " + hdfsDir, false) == false) {
+		if (Utils.getYesOrNo("Delete directory: " + hdfsDir, false) == false) {
 			System.exit(0);
 		}
 		
