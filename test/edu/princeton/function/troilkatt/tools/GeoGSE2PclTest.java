@@ -151,7 +151,7 @@ public class GeoGSE2PclTest extends TestSuper {
 		ins.close();
 		
 		assertEquals(12477, parser.geneID2Name.size());
-		HashMap<String, String[]> id2val = parser.geneID2ValsSoftReference.get();
+		HashMap<String, float[]> id2val = parser.geneID2ValsSoftReference.get();
 		assertNotNull(id2val);
 		assertEquals(12477, id2val.size());
 		

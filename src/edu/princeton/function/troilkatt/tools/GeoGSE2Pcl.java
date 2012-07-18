@@ -90,7 +90,7 @@ public class GeoGSE2Pcl {
 	public HashMap<String, String> geneID2Name;
 	// Gene ID to expression value mappings
 	// Note a SoftReference is used to avoid OutOfMemoryError's	
-	public SoftReference<HashMap<String, String[]>> geneID2ValsSoftReference;		
+	public SoftReference<HashMap<String, float[]>> geneID2ValsSoftReference;		
 	// An ordered list of geneIDs (based on order in file)
 	public ArrayList<String> orderedGeneIDs;
 	
@@ -755,8 +755,8 @@ public class GeoGSE2Pcl {
 		 * Data structures updated in this pass
 		 */		
 		geneID2Name = new HashMap<String, String>();
-		HashMap<String, String[]> nm = new HashMap<String, String[]>();
-		geneID2ValsSoftReference = new SoftReference<HashMap<String, String[]>>(nm);
+		HashMap<String, float[]> nm = new HashMap<String, float[]>();
+		geneID2ValsSoftReference = new SoftReference<HashMap<String, float[]>>(nm);
 		orderedGeneIDs = new ArrayList<String>();		
 		
 		/*
@@ -862,12 +862,16 @@ public class GeoGSE2Pcl {
 				if (idIndex < parts.length) {
 					String geneID = parts[idIndex];
 					geneID2Name.put(geneID, name);				
-					HashMap<String, String[]> g2v = geneID2ValsSoftReference.get();
+					HashMap<String, float[]> g2v = geneID2ValsSoftReference.get();
 					if (g2v == null) {
 						// Out of memory
 						throw new ParseException("Out of memory");
 					}
-					String[] vals = new String[currentNSamples];												
+					// Allocate new array and initialize to NaN
+					float[] vals = new float[currentNSamples];	
+					for (int i = 0; i < currentNSamples; i++) {
+						vals[i] = Float.NaN;
+					}
 					g2v.put(geneID, vals);
 					orderedGeneIDs.add(geneID);
 				}
@@ -899,32 +903,33 @@ public class GeoGSE2Pcl {
 					return;
 				} 			
 
-				HashMap<String, String[]> g2v = geneID2ValsSoftReference.get();
+				HashMap<String, float[]> g2v = geneID2ValsSoftReference.get();
 				if (g2v == null) {
 					// Out of memory
 					throw new ParseException("Out of memory");
 				}
-				String[] curVals = g2v.get(geneID);
+				float[] curVals = g2v.get(geneID);
 				if (curVals == null) {
 					throw new ParseException("No values found for geneID: " + geneID + " (" + g2v.size() + " values in map)");
 				}			
 				if (curVals.length < currentSampleIndex) {
 					throw new ParseException("Invalid length of values: " + curVals.length + "(index=" + currentSampleIndex + ")");
 				}
-				if (curVals[currentSampleIndex] != null) {				
-					throw new ParseException("Duplicate gene IDs: " + geneID + " vals: " + curVals[currentSampleIndex] + " and " + parts[valCol]);
+				if (! Float.isNaN(curVals[currentSampleIndex])) {				
+					throw new ParseException("Duplicate gene IDs: " + geneID + " val: " + curVals[currentSampleIndex] + " and " + parts[valCol]);
 				}
 				else {		
 					try {
-						if (zerosAsMissingVals && (Float.valueOf(parts[valCol]) == 0)) {
-							curVals[currentSampleIndex] = EMPTY_STRING;
+						float v = Float.valueOf(parts[valCol]);
+						if (zerosAsMissingVals && (v == 0.0)) {
+							curVals[currentSampleIndex] = Float.NaN;
 						}
 						else {
-							curVals[currentSampleIndex] = parts[valCol];
+							curVals[currentSampleIndex] = v;
 						}
 					} catch (NumberFormatException e) {
-						// Not a valid floating point so it is set to missing
-						curVals[currentSampleIndex] = EMPTY_STRING;
+						// Not a valid floating point so it is kept as missing
+						// (not necessary to set the value since it is already NaN)						
 					}
 				}			
 
@@ -1105,22 +1110,22 @@ public class GeoGSE2Pcl {
 			}			
 			line = line + "\t" + name + "\t1"; // name and EWEIGHT
 		
-			HashMap<String, String[]> g2v = geneID2ValsSoftReference.get();
+			HashMap<String, float[]> g2v = geneID2ValsSoftReference.get();
 			if (g2v == null) {
 				// Out of memory
 				throw new ParseException("Out of memory");
 			}
-			String[] vals = g2v.remove(id);
+			float[] vals = g2v.remove(id);
 			if (vals == null) {
 				throw new ParseException("No expression values found for sample: " + id);
 			}
 			
-			for (String val: vals) {
-				if (val == null) { // missing value
+			for (float val: vals) {
+				if (Float.isNaN(val)) { // missing value
 					line = line + "\t";
 				}
 				else {
-					line = line + "\t" + val;
+					line = line + "\t" + String.valueOf(val);
 				}
 			}
 			line = line + "\n";
