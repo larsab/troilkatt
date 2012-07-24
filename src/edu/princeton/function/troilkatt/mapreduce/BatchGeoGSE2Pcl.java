@@ -99,6 +99,7 @@ public class BatchGeoGSE2Pcl extends PerFile {
 		public void map(Text key, BytesWritable value, Context context) throws IOException {						
 			String inputFilename = key.toString();
 			context.setStatus("Convert: " + inputFilename);
+			mapLogger.info("Convert: " + inputFilename);
 			String basename = tfs.getFilenameName(inputFilename);
 			String dsetID = FilenameUtils.getDsetID(basename);
 

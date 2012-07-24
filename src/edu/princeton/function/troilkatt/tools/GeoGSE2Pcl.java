@@ -794,6 +794,7 @@ public class GeoGSE2Pcl {
 				if (currentNSamples < 1) {
 					throw new ParseException("No samples for platform: " + currentPlatformID);
 				}	
+				logger.info("Platform " + pid + " has " + currentNSamples + " samples");				
 
 				inPlatformTableHeader = true; // Next line is the header line
 				//inPlatformTable will be set to true when header line has been parsed
@@ -803,6 +804,8 @@ public class GeoGSE2Pcl {
 				currentPlatformID = null;			
 
 				inPlatformTable = false;
+				
+				logger.info("Platform " + pid + " has " + geneID2Name.size());
 			}
 			else if (line.contains("^SAMPLE")) {			
 				currentSampleID = getVal(line);
@@ -824,7 +827,7 @@ public class GeoGSE2Pcl {
 				if (currentSampleIndex < 0) {
 					throw new ParseException("Invalid sample index for sample: " + currentSampleID + " in platform: " + currentPlatformID);
 				}			
-				System.out.println("sample index = " + currentSampleIndex);
+				// System.out.println("sample index = " + currentSampleIndex);
 
 				inSampleTableHeader = true; // The next line contains the sample header columns
 				// inSampleTable will be set to true when header lines has been parsed
@@ -887,7 +890,15 @@ public class GeoGSE2Pcl {
 			}		
 			else if (inSampleTable) {					
 				String[] parts = line.split("\t");
-
+				if (sampleGeneIDColumns == null) {
+					throw new ParseException("sampleGeneIDColumns is null");
+				}
+				if (currentSampleID == null) {
+					throw new ParseException("currentSampleID is null");
+				}
+				if (sampleGeneIDColumns.get(currentSampleID) == null) {
+					throw new ParseException(currentSampleID + " not in sampleGeneIDColumns");
+				}
 				int idCol = sampleGeneIDColumns.get(currentSampleID);
 				if (idCol >= parts.length) {
 					logger.debug("could not find sample ID column in row: " + line);		
@@ -1115,7 +1126,7 @@ public class GeoGSE2Pcl {
 				// Out of memory
 				throw new ParseException("Out of memory");
 			}
-			float[] vals = g2v.remove(id);
+			float[] vals = g2v.get(id);
 			if (vals == null) {
 				throw new ParseException("No expression values found for sample: " + id);
 			}
