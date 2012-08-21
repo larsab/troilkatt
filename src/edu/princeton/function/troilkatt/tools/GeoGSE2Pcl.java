@@ -890,13 +890,7 @@ public class GeoGSE2Pcl {
 			}		
 			else if (inSampleTable) {					
 				String[] parts = line.split("\t");
-				if (sampleGeneIDColumns == null) {
-					throw new ParseException("sampleGeneIDColumns is null");
-				}
-				if (currentSampleID == null) {
-					throw new ParseException("currentSampleID is null");
-				}
-				if (sampleGeneIDColumns.get(currentSampleID) == null) {
+				if (! sampleGeneIDColumns.containsKey(currentSampleID)) {
 					throw new ParseException(currentSampleID + " not in sampleGeneIDColumns");
 				}
 				int idCol = sampleGeneIDColumns.get(currentSampleID);
@@ -907,6 +901,9 @@ public class GeoGSE2Pcl {
 				}
 				String geneID = parts[idCol];
 
+				if (! sampleValueColumns.containsKey(currentSampleID)) {
+					throw new ParseException(currentSampleID + " not in sampleValueColumns");
+				}
 				int valCol = sampleValueColumns.get(currentSampleID);
 				if (valCol >= parts.length) {
 					logger.debug("could not find expression value column in row: " + line);
@@ -919,10 +916,12 @@ public class GeoGSE2Pcl {
 					// Out of memory
 					throw new ParseException("Out of memory");
 				}
-				float[] curVals = g2v.get(geneID);
-				if (curVals == null) {
+				
+				if (! g2v.containsKey(geneID)) {
 					throw new ParseException("No values found for geneID: " + geneID + " (" + g2v.size() + " values in map)");
-				}			
+				}
+				float[] curVals = g2v.get(geneID);
+							
 				if (curVals.length < currentSampleIndex) {
 					throw new ParseException("Invalid length of values: " + curVals.length + "(index=" + currentSampleIndex + ")");
 				}
