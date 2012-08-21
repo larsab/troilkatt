@@ -125,7 +125,8 @@ class Cel2Pcl(TroilkattScript):
                                                    self.tmpDir, 
                                                    os.path.join(self.logDir, os.path.basename(fn) + '.untar.output'),
                                                    os.path.join(self.logDir, os.path.basename(fn) + '.untar.error'))
-            print 'Execute: %s' % (cmd)
+            #print 'Execute: %s' % (cmd)
+            self.logger.info('Execute: %s' % (cmd))
             #cmd = "ps"
             if os.system(cmd) != 0:
                 print 'Unpack failed: %s' % (cmd)
@@ -142,7 +143,8 @@ class Cel2Pcl(TroilkattScript):
                     cmd = 'gunzip -f %s > %s 2> %s' % (fn,
                                                        os.path.join(self.logDir, fn + '.gunzip.output'),
                                                        os.path.join(self.logDir, fn + '.gunzip.error'))
-                    print 'Execute: %s' % (cmd)
+                    #print 'Execute: %s' % (cmd)
+                    self.logger.info('Execute: %s' % (cmd))
                     #cmd = "ps"
                     if os.system(cmd) != 0:
                         print 'gunzip failed: %s' % (cmd)
@@ -163,7 +165,8 @@ class Cel2Pcl(TroilkattScript):
                                                                      os.path.join(self.logDir, 'R.error'))
             
             
-            print 'Execute: %s' % (cmd)
+            #print 'Execute: %s' % (cmd)
+            self.logger.info('Execute: %s' % (cmd))
             #cmd = "ls"
             if os.system(cmd) != 0:
                 print 'R script failed'
