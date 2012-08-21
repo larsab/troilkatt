@@ -160,13 +160,31 @@ public class ExecuteStage extends PerFile {
 				if (stageType.equals("execute_per_file_mr")) {
 					ExecutePerFileMR mrStage = (ExecutePerFileMR) stage;
 					int maxMappers = Integer.valueOf(conf.get("mapred.tasktracker.map.tasks.maximum"));
-					long heapMaxSize = Runtime.getRuntime().maxMemory();					
+					
+					String val = conf.get("troilkatt.task.maxvmem");
+					long heapMaxSize = -1; // use OS default
+					if (val == null) {			
+						heapMaxSize = Runtime.getRuntime().maxMemory(); // use JVM heap size
+					}
+					else {
+						heapMaxSize = Long.valueOf(val);                // use job specific value
+					}
+					
 					mrStage.registerMR(maxMappers, heapMaxSize, jobID, context);
 				}	
 				else if (stageType.equals("script_per_file_mr")) {
 					ScriptPerFileMR mrStage = (ScriptPerFileMR) stage;
 					int maxMappers = Integer.valueOf(conf.get("mapred.tasktracker.map.tasks.maximum"));
-					long heapMaxSize = Runtime.getRuntime().maxMemory();					
+
+					String val = conf.get("troilkatt.task.maxvmem");
+					long heapMaxSize = -1; // use OS default
+					if (val == null) {			
+						heapMaxSize = Runtime.getRuntime().maxMemory(); // use JVM heap size
+					}
+					else {
+						heapMaxSize = Long.valueOf(val);                // use job specific value
+					}
+					
 					mrStage.registerMR(maxMappers, heapMaxSize, jobID, context);
 				}	
 					

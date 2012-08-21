@@ -49,6 +49,7 @@ public class TroilkattMapReduce {
 	/**
 	 * Set the input files for the MapReduce job
 	 * 
+	 * @param job
 	 * @return number of input files
 	 * @throws IOException 
 	 */
@@ -65,6 +66,9 @@ public class TroilkattMapReduce {
 	
 	/**
 	 * Set MapReduce output path
+	 * 
+	 * @param hdfs
+	 * @param job
 	 * @throws IOException 
 	 */
 	public void setOutputPath(FileSystem hdfs, Job job) throws StageInitException, IOException {
@@ -78,9 +82,33 @@ public class TroilkattMapReduce {
 	}
 	
 	/**
+	 * Set memory limits for tasks
+	 *
+	 * @param maxTroilkattVMem: maximum virtual memory in megabytes. If a task attempts to allocate more 
+	 * than maxTroilkattVMem of memory it will be killed by troilkatt. The task will not be reported as 
+	 * killed or failed to the mapreduce framework hence the job will not fail.
+	 * @param maxMapredVmem: maximum virutal memory in megabytes. If maxMapredVmem < maxTroilkattVMem and
+	 * a task attempts to allocate more than maxMapredVmem it will be killed by the mapreduce framework. 
+	 * The job will fail if the same task is killed three times. 
+	 * @param maxPMem: maximum physical memory in megabytes. A task will not be started unless there
+	 * is at least maxPMem megabytes of free physical memory on the node (free: not used by other tasks).
+	 */
+	public void setMemoryLimits(Configuration conf, long maxTroilkattVMem, long maxMapredVmem, long maxPMem) {
+		// maximum Virtual Memory task-limit for each task of the job 
+		conf.setLong("mapred.task.maxvmem", maxMapredVmem * 1024 * 1024);		
+		// maximum RAM task-limit for each task of the job
+		conf.setLong("mapred.task.maxpmem", maxPMem * 1024 * 1024);
+		
+		// also set ulimit to kill tasks that use too much virtual memory
+		conf.setLong("mapred.child.ulimit", maxMapredVmem * 1024); // ulimit is in kilobytes
+		
+		conf.setLong("troilkatt.task.maxvmem", maxTroilkattVMem * 1024 * 1024);
+	}
+	
+	/**
 	 * Parse common arguments
 	 * 
-	 * @param hadoopConfig: Hadoop configuration
+	 * @param conf Hadoop configuration
 	 * @param args list of command line arguments (see below)
 	 *   args[0]: arguments file that was written in pipeline.Mapreduce.writeMapReduceArgsFile
 	 * @return true if arguments where successfully parsed, false otherwise 

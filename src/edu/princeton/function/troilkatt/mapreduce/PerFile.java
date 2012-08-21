@@ -486,7 +486,7 @@ public class PerFile extends TroilkattMapReduce {
 	 * 
 	 * This function should be called in the run() function of the subclass
 	 * 
-	 * @param hadoopConfig initialized hadoop configuration object
+	 * @param conf initialized hadoop configuration object
 	 * @param job initialized job object
 	 */
 	public void perFileConfInit(Configuration conf, Job job) {
@@ -494,7 +494,8 @@ public class PerFile extends TroilkattMapReduce {
 		 * and therefore some task will take much longer to run. These should not be restarted on other
 		 * nodes. */
 		conf.setBoolean("mapred.map.tasks.speculative.execution", false);		
-		conf.setBoolean("mapred.reduce.tasks.speculative.execution", false);
+		conf.setBoolean("mapred.reduce.tasks.speculative.execution", false);		
+		
 		conf.setInt("mapred.task.timeout", 30 * 60 * 1000);
 		
 		/* Setup filter */
@@ -502,5 +503,5 @@ public class PerFile extends TroilkattMapReduce {
 		//job.setOutputFormatClass(FileOutputFormat.class);
 		//job.setMapOutputKeyClass(Text.class);
 		//job.setMapOutputValueClass(Text.class);
-	}
+	}	
 }
