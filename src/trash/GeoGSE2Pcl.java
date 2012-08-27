@@ -65,7 +65,7 @@ public class GeoGSE2Pcl extends PerFile {
 		protected Counter outOfMemory;
 
 		// Parser object
-		private GeoGSE2Pcl parser;
+		private edu.princeton.function.troilkatt.tools.GeoGSE2Pcl parser;
 
 		/**
 		 * Setup global variables. This function is called before map()
@@ -86,7 +86,7 @@ public class GeoGSE2Pcl extends PerFile {
 			parserExceptions = context.getCounter(BatchCounters.PARSER_EXCEPTIONS);
 			outOfMemory = context.getCounter(BatchCounters.OUT_OF_MEMORY);
 
-			parser = new GeoGSE2Pcl();
+			parser = new edu.princeton.function.troilkatt.tools.GeoGSE2Pcl();
 		}
 
 		/**

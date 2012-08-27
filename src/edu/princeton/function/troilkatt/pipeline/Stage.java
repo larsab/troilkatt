@@ -715,7 +715,7 @@ public class Stage {
 	 */	
 	public static int executeCmd(String cmd, Logger logger) {		
 		/* 
-		 * It is necessary to execute the command using a shell in order to (esily) redirect
+		 * It is necessary to execute the command using a shell in order to (easily) redirect
 		 * stdout and stderr to a user specified file.
 		 */
 		String cmdV[] = {"/bin/bash", "-ic", cmd};

@@ -96,13 +96,17 @@ public class TroilkattMapReduce {
 	public void setMemoryLimits(Configuration conf, long maxTroilkattVMem, long maxMapredVmem, long maxPMem) {
 		// maximum Virtual Memory task-limit for each task of the job 
 		conf.setLong("mapred.task.maxvmem", maxMapredVmem * 1024 * 1024);		
+		System.out.println("mapred.task.maxvmem: " + maxMapredVmem * 1024 * 1024);
 		// maximum RAM task-limit for each task of the job
 		conf.setLong("mapred.task.maxpmem", maxPMem * 1024 * 1024);
+		System.out.println("mapred.task.maxpmem: " + maxPMem * 1024 * 1024);
 		
 		// also set ulimit to kill tasks that use too much virtual memory
-		conf.setLong("mapred.child.ulimit", maxMapredVmem * 1024); // ulimit is in kilobytes
+		//conf.setLong("mapred.child.ulimit", maxMapredVmem * 1024); // ulimit is in kilobytes
+		//System.out.println("mapred.child.ulimit: " + maxMapredVmem * 1024 + "KB");
 		
 		conf.setLong("troilkatt.task.maxvmem", maxTroilkattVMem * 1024 * 1024);
+		System.out.println("troilkatt.task.maxvmem: " + maxTroilkattVMem * 1024 * 1024);
 	}
 	
 	/**
