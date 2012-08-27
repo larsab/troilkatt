@@ -210,7 +210,7 @@ public class PerFile extends TroilkattMapReduce {
 		 * is not supported by HDFS.
 		 * 
 		 * @param inputFilename HDFS filename to open
-		 * @return initialized LineReader, or null if the file could not be opened		
+		 * @return initialized BufferedReader, or null if the file could not be opened		
 		 */
 		public BufferedReader openBufferedReader(String inputFilename) {
 			Path inputPath = new Path(inputFilename);
@@ -225,7 +225,7 @@ public class PerFile extends TroilkattMapReduce {
 			CompressionCodecFactory factory = new CompressionCodecFactory(conf);
 			CompressionCodec inputCodec = factory.getCodec(inputPath);
 
-			// open a linereader either directly on the HDFs file or on a copy on local FS
+			// open a buffered reader either directly on the HDFs file or on a copy on local FS
 			InputStream ins = null;
 			FileInputStream fin = null;
 			if (compression.equals("none")) {

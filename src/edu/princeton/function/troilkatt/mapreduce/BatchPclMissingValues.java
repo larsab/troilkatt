@@ -123,8 +123,8 @@ public class BatchPclMissingValues extends BatchPclCommon {
 			 * Open input stream
 			 */			
 			context.setStatus("Convert: " + inputFilename);							
-			BufferedReader lin = openBufferedReader(inputFilename);			
-			if (lin == null) {
+			BufferedReader bri = openBufferedReader(inputFilename);			
+			if (bri == null) {
 				mapLogger.fatal("Could not open input file: " + inputFilename);
 				errors.increment(1);
 				return;
@@ -137,7 +137,7 @@ public class BatchPclMissingValues extends BatchPclCommon {
 			String localTmpFilename = OsPath.join(taskTmpDir, outputBasename); // In tmp dir			
 			try {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(new File(localTmpFilename)));
-				processFile(lin, bw, inputFilename);
+				processFile(bri, bw, inputFilename);
 				bw.close();
 			} catch (IOException e) {
 				mapLogger.error("IOException", e);					
@@ -153,7 +153,7 @@ public class BatchPclMissingValues extends BatchPclCommon {
 			// else too many missing values so the file remains in the tmp directory where it will
 			// be deleted in cleanup()
 			 
-			lin.close();			
+			bri.close();			
 		}		
 
 		
