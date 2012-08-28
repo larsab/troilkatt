@@ -70,6 +70,7 @@ public class ExecutePerFileMR extends Stage {
 		
 		containerCmd = String.format("%s %d -1 %d %s ", 
 				containerBin, maxVMSize, maxProcs, jobID);
+		logger.info("Container cmd = " + containerCmd);
 		mrContext = context;
 	}
 	
@@ -139,9 +140,8 @@ public class ExecutePerFileMR extends Stage {
 		 * stdout and stderr to a user specified file.
 		 */
 		String cmdV[] = {"/bin/bash", "-ic", containerCmd + cmd};
-		//System.out.printf("Execute: %s %s %s", cmdV[0], cmdV[1], cmdV[2]);
-		logger.info(String.format("Execute: %s %s %s", cmdV[0], cmdV[1], cmdV[2]));
-		//System.out.println("Execute: " + cmdV[2]);
+		System.out.printf("Execute: %s %s %s", cmdV[0], cmdV[1], cmdV[2]);
+		logger.info(String.format("Execute: %s %s %s", cmdV[0], cmdV[1], cmdV[2]));		
 		Process child;
 		try {
 			child = Runtime.getRuntime().exec(cmdV);

@@ -90,23 +90,18 @@ public class TroilkattMapReduce {
 	 * @param maxMapredVmem: maximum virutal memory in megabytes. If maxMapredVmem < maxTroilkattVMem and
 	 * a task attempts to allocate more than maxMapredVmem it will be killed by the mapreduce framework. 
 	 * The job will fail if the same task is killed three times. 
-	 * @param maxPMem: maximum physical memory in megabytes. A task will not be started unless there
-	 * is at least maxPMem megabytes of free physical memory on the node (free: not used by other tasks).
 	 */
-	public void setMemoryLimits(Configuration conf, long maxTroilkattVMem, long maxMapredVmem, long maxPMem) {
+	public void setMemoryLimits(Configuration conf, long maxTroilkattVMem, long maxMapredVmem) {
 		// maximum Virtual Memory task-limit for each task of the job 
-		conf.setLong("mapred.task.maxvmem", maxMapredVmem * 1024 * 1024);		
-		System.out.println("mapred.task.maxvmem: " + maxMapredVmem * 1024 * 1024);
-		// maximum RAM task-limit for each task of the job
-		conf.setLong("mapred.task.maxpmem", maxPMem * 1024 * 1024);
-		System.out.println("mapred.task.maxpmem: " + maxPMem * 1024 * 1024);
+		conf.setLong("mapred.job.map.memory.mb", maxMapredVmem); // in MB		
+		conf.setLong("mapred.job.reduce.memory.mb", maxMapredVmem); // in MB		
+		conf.set("mapred.child.java.opts", "-Xmx" + maxTroilkattVMem + "m -XX:MaxPermSize=256m"); // in MB
 		
-		// also set ulimit to kill tasks that use too much virtual memory
+		// Also set ulimit to kill tasks that use too much virtual memory
 		//conf.setLong("mapred.child.ulimit", maxMapredVmem * 1024); // ulimit is in kilobytes
 		//System.out.println("mapred.child.ulimit: " + maxMapredVmem * 1024 + "KB");
 		
-		conf.setLong("troilkatt.task.maxvmem", maxTroilkattVMem * 1024 * 1024);
-		System.out.println("troilkatt.task.maxvmem: " + maxTroilkattVMem * 1024 * 1024);
+		conf.setLong("troilkatt.task.memory.mb", maxTroilkattVMem);		
 	}
 	
 	/**
