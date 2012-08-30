@@ -272,6 +272,10 @@ public class BatchGeoGSE2Pcl extends PerFile {
 		 */				
 		Job job;
 		try {
+			// Set memory limits
+			// Note! must be done before creating job
+			setMemoryLimits(conf);
+						
 			job = new Job(conf, progName);
 			job.setJarByClass(BatchGeoGSE2Pcl.class);
 

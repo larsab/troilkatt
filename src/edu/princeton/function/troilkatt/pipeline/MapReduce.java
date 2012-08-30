@@ -27,6 +27,14 @@ public class MapReduce extends Stage {
 	protected String jarFile;
 	// Main class in jar file
 	protected String mainClass;
+	// Maximum virtual memory size in megabytes. This value is used for the Java heap size and the ulimit for
+	// external programs or scripts started from this stage
+	// Note! This value should be smaller than taskMacVMemSize since the latter also must include the JVM code, etc
+	protected long troilkattMaxVMem;
+	// Maximum virtual memory size for the MapReduce task. This value is used as the ulimit for the mapper,
+	// and for job distribution by the MapReduce framework. In megabytes.
+	// Note! This value should be larger than troilkattMaxVMemSize 
+	protected long taskMaxVMem;
 	// The stage arguments
 	protected String stageArgs; 
 	// File with input arguments to MapReduce program
@@ -51,10 +59,21 @@ public class MapReduce extends Stage {
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
 		
+		parseMapReduceArgs(args);
+		
+	}
+	
+	/**
+	 * Helper function to parse Mapreduce specific arguments
+     * @throws StageInitException
+	 * @throws TroilkattPropertiesException 
+	 */
+	public void parseMapReduceArgs(String args) throws StageInitException, TroilkattPropertiesException {
 		String[] argsParts = args.split(" ");
-        if (argsParts.length < 2) {
-        	logger.fatal("Jar file and main class are not specified");
-        	throw new StageInitException("Invalid arguments (no jar file or main class)");
+        if (argsParts.length < 4) {
+        	logger.fatal("Invalid arguments: " + args);
+        	logger.fatal("Usage: jarFile mainClass maxTroilkattMem maxVirtualMem");
+        	throw new StageInitException("Too few arguments: " + args);
         }
 		
 		jarFile = argsParts[0];
@@ -62,7 +81,16 @@ public class MapReduce extends Stage {
 			jarFile = troilkattProperties.get("troilkatt.jar");
 		}
 		mainClass = argsParts[1];
-        for (int i = 2; i < argsParts.length; i++) {
+		
+		try {
+			troilkattMaxVMem = Long.valueOf(argsParts[2]);
+			taskMaxVMem = Long.valueOf(argsParts[3]);			
+		} catch (NumberFormatException e) {
+			logger.fatal("Invalid max memory size argument: ", e);
+			throw new StageInitException("Invalid number for maximum troilkatt or task vmem: " + argsParts[2] + ", " + argsParts[3]);
+		}
+		
+        for (int i = 4; i < argsParts.length; i++) {
         	String p = argsParts[i];
         	if (stageArgs == null) {
         		stageArgs = p;
@@ -162,6 +190,10 @@ public class MapReduce extends Stage {
 			
 			out.println("logging.level = " + logLevelName);			
 			out.println("timestamp = " + timestamp);
+			
+			out.println("soft.max.memory.mb = " + troilkattMaxVMem);
+			out.println("hard.max.memory.mb = " + taskMaxVMem);
+			
 			out.println("input.files.start");
 			for (String f: inputFiles) {
 				out.println(f);

@@ -82,26 +82,46 @@ public class TroilkattMapReduce {
 	}
 	
 	/**
-	 * Set memory limits for tasks
-	 *
-	 * @param maxTroilkattVMem: maximum virtual memory in megabytes. If a task attempts to allocate more 
+	 * Set memory limits for tasks.
+	 * 
+	 * The memory limits are read from the configuration object: "troilkatt.soft.max.memory.mb" and
+	 * "troilkatt.hard.max.memory.mb".
+	 * 
+	 * troilkatt.soft.max.memory.mb: maximum virtual memory in megabytes. If a task attempts to allocate more 
 	 * than maxTroilkattVMem of memory it will be killed by troilkatt. The task will not be reported as 
 	 * killed or failed to the mapreduce framework hence the job will not fail.
-	 * @param maxMapredVmem: maximum virutal memory in megabytes. If maxMapredVmem < maxTroilkattVMem and
+	 * troilkatt.hard.max.memory.mb: maximum virutal memory in megabytes. If maxMapredVmem < maxTroilkattVMem and
 	 * a task attempts to allocate more than maxMapredVmem it will be killed by the mapreduce framework. 
-	 * The job will fail if the same task is killed three times. 
+	 * The job will fail if the same task is killed three times.
+	 * 
+	 * @param conf Hadoop configuration 
+	 * @throws StageInitException 
 	 */
-	public void setMemoryLimits(Configuration conf, long maxTroilkattVMem, long maxMapredVmem) {
+	public void setMemoryLimits(Configuration conf) throws StageInitException {
+		long maxTroilkattVMem = -1;
+		long maxMapredVmem = -1;
+		try {
+			maxTroilkattVMem = Long.valueOf(confEget(conf, "troilkatt.soft.max.memory.mb"));
+			maxMapredVmem = Long.valueOf(confEget(conf, "troilkatt.hard.max.memory.mb"));
+		} catch (NumberFormatException e) {
+			jobLogger.fatal("Could not read memory limits from configuration: ", e);
+			throw new StageInitException("Could not read memory limits from configuration");
+		} catch (IOException e) {
+			jobLogger.fatal("Could not read memory limits from configuration: ", e);
+			throw new StageInitException("Could not read memory limits from configuration");
+		}
+		
 		// maximum Virtual Memory task-limit for each task of the job 
 		conf.setLong("mapred.job.map.memory.mb", maxMapredVmem); // in MB		
-		conf.setLong("mapred.job.reduce.memory.mb", maxMapredVmem); // in MB		
+		conf.setLong("mapred.job.reduce.memory.mb", maxMapredVmem); // in MB				
 		conf.set("mapred.child.java.opts", "-Xmx" + maxTroilkattVMem + "m -XX:MaxPermSize=256m"); // in MB
 		
 		// Also set ulimit to kill tasks that use too much virtual memory
 		//conf.setLong("mapred.child.ulimit", maxMapredVmem * 1024); // ulimit is in kilobytes
-		//System.out.println("mapred.child.ulimit: " + maxMapredVmem * 1024 + "KB");
+		//System.out.println("mapred.child.ulimit: " + maxMapredVmem * 1024 + "KB");	
 		
-		conf.setLong("troilkatt.task.memory.mb", maxTroilkattVMem);		
+		jobLogger.info("Soft memory limit: " + maxTroilkattVMem + "mb, hard: " + maxMapredVmem + "mb, heapsize: " + maxTroilkattVMem);
+		System.out.println("Soft memory limit: " + maxTroilkattVMem + ", hard: " + maxMapredVmem + " heapsize: " + maxTroilkattVMem);
 	}
 	
 	/**
@@ -173,6 +193,9 @@ public class TroilkattMapReduce {
 			loggingLevel = checkKeyGetVal(ib.readLine(), "logging.level");
 			conf.set("troilkatt.logging.level", loggingLevel);
 			conf.set("troilkatt.timestamp", checkKeyGetValLong(ib.readLine(), "timestamp"));
+			
+			conf.set("troilkatt.soft.max.memory.mb", checkKeyGetValLong(ib.readLine(), "soft.max.memory.mb"));
+			conf.set("troilkatt.hard.max.memory.mb", checkKeyGetValLong(ib.readLine(), "hard.max.memory.mb"));
 			
 			if (! "input.files.start".equals(ib.readLine())) {
 				throw new StageInitException("input.files.start not found in arguments file");

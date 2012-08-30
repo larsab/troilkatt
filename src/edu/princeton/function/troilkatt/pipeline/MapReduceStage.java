@@ -28,11 +28,20 @@ public class MapReduceStage extends MapReduce {
 		super(stageNum, name, args, outputDirectory, compressionFormat,
 				storageTime, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
-		
+				
+	}
+	
+	/**
+	 * Helper function to parse Mapreduce specific arguments
+     * @throws StageInitException
+	 * @throws TroilkattPropertiesException 
+	 */
+	public void parseMapReduceArgs(String args) throws StageInitException, TroilkattPropertiesException {
 		String[] argsParts = args.split(" ");
-        if (argsParts.length < 1) {
-        	logger.fatal("Stage type to execute is not specified");
-        	throw new StageInitException("Invalid arguments (no stageType)");
+        if (argsParts.length < 3) {
+        	logger.fatal("Invalid arguments: " + args);
+        	logger.fatal("Usage: stageType maxTroilkattMem maxVirtualMem");
+        	throw new StageInitException("Too few arguments: " + args);
         }
 		
         jarFile = troilkattProperties.get("troilkatt.jar");
@@ -42,8 +51,17 @@ public class MapReduceStage extends MapReduce {
 			throw new StageInitException("Invalid stage to execute: " + stageToExecute);
 		}
 		
+		try {
+			troilkattMaxVMem = Long.valueOf(argsParts[1]);
+			taskMaxVMem = Long.valueOf(argsParts[2]);			
+		} catch (NumberFormatException e) {
+			logger.fatal("Invalid max memory size argument: ", e);
+			logger.fatal("Args; " + args);
+			throw new StageInitException("Invalid number for maximum troilkatt or task vmem: " + argsParts[1] + ", " + argsParts[2]);
+		}
+		
 		stageArgs = stageToExecute;
-        for (int i = 1; i < argsParts.length; i++) {
+        for (int i = 3; i < argsParts.length; i++) {
         	String p = argsParts[i];
         	if (stageToExecute.equals("execute_per_file") || stageToExecute.equals("execute_per_dir") ||
         			stageToExecute.equals("script_per_dir") || stageToExecute.equals("script_per_file")) {

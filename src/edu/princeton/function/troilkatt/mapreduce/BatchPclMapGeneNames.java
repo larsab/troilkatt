@@ -108,6 +108,10 @@ public class BatchPclMapGeneNames extends BatchPclCommon {
 		 */				
 		Job job;
 		try {
+			// Set memory limits
+			// Note! must be done before creating job
+			setMemoryLimits(conf);
+						
 			job = new Job(conf, progName);
 			job.setJarByClass(BatchPclMapGeneNames.class);
 

@@ -161,7 +161,7 @@ public class ExecuteStage extends PerFile {
 					ExecutePerFileMR mrStage = (ExecutePerFileMR) stage;
 					int maxMappers = Integer.valueOf(conf.get("mapred.tasktracker.map.tasks.maximum"));
 					
-					String val = conf.get("troilkatt.task.memory.mb");
+					String val = conf.get("troilkatt.soft.max.memory.mb");
 					long heapMaxSize = -1; // use OS default
 					if (val == null) {			
 						heapMaxSize = Runtime.getRuntime().maxMemory(); // use JVM heap size
@@ -176,7 +176,7 @@ public class ExecuteStage extends PerFile {
 					ScriptPerFileMR mrStage = (ScriptPerFileMR) stage;
 					int maxMappers = Integer.valueOf(conf.get("mapred.tasktracker.map.tasks.maximum"));
 
-					String val = conf.get("troilkatt.task.memory.mb");
+					String val = conf.get("troilkatt.soft.max.memory.mb");
 					long heapMaxSize = -1; // use OS default
 					if (val == null) {			
 						heapMaxSize = Runtime.getRuntime().maxMemory(); // use JVM heap size
@@ -326,6 +326,10 @@ public class ExecuteStage extends PerFile {
 		 */						
 		Job job;
 		try {
+			// Set memory limits
+			// Note! must be done before creating job
+			setMemoryLimits(conf);
+			
 			job = new Job(conf, progName);
 			
 			job.setJarByClass(ExecuteStage.class);

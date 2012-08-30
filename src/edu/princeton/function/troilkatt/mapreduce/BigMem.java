@@ -2,6 +2,7 @@ package edu.princeton.function.troilkatt.mapreduce;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
@@ -17,7 +18,7 @@ import edu.princeton.function.troilkatt.pipeline.StageInitException;
 public class BigMem extends PerFile {
 	enum AllocCounters {
 		SUCCESS,
-		KILLED
+		OUT_OF_MEMORY
 	}
 	
 	
@@ -30,7 +31,7 @@ public class BigMem extends PerFile {
 	 */
 	public static class BigMemMapper extends PerFileMapper {
 		protected Counter successCounter;
-		protected Counter killedCounter;
+		protected Counter outOfMemoryCounter;
 		
 		/**
 		 * Setup global variables. This function is called before map()
@@ -41,7 +42,7 @@ public class BigMem extends PerFile {
 			super.setup(context);			
 			
 			successCounter = context.getCounter(AllocCounters.SUCCESS);
-			killedCounter = context.getCounter(AllocCounters.KILLED);
+			outOfMemoryCounter = context.getCounter(AllocCounters.OUT_OF_MEMORY);
 		}
 		
 		/**
@@ -53,13 +54,25 @@ public class BigMem extends PerFile {
 		@Override
 		public void map(Text key, BytesWritable value, Context context) throws IOException, InterruptedException {
 			String inputFilename = key.toString();
-
 			context.setStatus("Read: " + inputFilename);
 			
+			// Note a SoftReference is used to avoid OutOfMemoryError's	
+						
+			SoftReference<ArrayList<String>> linesSR = new SoftReference<ArrayList<String>>(new ArrayList<String>());
+			
 			BufferedReader bri = openBufferedReader(inputFilename);
-			ArrayList<String> lines = new ArrayList<String>();
+			
 			String line;
 			while ((line = bri.readLine()) != null) {
+				// Get soft reference first. This will fail if the JVM is out of memory
+				ArrayList<String> lines = linesSR.get();
+				if (lines == null) { // Out of memory
+					outOfMemoryCounter.increment(1);
+					context.setStatus("Out of memory: " + inputFilename);
+					bri.close();
+					return;
+				}
+				
 				lines.add(line);
 			}
 			successCounter.increment(1);
@@ -89,29 +102,6 @@ public class BigMem extends PerFile {
 			return -1;
 		}			
 		
-		/*
-		 * Get and set job specific args
-		 */
-		try {
-			String argStr = TroilkattMapReduce.confEget(conf, "troilkatt.stage.args");
-			String[] allArgs = argStr.split(" ");
-			if (allArgs.length != 3) {
-				jobLogger.fatal("Invalid args: " + argStr);
-				return -1;
-			}
-			long maxTroilkattVMem = Long.valueOf(allArgs[0]);
-			long maxMapredVMem = Long.valueOf(allArgs[1]);
-			
-			// Set job specific memory limits
-			this.setMemoryLimits(conf, maxTroilkattVMem, maxMapredVMem);
-			
-		} catch (IOException e2) {
-			jobLogger.fatal("Could not parse args: ", e2);			
-			return -1;
-		} catch (NumberFormatException e3) {
-			jobLogger.fatal("Could not parse args: ", e3);
-		}
-		
 		FileSystem hdfs = null;
 		try {
 			hdfs = FileSystem.get(conf);
@@ -125,6 +115,10 @@ public class BigMem extends PerFile {
 		 */				
 		Job job;
 		try {
+			// Set memory limits
+			// Note! must be done before creating job
+		    setMemoryLimits(conf);
+			
 			job = new Job(conf, progName);
 			job.setJarByClass(BigMem.class);
 			
@@ -142,6 +136,8 @@ public class BigMem extends PerFile {
 		    	return 0;
 		    }
 		    setOutputPath(hdfs, job);
+		    
+		    
 		} catch (IOException e1) {
 			jobLogger.fatal("Job setup failed due to IOException: ",  e1);
 			return -1;
