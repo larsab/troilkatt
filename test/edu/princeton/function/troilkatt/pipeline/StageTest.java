@@ -406,12 +406,15 @@ public class StageTest extends TestSuper {
 		assertTrue(OsPath.isdir(OsPath.join(tmpDir, "003-unitStage/tmp")));
 		assertTrue(tfs.isdir(stage.hdfsTmpDir));
 		
-		stage.cleanup();
+		stage.cleanupLocalDirs();
 		assertEquals(0, OsPath.listdir(OsPath.join(tmpDir, "003-unitStage/input"), testLogger).length);
 		assertEquals(0, OsPath.listdir(OsPath.join(tmpDir, "003-unitStage/log"), testLogger).length);
 		assertEquals(0, OsPath.listdir(OsPath.join(tmpDir, "003-unitStage/output"), testLogger).length);
 		assertEquals(0, OsPath.listdir(OsPath.join(tmpDir, "003-unitStage/meta"), testLogger).length);
 		assertEquals(0, OsPath.listdir(OsPath.join(tmpDir, "003-unitStage/tmp"), testLogger).length);
+		
+		assertTrue(tfs.isdir(stage.hdfsTmpDir));
+		stage.cleanupHDFSDirs();
 		assertNull(tfs.listdir(stage.hdfsTmpDir));
 	}
 

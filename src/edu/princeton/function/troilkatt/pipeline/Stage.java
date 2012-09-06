@@ -79,8 +79,8 @@ public class Stage {
 	public LogTable logTable;
 	//protected String hdfsPipelineMetaDir;
 	protected String hdfsGlobalMetaDir;
-	// Set in process2() for each iteration	
-	public String hdfsMetaDir;
+	// Set in the constructor
+	public String hdfsMetaDir;	
 	public String hdfsTmpDir;
 		
 	protected TroilkattProperties troilkattProperties;
@@ -213,7 +213,7 @@ public class Stage {
 	 * 1. Download all files from HDFS to local GS 
 	 * 2. Call process functions that must be implemented by the sub-class to process the data
 	 * 3. Save all files in log, meta, and output directory to HDFS 
-	 * 4. Call cleanup() in previous stage
+	 * 4. Delete tmp files
  	 *
  	 * @param inputHDFSFiles list of input files to process. The list contains HDFS filenames. 
 	 * @param timestamp timestamp added to output files.
@@ -250,15 +250,15 @@ public class Stage {
  
 		// Always save log files and do cleanup
 		saveLogFiles(logFiles, timestamp);
-				
+		// Do not cleanup in case of failure
+		cleanupLocalDirs();
+		cleanupHDFSDirs();
+		
 		if (eThrown != null) {
-			// Log files saved so can throw exception
+			// Log files saved so we can now throw exception
 			throw eThrown;
 		}
-		
-		// Do not cleanup in case of failure
-		cleanup();
-		
+				
 		return hdfsOutputFiles;
 	}
 
@@ -498,11 +498,12 @@ public class Stage {
 	}
 
 	/**
-	 * This function is called when the processing is done.
-	 * @throws StageException if all tmp files could not be deleted
-	 * @throws IOException 
+	 * This function is called when the processing is done. It deleted the content of directories created on the local
+	 * file system for this stage.
+	 * 
+	 * @throws StageException if all tmp files could not be deleted 
 	 */
-	protected void cleanup() throws StageException {
+	protected void cleanupLocalDirs() throws StageException {
 		String[] dirs = {stageInputDir, stageLogDir, stageOutputDir, stageMetaDir, stageTmpDir};
 		
 		// Delete and then re-create directory
@@ -518,7 +519,14 @@ public class Stage {
 			}
 			OsPath.mkdir(d);
 		}	
-		
+	}
+	
+	/**
+	 * This function is called when the processing is done. It deleted the content of the tmp directory created on HDFS.
+	 * 
+	 * @throws StageException if all tmp files could not be deleted 
+	 */
+	protected void cleanupHDFSDirs() throws StageException {
 		try {
 			if (tfs.isdir(hdfsTmpDir)) {			
 				if (tfs.deleteDir(hdfsTmpDir) == false) {

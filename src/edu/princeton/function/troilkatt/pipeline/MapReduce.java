@@ -41,8 +41,7 @@ public class MapReduce extends Stage {
 	public String argsFilename;
 	// Command used to run MapReduce job
 	protected String mapReduceCmd;
-	// Output directory for hdfs job
-	//protected String hdfsTmpOutputDir;
+	
 	
 	/**
 	 * Constructor.

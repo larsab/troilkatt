@@ -55,7 +55,8 @@ public class HDFSSource extends Source {
 		
 		// Always save logfiles and do cleanup
 		saveLogFiles(logFiles, timestamp);
-		cleanup();
+		cleanupLocalDirs();
+		cleanupHDFSDirs();
 		
 		// Can now throw exception since log files are saved
 		if (eThrown != null) {

@@ -52,7 +52,8 @@ public class Sink extends Stage {
 		
 		// Save log files to BigTable and do cleanup
 		saveLogFiles(logFiles, timestamp);
-		cleanup();
+		cleanupLocalDirs();
+		cleanupHDFSDirs();
 		
 		if (eThrown != null) {			
 			throw eThrown;

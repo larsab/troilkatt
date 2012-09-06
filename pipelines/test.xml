@@ -5,7 +5,7 @@
 	<source>
 		<name>test_source</name>
 		<type>list_dir</type>
-	    <arguments>/user/larsab/troilkatt/test/input/</arguments>
+	    <arguments>/user/larsab/bigmem/</arguments>
 	    <output-directory></output-directory>
 	    <compression-format></compression-format>
 	    <storage-time>-1</storage-time>	    
@@ -14,25 +14,27 @@
 	</source>
 	
 	<pipeline>	
-	    <stage>
-			<name>test_filter</name>
-			<type>filter</type>
-			<arguments>.*\.pcl</arguments>
-			<output-directory>test/filtered</output-directory>
-			<compression-format>gz</compression-format>
-			<storage-time>-1</storage-time>
-			<description>Filter out any non-pcl files.</description>						
-		</stage>
 
 	    <stage>
-			<name>test_mapreduce</name>
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.GeneCounter</arguments>
-			<output-directory>test/counted</output-directory>
+			<name>test_bigmem</name>
+			<type>mapreduce_stage</type>
+			<arguments>execute_per_file 12000 15000 /usr/bin/python TROILKATT.SCRIPTS/bigmem.py TROILKATT.INPUT_FILE</arguments>
+			<output-directory>test/bigmem</output-directory>
 			<compression-format>gz</compression-format>
 			<storage-time>-1</storage-time>
 			<description>Filter out any non-pcl files.</description>						
 		</stage>
+<!--
+	    <stage>
+			<name>test_bigmem</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BigMem 16000 20000</arguments>
+			<output-directory>test/bigmem</output-directory>
+			<compression-format>gz</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Filter out any non-pcl files.</description>						
+		</stage>
+-->
 	</pipeline>
 	
 	<sink>

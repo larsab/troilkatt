@@ -67,7 +67,7 @@
 	
 	<property>
 		<name>troilkatt.localfs.mapreduce.dir</name>
-		<value>/state/partition1/larsab/troilkatt/mapreduce</value>
+		<value>/state/partition3/larsab/troilkatt/mapreduce</value>
 		<description>
 		
 			This directory is used by MapReduce jobs to save temporal data on the local FS.

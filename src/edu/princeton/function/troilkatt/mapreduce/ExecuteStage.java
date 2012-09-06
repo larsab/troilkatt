@@ -263,7 +263,7 @@ public class ExecuteStage extends PerFile {
 			}
 
 			// Cleanup after each map
-			String[] dirs = {stage.stageLogDir, stage.stageOutputDir, stage.stageTmpDir};			
+			String[] dirs = {stage.stageLogDir, stage.stageOutputDir, stage.stageTmpDir, taskMapredOutputDir};			
 			// Delete and then re-create directory
 			for (String d: dirs) {
 				if (! OsPath.isdir(d)) {
