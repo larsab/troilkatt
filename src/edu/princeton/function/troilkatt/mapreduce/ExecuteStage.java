@@ -162,12 +162,10 @@ public class ExecuteStage extends PerFile {
 					int maxMappers = Integer.valueOf(conf.get("mapred.tasktracker.map.tasks.maximum"));
 					
 					String val = conf.get("troilkatt.soft.max.memory.mb");
-					long heapMaxSize = -1; // use OS default
-					if (val == null) {			
-						heapMaxSize = Runtime.getRuntime().maxMemory(); // use JVM heap size
-					}
-					else {
-						heapMaxSize = Long.valueOf(val) * 1024 * 1024;  // use job specific value
+					long heapMaxSize = Runtime.getRuntime().maxMemory(); // use JVM heap size
+					if (val != null) {	
+						// use job specific value - JVM heap size
+						heapMaxSize = (Long.valueOf(val) * 1024 * 1024) - heapMaxSize;  
 					}
 					
 					mrStage.registerMR(maxMappers, heapMaxSize, jobID, context);
@@ -177,12 +175,10 @@ public class ExecuteStage extends PerFile {
 					int maxMappers = Integer.valueOf(conf.get("mapred.tasktracker.map.tasks.maximum"));
 
 					String val = conf.get("troilkatt.soft.max.memory.mb");
-					long heapMaxSize = -1; // use OS default
-					if (val == null) {			
-						heapMaxSize = Runtime.getRuntime().maxMemory(); // use JVM heap size
-					}
-					else {
-						heapMaxSize = Long.valueOf(val) * 1024 * 1024; // use job specific value
+					long heapMaxSize = Runtime.getRuntime().maxMemory(); // use JVM heap size
+					if (val != null) {	
+						// use job specific value - JVM heap size
+						heapMaxSize = (Long.valueOf(val) * 1024 * 1024) - heapMaxSize;  
 					}
 					
 					mrStage.registerMR(maxMappers, heapMaxSize, jobID, context);
@@ -263,7 +259,7 @@ public class ExecuteStage extends PerFile {
 			}
 
 			// Cleanup after each map
-			String[] dirs = {stage.stageLogDir, stage.stageOutputDir, stage.stageTmpDir, taskMapredOutputDir};			
+			String[] dirs = {stage.stageLogDir, stage.stageInputDir, stage.stageMetaDir, stage.stageOutputDir, stage.stageTmpDir, taskMapredOutputDir};			
 			// Delete and then re-create directory
 			for (String d: dirs) {
 				if (! OsPath.isdir(d)) {
@@ -328,7 +324,20 @@ public class ExecuteStage extends PerFile {
 		try {
 			// Set memory limits
 			// Note! must be done before creating job
-			setMemoryLimits(conf);
+			long maxTroilkattVMem = -1;
+			long maxMapredVMem = -1;
+			try {
+				maxTroilkattVMem = Long.valueOf(confEget(conf, "troilkatt.soft.max.memory.mb"));
+				maxMapredVMem = Long.valueOf(confEget(conf, "troilkatt.hard.max.memory.mb"));
+			} catch (NumberFormatException e) {
+				jobLogger.fatal("Could not read memory limits from configuration: ", e);
+				return -1;
+			} catch (IOException e) {
+				jobLogger.fatal("Could not read memory limits from configuration: ", e);
+				return -1;
+			}
+			
+			setMemoryLimits(conf, maxMapredVMem - maxTroilkattVMem - 512, maxMapredVMem);
 			
 			job = new Job(conf, progName);
 			

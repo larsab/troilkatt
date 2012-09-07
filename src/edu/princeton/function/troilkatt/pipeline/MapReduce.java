@@ -290,6 +290,7 @@ public class MapReduce extends Stage {
 		String outputLogfile = OsPath.join(stageLogDir, "mapreduce.output");
 		String errorLogfile = OsPath.join(stageLogDir, "mapreduce.error");
 		int rv = Stage.executeCmd(mapReduceCmd + " > " + outputLogfile + " 2> " + errorLogfile, logger);
+		//int rv = Stage.executeCmd(mapReduceCmd, logger);
 		
 		//int rv = executeMapReduceCmd(hdftTmpOutputDir); 
 		// Always update log files even if job crashes

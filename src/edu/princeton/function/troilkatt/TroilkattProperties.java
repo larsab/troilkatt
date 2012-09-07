@@ -168,7 +168,7 @@ public class TroilkattProperties {
 				}
 			}
 			if (! found) {
-				throw new TroilkattPropertiesException("Property bot found in configuration file: " + v);
+				throw new TroilkattPropertiesException("Property not found in configuration file: " + v);
 			}
 		}
 	}

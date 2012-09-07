@@ -125,6 +125,28 @@ public class TroilkattMapReduce {
 	}
 	
 	/**
+	 * Set memory limits for tasks.
+	 *
+	 * @param conf Hadoop configuration 
+	 * @param heapSize size of child's JVM heap
+	 * @param maxVmem limit for child's (including it's children's) virtual memory usage
+	 * @throws StageInitException 
+	 */
+	public void setMemoryLimits(Configuration conf, long heapSize, long maxVmem) throws StageInitException {		
+		// maximum Virtual Memory task-limit for each task of the job 
+		conf.setLong("mapred.job.map.memory.mb", maxVmem); // in MB		
+		conf.setLong("mapred.job.reduce.memory.mb", maxVmem); // in MB				
+		conf.set("mapred.child.java.opts", "-Xmx" + heapSize + "m -XX:MaxPermSize=256m"); // in MB
+		
+		// Also set ulimit to kill tasks that use too much virtual memory
+		//conf.setLong("mapred.child.ulimit", maxMapredVmem * 1024); // ulimit is in kilobytes
+		//System.out.println("mapred.child.ulimit: " + maxMapredVmem * 1024 + "KB");	
+		
+		jobLogger.info("Heap size: " + heapSize + "mb, ulimit: " + maxVmem);
+		System.out.println("Heap size: " + heapSize + ", ulimit: " + maxVmem);
+	}
+	
+	/**
 	 * Parse common arguments
 	 * 
 	 * @param conf Hadoop configuration
