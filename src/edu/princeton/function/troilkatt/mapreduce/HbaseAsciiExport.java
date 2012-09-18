@@ -44,17 +44,17 @@ public class HbaseAsciiExport {
 			 * Split list of newline seperated columns into (familiy, qualifier) pairs, 
 			 * and put these into a hash map.
 			 */
-			String allColumns = TroilkattMapReduce.confEget(conf, "troilkatt.export.columns");
+			String allColumns = TroilkattMapReduce.confEget(conf, "troilkatt.export.columns");			                                                      
 			String[] columns = allColumns.split("\n");			
 			for (String c: columns) {
-				String[] parts = c.split(":");
-				System.err.println("Add: " + parts[0] + "\t" + parts[1]);
+				String[] parts = c.split(":");				
 				// The values were checked in run() so they are ot checked here
 				byte[] famBytes = Bytes.toBytes(parts[0]);
 				byte[] qualBytes = Bytes.toBytes(parts[1]);				
 				ArrayList<byte[]> quals = fam2qual.get(famBytes);
 				if (quals == null) {
 					quals = new ArrayList<byte[]>();
+					fam2qual.put(famBytes, quals);
 				}
 				quals.add(qualBytes);
 			}
@@ -83,8 +83,7 @@ public class HbaseAsciiExport {
 						outVal = outVal + "\t" + Bytes.toString(val);
 					}
 				}
-			}
-			System.out.println(rowID + "\t" + outVal);
+			}			
 			context.write(new Text(rowID), new Text(outVal));			
 		}
 	}
