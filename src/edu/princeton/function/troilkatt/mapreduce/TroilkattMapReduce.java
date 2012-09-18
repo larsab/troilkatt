@@ -577,7 +577,7 @@ public class TroilkattMapReduce {
 	 * 
 	 * @return Hadoop configuration object with all Hbase entries added
 	 */
-	public Configuration getMergedConfiguration() {
+	public static Configuration getMergedConfiguration() {
 		Configuration hbConf = HBaseConfiguration.create();
 		Configuration conf = new Configuration();
 		
