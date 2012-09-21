@@ -80,7 +80,8 @@ public class HbaseAsciiExport {
 						outVal = outVal + "\t";
 					}
 					else {
-						outVal = outVal + "\t" + Bytes.toString(val);
+						String newCol =  Bytes.toString(val);
+						outVal = outVal + "\t" + newCol.replace("\n", ",");
 					}
 				}
 			}			
