@@ -207,7 +207,7 @@ public class HREFSource extends Source {
 	 * @return list of URL's to download
 	 * @throws IOException
 	 */
-	public ArrayList<String> getHrefValues(String filename) throws IOException {
+	public static ArrayList<String> getHrefValues(String filename) throws IOException {
 		
 		FileReader fin = new FileReader(filename);
 	    Scanner src = new Scanner(fin);
@@ -307,13 +307,14 @@ public class HREFSource extends Source {
 	 * @throws URISyntaxException 
 	 */
 	public static void main(String args[]) throws IOException, URISyntaxException {
-		/*URL pageURL = new URL("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/14.1.0/refseq.asp");
-		String outputDir = "C:\\Users\\larsab\\troilkatt\\brainarray";
-		Pattern pattern =  Pattern.compile(".*_REFSEQ_.*\\.zip");
+		URL pageURL = new URL("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/13.0.0/entrezg.asp");
+		String outputDir = "C:\\Users\\larsab\\papers12\\incremental-updates\\imp\\brainarray\\2010-06";
+		//Pattern pattern =  Pattern.compile(".*_Mm_ENTREZG_.*\\.zip");
+		Pattern pattern =  Pattern.compile(".*mmentrezgcdf_.*\\.tar.gz");
 				
 		String sourceFilename = HREFSource.downloadTextFile(pageURL, outputDir);
 
-		ArrayList<String> urls = getHrefValues(sourceFilename);			
+		ArrayList<String> urls = HREFSource.getHrefValues(sourceFilename);			
 		
 		ArrayList<String> toDownload = new ArrayList<String>();		
 		for (String u: urls) {			
@@ -336,7 +337,6 @@ public class HREFSource extends Source {
 			}
 			
 			HREFSource.downloadBinaryFile(url, outputDir);
-		}
-		*/
+		}		
 	}
 }
