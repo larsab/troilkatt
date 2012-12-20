@@ -33,9 +33,9 @@ public class TroilkattStatus {
 	protected Logger logger = Logger.getLogger("troilkatt.status"); 
 	
 	/* Status path on local FS and HDFS */
-	protected String statusFilename = null; // Local filename: absolute name	
-	protected Path hdfsStatusPath = null;   // Path on HDFS
-	protected Path statusPath = null;       // Path on local FS
+	protected String localFilename;      // Local filename: absolute name	
+	protected String persistentFilename; // HDFS filename
+	
 	
 	// Set in constructor
 	protected TroilkattFS tfs = null;       
@@ -46,7 +46,7 @@ public class TroilkattStatus {
 	 * Verify that Troilkatt status and timestamp files are on the local filesystem.
 	 * If not, either download the file from HDFS or create a new file.
 	 * 
-	 * @param hdfsHandle HDFS handle
+	 * @param tfsHandle TFS handle
 	 * @param troilkattProperties initialized TroilkattProperties object 
 	 * @throws IOException 
 	 * @throws TroilkattPropertiesException 
@@ -55,58 +55,14 @@ public class TroilkattStatus {
 		tfs = tfsHandle;
 		
 		String troilkattDir = troilkattProperties.get("troilkatt.localfs.dir");		
-		hdfsStatusPath = new Path(troilkattProperties.get("troilkatt.hdfs.status.file"));
-		statusFilename = OsPath.join(troilkattDir, hdfsStatusPath.getName());
-		statusPath = new Path(statusFilename);	    							    		
+		persistentFilename = troilkattProperties.get("troilkatt.hdfs.status.file");
+		localFilename = OsPath.join(troilkattDir, OsPath.basename(persistentFilename));
+					    		
 				
 		/*
 		 * Verify, download, or create status file
 		 */
-		if (! OsPath.isfile(statusFilename)) {
-			System.out.println("Status file not found: " + statusFilename);
-			boolean hdfsFileDownloaded = false;
-			
-			try {
-				if (tfs.hdfs.isFile(hdfsStatusPath)) {
-					if (Utils.getYesOrNo("Download from HDFS?", true)) {
-						logger.debug(String.format("Copy HDFS file %s to local file %s\n", hdfsStatusPath, statusPath));
-						tfs.hdfs.copyToLocalFile(hdfsStatusPath, statusPath);
-						hdfsFileDownloaded = true;
-					}
-				}
-				else {
-					logger.info("Status file not in local FS nor HDFS");
-				}
-			} catch (IOException e1) {
-				logger.fatal("Could not copy status file from HDFS to local FS" + e1.toString());
-				throw e1;
-			}									
-			
-			if (! hdfsFileDownloaded) {
-				System.out.println("Creating new status file");
-				logger.info("Create new status file");
-				File nf = new File(statusFilename);
-				try {
-					if (nf.createNewFile() == false) {
-						throw new RuntimeException("Status file already exists");						
-					}
-				} catch (IOException e) {
-					logger.fatal("Could not create new status file: " + e);
-					throw e;
-				}	
-				// Attempt to save new status file to verify that the HDFS path is valid
-				try {
-					saveStatusFile();
-				} catch (IOException e) {
-					throw new TroilkattPropertiesException("Invalid HDFS status file path: " + hdfsStatusPath);
-				}
-			}
-		}
-		else { // file in local FS
-			//TODO: verify that the files on local and HDFS match
-			
-			// TODO: verify that the status file is not corrupt
-		}
+		tfs.getStatusFile(persistentFilename, localFilename);
 	}
 	
 	/**
@@ -162,7 +118,7 @@ public class TroilkattStatus {
 		String lastLine = null;
 
 		try {
-			inputStream = new BufferedReader(new FileReader(statusFilename));
+			inputStream = new BufferedReader(new FileReader(localFilename));
 
 			/* Find last status for stage */
 			String l;            
@@ -245,7 +201,7 @@ public class TroilkattStatus {
 		String lastStatus = null;
 		
 		try {
-			inputStream = new BufferedReader(new FileReader(statusFilename));
+			inputStream = new BufferedReader(new FileReader(localFilename));
 
 			String l;            
 			while ((l = inputStream.readLine()) != null) {
@@ -314,7 +270,7 @@ public class TroilkattStatus {
 	public void setStatus(String stageID, long timestamp, String newStatus) throws IOException {
 		PrintWriter statusFile = null;
 		try {		
-			statusFile = new PrintWriter(new FileWriter(statusFilename, true));
+			statusFile = new PrintWriter(new FileWriter(localFilename, true));
 			statusFile.printf("%d:%s:%s\n", timestamp, stageID, newStatus);
 			statusFile.close();
 		} catch (IOException e) {
@@ -323,31 +279,7 @@ public class TroilkattStatus {
 		}	
 	}
 
-	/**
-	 * Copy status file from local FS to HDFS
-	 * 
-	 * @throws IOException if file could not be copeid to HDFS
-	 * @throws TroilkattPropertiesException 
-	 */
-	public void saveStatusFile() throws IOException, TroilkattPropertiesException {		
-		logger.info(String.format("Copy status file %s to HDFS file %s\n", statusFilename, hdfsStatusPath));
-		if (tfs.hdfs.isFile(hdfsStatusPath)) {
-			logger.debug("Deleting older version of status file");
-			tfs.hdfs.delete(hdfsStatusPath, false);
-		}
 	
-		/*
-		 * Fix bug in hadoop 0.20.X that causes the copyFromLocalFile to fail if there exists a .crc file
-		 * that was created before the status file was modified.
-		 */
-		String checksumFilename = OsPath.join(OsPath.dirname(statusFilename), "." + OsPath.basename(statusFilename) + ".crc");
-		if (OsPath.isfile(checksumFilename)) {
-			logger.warn("Deleting stale checksum file: " + checksumFilename);
-			OsPath.delete(checksumFilename);
-		}
-		
-		tfs.hdfs.copyFromLocalFile(false, true, statusPath, hdfsStatusPath); // keep local & overwrite
-	}
 	
 	/**
 	 * Main used for debugging

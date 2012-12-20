@@ -17,6 +17,16 @@
     	</description>
 	</property>
 
+	 <property>
+		<name>persistent.storage</name>
+		<value>hadoop</value>
+		<description>
+
+			File system for persistent storage. Valid values: hadoop and nfs
+
+    	</description>
+	</property>
+
 	<property>
 		<name>troilkatt.localfs.dir</name>
 		<value>/state/partition1/larsab/troilkatt</value>

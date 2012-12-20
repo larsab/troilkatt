@@ -11,11 +11,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
+import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 import edu.princeton.function.troilkatt.pipeline.Stage;
 import edu.princeton.function.troilkatt.utils.Utils;
 
@@ -46,15 +45,7 @@ public class Troilkatt {
 		DEFAULT_ARGS.put("skip", "none");
 		DEFAULT_ARGS.put("only", "all");
 		
-		try {
-			Configuration hdfsConfig = new Configuration();
-			FileSystem hdfs = FileSystem.get(hdfsConfig);
-			tfs = new TroilkattFS(hdfs);
-		} catch (IOException e1) {
-			System.err.println("Could not get handle for HDFS" + e1.toString());
-			e1.printStackTrace();
-			System.exit(-1);
-		}	
+		
 	}
 
 	/**
@@ -401,6 +392,29 @@ public class Troilkatt {
 		//}
 
 		TroilkattProperties troilkattProperties = getProperties(args.get("configFile"));
+		
+		/*
+		 * Setup filesystem and directories
+		 */
+		try {			
+			String persistentStorage = troilkattProperties.get("persistent.storage");
+			if (persistentStorage.equals("hadoop")) {
+				tfs = new TroilkattHDFS();
+			}
+			else if (persistentStorage.equals("nfs")) {
+				tfs = new TroilkattNFS();
+			}
+			else {
+				logger.fatal("Invalid valid for persistent storage");
+				throw new TroilkattPropertiesException("Invalid value for persistent storage property");
+			}
+			
+		} catch (IOException e1) {
+			System.err.println("Could not get handle for TFS" + e1.toString());
+			e1.printStackTrace();
+			System.exit(-1);
+		}	
+		
 		createTroilkattDirs(troilkattProperties);
 		if (verifyTroilkattDirs(troilkattProperties) == false) {
 			System.err.println("One or more invalid directories.");

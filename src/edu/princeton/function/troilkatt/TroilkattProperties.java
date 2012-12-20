@@ -21,6 +21,7 @@ public class TroilkattProperties {
 	
 	protected String[] validProperties = {
 			"admin.email",
+			"persistent.storage",
 			"troilkatt.localfs.dir",
 			"troilkatt.localfs.log.dir",			
 			"troilkatt.globalfs.global-meta.dir",

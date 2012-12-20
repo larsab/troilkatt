@@ -11,14 +11,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
+import edu.princeton.function.troilkatt.fs.LogTableTar;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
 import edu.princeton.function.troilkatt.pipeline.Stage;
@@ -71,8 +71,18 @@ public class Pipeline {
 		logger.debug("Initialize pipeline: " + name);
 		this.troilkattProperties = troilkattProperties;		
 		this.tfs = tfs;
-		Configuration hbConf = HBaseConfiguration.create();
-		this.logTable = new LogTable(name, hbConf);
+		
+		String persistentStorage = troilkattProperties.get("persistent.storage");
+		if (persistentStorage.equals("hadoop")) {
+			this.logTable = new LogTableHbase(name);
+		}
+		else if (persistentStorage.equals("nfs")) {
+			this.logTable = new LogTableTar(name);
+		}
+		else {
+			logger.fatal("Invalid valid for persistent storage");
+			throw new PipelineException("Invalid valid for persistent storage");
+		}
 
 		// Create tmp file on local filesystem if needed
 		localFSDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);		
@@ -130,8 +140,19 @@ public class Pipeline {
 		logger = Logger.getLogger("troilkatt.pipeline-" + name); 
 		this.troilkattProperties = troilkattProperties;
 		this.tfs = tfs;
-		Configuration hbConf = HBaseConfiguration.create();
-		this.logTable = new LogTable(name, hbConf);
+
+		String persistentStorage = troilkattProperties.get("persistent.storage");
+		if (persistentStorage.equals("hadoop")) {
+			this.logTable = new LogTableHbase(name);
+		}
+		else if (persistentStorage.equals("nfs")) {
+			this.logTable = new LogTableTar(name);
+		}
+		else {
+			logger.fatal("Invalid valid for persistent storage");
+			throw new PipelineException("Invalid valid for persistent storage");
+		}
+		
 		// Create tmp file on local filesystem if needed
 		// Create tmp file on local filesystem if needed
 		localFSDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);		
