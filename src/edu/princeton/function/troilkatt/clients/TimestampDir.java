@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.hadoop.fs.Path;
-
 /**
  * Convert a directory to Troilkatt format by adding timestamps and compression (none) to files
  *
@@ -128,9 +126,9 @@ public class TimestampDir extends TroilkattClient {
 		/*
 		 * Add timestamp and compression format (none)
 		 */		
-		Path[] newPaths = new Path[currentFiles.size()]; 
+		String[] newNames = new String[currentFiles.size()]; 
 		for (int i = 0; i < currentFiles.size(); i++) {			
-			newPaths[i] = new Path(currentFiles.get(i) +  "." + timestamp + ".none");			
+			newNames[i] = currentFiles.get(i) +  "." + timestamp + ".none";			
 		}
 		
 		/*
@@ -138,16 +136,16 @@ public class TimestampDir extends TroilkattClient {
 		 */		
 		int nRenamed = 0;
 		int nErrors = 0;
-		for (int i = 0; i < newPaths.length; i++) { 
+		for (int i = 0; i < newNames.length; i++) { 
 			String oldName = currentFiles.get(i);
 			try {
-				logger.info("Rename file: " + oldName + " to " + newPaths[i].toString());
-				if (tfs.hdfs.rename(new Path(oldName), newPaths[i]) == false) {
+				logger.info("Rename file: " + oldName + " to " + newNames[i]);
+				if (tfs.renameFile(oldName, newNames[i]) == false) {
 					logger.warn("Could not rename file: " + oldName);
 				}
 				nRenamed++;
 			} catch (IOException e1) {
-				logger.warn("Could rename file " + oldName + " to " + newPaths[i].toString());
+				logger.warn("Could rename file " + oldName + " to " + newNames[i]);
 				logger.warn(e1.toString());
 				nErrors++;
 			}

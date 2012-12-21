@@ -67,8 +67,10 @@ public class TroilkattClient extends Troilkatt {
 	protected void setupClient(String argv[], String progName) throws TroilkattPropertiesException {
 		args = parseArgs(argv, progName);	
 		troilkattProperties = getProperties(args.get("configFile"));
+		tfs = setupTFS(troilkattProperties);
 		setupLogging(args.get("logProperties"));	
 		logger = Logger.getLogger("troilkatt." + progName);	
+		
 	}
 	
 	/**

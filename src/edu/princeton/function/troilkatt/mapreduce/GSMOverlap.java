@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
@@ -23,7 +22,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.log4j.Logger;
 
 import edu.princeton.function.troilkatt.PipelineException;
-import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.hbase.GSMTableSchema;
 import edu.princeton.function.troilkatt.hbase.GeoMetaTableSchema;
 import edu.princeton.function.troilkatt.hbase.HbaseException;
@@ -57,7 +56,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 		// Global variables necessary for setting up and saving log files
 		protected String taskAttemptID;
 		protected String taskLogDir;
-		protected LogTable logTable;
+		protected LogTableHbase logTable;
 		protected Logger mapLogger;
 		
 		protected Counter rowsRead;
@@ -70,11 +69,10 @@ public class GSMOverlap extends TroilkattMapReduce {
 		 */
 		@Override
 		public void setup(Context context) throws IOException {
-			Configuration hbConf = HBaseConfiguration.create();
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTable(pipelineName, hbConf);
+				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {				
 				throw new IOException("Could not create logTable object: " + e.getMessage());
 			}
@@ -190,7 +188,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 		// Global variables necessary for setting up and saving log files
 		protected String taskAttemptID;
 		protected String taskLogDir;
-		protected LogTable logTable;
+		protected LogTableHbase logTable;
 		protected Logger reduceLogger;
 
 		// The GEO meta data table is used to get meta data information about
@@ -216,16 +214,15 @@ public class GSMOverlap extends TroilkattMapReduce {
 		@Override
 		public void setup(Context context)  throws IOException {
 			conf = context.getConfiguration();
-			Configuration hbConf = HBaseConfiguration.create();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTable(pipelineName, hbConf);
+				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable object: " + e.getMessage());
 			}
 			geoMetaSchema = new GeoMetaTableSchema();
 			try {
-				geoMetaTable = geoMetaSchema.openTable(hbConf, false);
+				geoMetaTable = geoMetaSchema.openTable(logTable.hbConfig, false);
 			} catch (HbaseException e) {
 				throw new IOException("HbaseException: " + e.getMessage());
 			}

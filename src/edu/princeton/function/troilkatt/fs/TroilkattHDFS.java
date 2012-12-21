@@ -21,7 +21,6 @@ import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.io.compress.CompressionInputStream;
 import org.apache.hadoop.io.compress.CompressionOutputStream;
 
-import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.pipeline.Stage;
 import edu.princeton.function.troilkatt.utils.Utils;
@@ -38,13 +37,23 @@ public class TroilkattHDFS extends TroilkattFS {
 	/**
 	 * Constructor.
 	 * 
-	 * @param hdfs HDFS handle
 	 * @throws IOException 
 	 */
 	public TroilkattHDFS() throws IOException {
-		Configuration hdfsConfig = new Configuration();		
-		hdfs = FileSystem.get(hdfsConfig);
+		conf = new Configuration();		
+		hdfs = FileSystem.get(conf);		
+		logger = Logger.getLogger("troilkatt.tfs");
+	}
+	
+	/**
+	 * Alternative constructor to be called from MapReduce jobs.
+	 * 
+	 * @param hdfs HDFS handle
+	 * @throws IOException 
+	 */
+	public TroilkattHDFS(FileSystem hdfs) throws IOException {
 		conf = hdfs.getConf();
+		this.hdfs = hdfs;
 		logger = Logger.getLogger("troilkatt.tfs");
 	}
 	
@@ -1280,11 +1289,12 @@ public class TroilkattHDFS extends TroilkattFS {
 	 * @param hdfsFilename Source HDFS filename
 	 * @param localFilename Destination local FS filename
 	 * @throws IOException
-	 * @throws TroilkattPropertiesException
+	 * @throws TroilkattPropertiesException if invalid hdfsFilename
 	 */	
 	public void getStatusFile(String hdfsFilename, String localFilename) throws IOException, TroilkattPropertiesException {
 			
-		Path hdfsPath = 
+		Path hdfsPath = new Path(hdfsFilename);
+		Path localPath = new Path(localFilename);
 		
 		/*
 		 * Verify, download, or create status file
@@ -1294,10 +1304,10 @@ public class TroilkattHDFS extends TroilkattFS {
 			boolean hdfsFileDownloaded = false;
 			
 			try {
-				if (tfs.hdfs.isFile(hdfsFilename)) {
+				if (hdfs.isFile(hdfsPath)) {
 					if (Utils.getYesOrNo("Download from HDFS?", true)) {
-						logger.debug(String.format("Copy HDFS file %s to local file %s\n", hdfsStatusPath, statusPath));
-						tfs.hdfs.copyToLocalFile(hdfsStatusPath, statusPath);
+						logger.debug(String.format("Copy HDFS file %s to local file %s\n", hdfsFilename, localFilename));
+						hdfs.copyToLocalFile(hdfsPath, localPath);
 						hdfsFileDownloaded = true;
 					}
 				}
@@ -1323,9 +1333,9 @@ public class TroilkattHDFS extends TroilkattFS {
 				}	
 				// Attempt to save new status file to verify that the HDFS path is valid
 				try {
-					saveStatusFile();
+					saveStatusFile(localFilename, hdfsFilename);
 				} catch (IOException e) {
-					throw new TroilkattPropertiesException("Invalid HDFS status file path: " + hdfsStatusPath);
+					throw new TroilkattPropertiesException("Invalid HDFS status filename: " + hdfsFilename);
 				}
 			}
 		}
@@ -1339,30 +1349,33 @@ public class TroilkattHDFS extends TroilkattFS {
 	/**
 	 * Copy a status file from local FS to HDFS
 	 * 
-	 * @param hdfsFilename Source local FS filename
-	 * @param localFilename Destination HDFS filename
+	 * @param localFilename Source local FS filename
+	 * @param hdfsFilename Destination HDFS filename
 	 * 
 	 * @throws IOException if file could not be copeid to HDFS
 	 * @throws TroilkattPropertiesException 
 	 */
-	public void saveStatusFile() throws IOException, TroilkattPropertiesException {		
-		logger.info(String.format("Copy status file %s to HDFS file %s\n", statusFilename, hdfsStatusPath));
-		if (tfs.hdfs.isFile(hdfsStatusPath)) {
+	public void saveStatusFile(String localFilename, String hdfsFilename) throws IOException, TroilkattPropertiesException {	
+		Path hdfsPath = new Path(hdfsFilename);
+		Path localPath = new Path(localFilename);
+		
+		logger.info(String.format("Copy status file %s to HDFS file %s\n", localFilename, hdfsFilename));
+		if (hdfs.isFile(hdfsPath)) {
 			logger.debug("Deleting older version of status file");
-			tfs.hdfs.delete(hdfsStatusPath, false);
+			hdfs.delete(hdfsPath, false);
 		}
 	
 		/*
 		 * Fix bug in hadoop 0.20.X that causes the copyFromLocalFile to fail if there exists a .crc file
 		 * that was created before the status file was modified.
 		 */
-		String checksumFilename = OsPath.join(OsPath.dirname(statusFilename), "." + OsPath.basename(statusFilename) + ".crc");
+		String checksumFilename = OsPath.join(OsPath.dirname(localFilename), "." + OsPath.basename(localFilename) + ".crc");
 		if (OsPath.isfile(checksumFilename)) {
 			logger.warn("Deleting stale checksum file: " + checksumFilename);
 			OsPath.delete(checksumFilename);
 		}
 		
-		tfs.hdfs.copyFromLocalFile(false, true, statusPath, hdfsStatusPath); // keep local & overwrite
+		hdfs.copyFromLocalFile(false, true, localPath, hdfsPath); // keep local & overwrite
 	}
 
 	/**

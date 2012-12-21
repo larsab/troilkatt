@@ -1,7 +1,6 @@
 package edu.princeton.function.troilkatt;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,13 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.log4j.Logger;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
-import edu.princeton.function.troilkatt.utils.Utils;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 
 /**
  * Troilkatt status file manipulation
@@ -57,12 +52,20 @@ public class TroilkattStatus {
 		String troilkattDir = troilkattProperties.get("troilkatt.localfs.dir");		
 		persistentFilename = troilkattProperties.get("troilkatt.hdfs.status.file");
 		localFilename = OsPath.join(troilkattDir, OsPath.basename(persistentFilename));
-					    		
 				
 		/*
 		 * Verify, download, or create status file
 		 */
 		tfs.getStatusFile(persistentFilename, localFilename);
+	}
+	
+	/**
+	 * Save status file to persistent storage
+	 * @throws TroilkattPropertiesException 
+	 * @throws IOException 
+	 */
+	public void saveStatusFile() throws IOException, TroilkattPropertiesException {
+		tfs.saveStatusFile(localFilename, persistentFilename);
 	}
 	
 	/**
@@ -102,66 +105,6 @@ public class TroilkattStatus {
 		}
 
 		return date.getTime();	
-	}
-
-	/**
-	 * Get last line in status file for a given stage that matches the provided
-	 * status.
-	 * 
-	 * @param stageID ID in line to find
-	 * @param status status to match. If null the line is not matched to a status.
-	 * @return last line with given stageID, or null if no status is found
-	 * @throws IOException 
-	 */
-	private String getLastLine(String stageID, String status) throws IOException {
-		BufferedReader inputStream = null;
-		String lastLine = null;
-
-		try {
-			inputStream = new BufferedReader(new FileReader(localFilename));
-
-			/* Find last status for stage */
-			String l;            
-			while ((l = inputStream.readLine()) != null) {
-				String parts[] = l.split(":");
-				if (parts.length != 3) {					
-					logger.warn("Invalid line in status file:" + l);
-					continue;
-				}
-				if (parts[1].equals(stageID)) {
-					if (status == null) {
-						lastLine = l;					
-					}
-					else if (parts[2].equals(status)) { // status != null
-						lastLine = l;					
-					}			
-				}
-			}   
-			inputStream.close();
-		} 
-		catch (IOException e) { 			
-			logger.fatal("Could not read status file: " + e.toString());
-			throw e;
-		}
-
-		if (lastLine == null) {			
-			logger.warn("Could not find previous status for stage: " + stageID);
-			return null;
-		}		
-		else {
-			return lastLine;
-		}
-	}
-	
-	/**
-	 * Get last line in status file for a given stage.
-	 * 
-	 * @param stageID ID in stage
-	 * @return last line with given stageID, or null if no status was found
-	 * @throws IOException 
-	 */
-	private String getLastLine(String stageID) throws IOException {
-		return getLastLine(stageID, null);
 	}
 
 	/**
@@ -282,14 +225,72 @@ public class TroilkattStatus {
 	
 	
 	/**
+	 * Get last line in status file for a given stage.
+	 * 
+	 * @param stageID ID in stage
+	 * @return last line with given stageID, or null if no status was found
+	 * @throws IOException 
+	 */
+	private String getLastLine(String stageID) throws IOException {
+		return getLastLine(stageID, null);
+	}
+
+	/**
+	 * Get last line in status file for a given stage that matches the provided
+	 * status.
+	 * 
+	 * @param stageID ID in line to find
+	 * @param status status to match. If null the line is not matched to a status.
+	 * @return last line with given stageID, or null if no status is found
+	 * @throws IOException 
+	 */
+	private String getLastLine(String stageID, String status) throws IOException {
+		BufferedReader inputStream = null;
+		String lastLine = null;
+	
+		try {
+			inputStream = new BufferedReader(new FileReader(localFilename));
+	
+			/* Find last status for stage */
+			String l;            
+			while ((l = inputStream.readLine()) != null) {
+				String parts[] = l.split(":");
+				if (parts.length != 3) {					
+					logger.warn("Invalid line in status file:" + l);
+					continue;
+				}
+				if (parts[1].equals(stageID)) {
+					if (status == null) {
+						lastLine = l;					
+					}
+					else if (parts[2].equals(status)) { // status != null
+						lastLine = l;					
+					}			
+				}
+			}   
+			inputStream.close();
+		} 
+		catch (IOException e) { 			
+			logger.fatal("Could not read status file: " + e.toString());
+			throw e;
+		}
+	
+		if (lastLine == null) {			
+			logger.warn("Could not find previous status for stage: " + stageID);
+			return null;
+		}		
+		else {
+			return lastLine;
+		}
+	}
+
+	/**
 	 * Main used for debugging
 	 * @throws IOException 
 	 * @throws TroilkattPropertiesException 
 	 */
-	public static void main(String[] args) throws IOException, TroilkattPropertiesException {
-		Configuration hdfsConfig = new Configuration();
-		FileSystem hdfs = FileSystem.get(hdfsConfig);
-		TroilkattFS tfs = new TroilkattFS(hdfs);
+	public static void main(String[] args) throws IOException, TroilkattPropertiesException {		
+		TroilkattFS tfs = new TroilkattHDFS();
 		TroilkattProperties troilkattProperties = new TroilkattProperties("/home/larsab/workspace/skarntyde/troilkatt2/conf/ice.xml");
 		troilkattProperties.set("troilkatt.localfs.dir", "/tmp");
 		TroilkattStatus status = new TroilkattStatus(tfs, troilkattProperties);

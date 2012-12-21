@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -32,9 +31,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import edu.princeton.function.troilkatt.PipelineException;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
-import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 
 /**
  * Superclass for MapReduce jobs that read and write files.
@@ -52,7 +51,7 @@ public class PerFile extends TroilkattMapReduce {
 		protected Configuration conf;
 		protected TroilkattProperties troilkattProperties;
 		protected FileSystem hdfs;
-		protected TroilkattFS tfs;
+		protected TroilkattHDFS tfs;
 		
 		protected String compressionFormat;
 		protected long timestamp;
@@ -73,7 +72,7 @@ public class PerFile extends TroilkattMapReduce {
 		protected String taskOutputDir;
 		
 		protected Logger mapLogger;
-		protected LogTable logTable;
+		protected LogTableHbase logTable;
 		
 		// Set to true when output and log files have been saved. This is normally done in 
 		// cleanup, but in case of an IOException it may be necessary to do it in the 
@@ -91,12 +90,11 @@ public class PerFile extends TroilkattMapReduce {
 		@Override
 		public void setup(Context context) throws IOException {
 			conf = context.getConfiguration();
-			Configuration hbConf = HBaseConfiguration.create();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			compressionFormat = TroilkattMapReduce.confEget(conf, "troilkatt.compression.format");
 			timestamp = Long.valueOf(TroilkattMapReduce.confEget(conf, "troilkatt.timestamp"));
 			try {
-				logTable = new LogTable(pipelineName, hbConf);
+				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable object: " + e.getMessage());
 			}
@@ -120,7 +118,7 @@ public class PerFile extends TroilkattMapReduce {
 			
 			/* Setup TFS/ HDFS */
 			hdfs = FileSystem.get(conf);
-			tfs = new TroilkattFS(hdfs);
+			tfs = new TroilkattHDFS(hdfs);
 			
 			cleanupComplete = false;
 		}		

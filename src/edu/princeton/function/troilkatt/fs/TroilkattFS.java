@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
+import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+
 
 /**
  * Troilkatt file system wrapper superclass.
@@ -544,4 +546,28 @@ public class TroilkattFS {
 		throw new RuntimeException("Method not implemented");
 	}
 
+	/**
+	 * Copy a status file from HDFS to local FS
+	 * 
+	 * @param hdfsFilename Source HDFS filename
+	 * @param localFilename Destination local FS filename
+	 * @throws IOException
+	 * @throws TroilkattPropertiesException if invalid hdfsFilename
+	 */	
+	public void getStatusFile(String hdfsFilename, String localFilename) throws IOException, TroilkattPropertiesException {
+		throw new RuntimeException("Method not implemented");
+	}
+	
+	/**
+	 * Copy a status file from local FS to HDFS
+	 * 
+	 * @param localFilename Source local FS filename
+	 * @param hdfsFilename Destination HDFS filename
+	 * 
+	 * @throws IOException if file could not be copeid to HDFS
+	 * @throws TroilkattPropertiesException 
+	 */
+	public void saveStatusFile(String localFilename, String hdfsFilename) throws IOException, TroilkattPropertiesException {		
+		throw new RuntimeException("Method not implemented");
+	}
 }

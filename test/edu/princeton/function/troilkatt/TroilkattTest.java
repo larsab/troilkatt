@@ -201,6 +201,11 @@ public class TroilkattTest extends TestSuper {
 		logger.error("Error message");
 		logger.fatal("Fatal message");
 	}
+	
+	@Test
+	public void testSetupTFS() {
+		assertTrue(false);
+	}
 
 	/**
 	 * Test method for {@link edu.princeton.function.troilkatt.Troilkatt#getLastTroilkattStatus()}.
@@ -216,8 +221,7 @@ public class TroilkattTest extends TestSuper {
 		OsPath.delete(statusFilename);
 		
 		t.status = new TroilkattStatus(t.tfs, p);
-		t.status.statusFilename = statusFilename;
-		t.status.statusPath = new Path(statusFilename);
+		t.status.localFilename = statusFilename;		
 		assertEquals(4, t.getLastTroilkattStatus());
 	}
 	
@@ -227,8 +231,7 @@ public class TroilkattTest extends TestSuper {
 		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));						
 		String statusFilename = "invalid-filename";		
 		t.status = new TroilkattStatus(t.tfs, p);
-		t.status.statusFilename = statusFilename;
-		t.status.statusPath = new Path(statusFilename);
+		t.status.localFilename = statusFilename;		
 		assertEquals(4, t.getLastTroilkattStatus());
 	}
 	

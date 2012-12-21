@@ -165,6 +165,40 @@ public class Troilkatt {
 	}
 
 	/**
+	 * Setup TFS based on persistent.storage property.
+	 * 
+	 * Note! in case of IOException the program quits.
+	 * 
+	 * @param troilkattProperties initialized properties structure
+	 * @return TFS handle
+	 * 
+	 * @throws TroilkattPropertiesException
+	 */
+	public TroilkattFS setupTFS(TroilkattProperties troilkattProperties) throws TroilkattPropertiesException {
+		TroilkattFS tfs = null;
+		try {			
+			String persistentStorage = troilkattProperties.get("persistent.storage");
+			if (persistentStorage.equals("hadoop")) {
+				tfs = new TroilkattHDFS();
+			}
+			else if (persistentStorage.equals("nfs")) {
+				tfs = new TroilkattNFS();
+			}
+			else {
+				logger.fatal("Invalid valid for persistent storage");
+				throw new TroilkattPropertiesException("Invalid value for persistent storage property");
+			}			
+			
+		} catch (IOException e1) {
+			System.err.println("Could not get handle for TFS" + e1.toString());
+			e1.printStackTrace();
+			System.exit(-1);
+		}	
+	
+	return tfs;
+	}
+
+	/**
 	 * Check the status of the last execution.
 	 *
 	 * @param stageID stage to get status for 
@@ -396,24 +430,7 @@ public class Troilkatt {
 		/*
 		 * Setup filesystem and directories
 		 */
-		try {			
-			String persistentStorage = troilkattProperties.get("persistent.storage");
-			if (persistentStorage.equals("hadoop")) {
-				tfs = new TroilkattHDFS();
-			}
-			else if (persistentStorage.equals("nfs")) {
-				tfs = new TroilkattNFS();
-			}
-			else {
-				logger.fatal("Invalid valid for persistent storage");
-				throw new TroilkattPropertiesException("Invalid value for persistent storage property");
-			}
-			
-		} catch (IOException e1) {
-			System.err.println("Could not get handle for TFS" + e1.toString());
-			e1.printStackTrace();
-			System.exit(-1);
-		}	
+		tfs = setupTFS(troilkattProperties);
 		
 		createTroilkattDirs(troilkattProperties);
 		if (verifyTroilkattDirs(troilkattProperties) == false) {

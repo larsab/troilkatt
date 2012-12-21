@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -17,7 +16,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import edu.princeton.function.troilkatt.PipelineException;
-import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
@@ -53,7 +52,7 @@ public class GeneCounter extends TroilkattMapReduce {
 		protected String taskAttemptID;
 		protected String taskLogDir;
 		protected Logger mapLogger;
-		protected LogTable logTable;
+		protected LogTableHbase logTable;
 		
 		// Counters
 		protected Counter linesRead;
@@ -68,11 +67,10 @@ public class GeneCounter extends TroilkattMapReduce {
 		 */
 		@Override
 		public void setup(Context context) throws IOException {
-			conf = context.getConfiguration();
-			Configuration hbConf = HBaseConfiguration.create();
+			conf = context.getConfiguration();			
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTable(pipelineName, hbConf);
+				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable object: " + e.getMessage());
 			}
@@ -161,7 +159,7 @@ public class GeneCounter extends TroilkattMapReduce {
 		// Global variables necessary for setting up and saving log files
 		protected String taskAttemptID;
 		protected String taskLogDir;
-		protected LogTable logTable;
+		protected LogTableHbase logTable;
 		protected Logger reduceLogger;
 		
 		/**
@@ -170,10 +168,9 @@ public class GeneCounter extends TroilkattMapReduce {
 		@Override
 		public void setup(Context context)  throws IOException {
 			conf = context.getConfiguration();
-			Configuration hbConf = HBaseConfiguration.create();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTable(pipelineName, hbConf);
+				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable object: " + e.getMessage());
 			}

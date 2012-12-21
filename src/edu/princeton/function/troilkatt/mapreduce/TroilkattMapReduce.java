@@ -20,7 +20,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
-import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
 import edu.princeton.function.troilkatt.pipeline.Stage;
@@ -386,7 +386,7 @@ public class TroilkattMapReduce {
 	 * @return none
 	 * @throws IOException if files could not be saved
 	 */
-	public static void saveTaskLogFiles(Configuration conf, String taskLogDir, String taskAttemptID, LogTable logTable) throws IOException { 
+	public static void saveTaskLogFiles(Configuration conf, String taskLogDir, String taskAttemptID, LogTableHbase logTable) throws IOException { 
 		String[] dirFiles = OsPath.listdir(taskLogDir);		
 		ArrayList<String> logFiles = Utils.array2list(dirFiles);						
 		String stageName = TroilkattMapReduce.confEget(conf, "troilkatt.stage.name");	

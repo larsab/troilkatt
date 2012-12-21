@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.hadoop.fs.Path;
-
 /**
  * Remove all old versions of files with multiple timestamps in a HDFS directory. 
  */
@@ -115,8 +113,8 @@ public class CleanupDir extends TroilkattClient {
 		}
 				
 		HashMap<String, Long> file2timestamp = new HashMap<String, Long>();
-		HashMap<String, Path> file2path = new HashMap<String, Path>();
-		ArrayList<Path> toDelete = new ArrayList<Path>();
+		HashMap<String, String> name2path = new HashMap<String, String>(); // filename name to full filename mapping
+		ArrayList<String> toDelete = new ArrayList<String>();
 		int nInvalid = 0;
 		for (String f: files) {
 			String basename = OsPath.basename(f);
@@ -127,35 +125,34 @@ public class CleanupDir extends TroilkattClient {
 				nInvalid++;
 				continue;
 			}												
-			
-			Path path = new Path(f);
+						
 			if (file2timestamp.containsKey(name)) { // multiple versions of same file exist
 				long currentTs = file2timestamp.get(name);
 				if (currentTs < timestamp) { // This file is newer
 					// Delete previous file with same id
-					toDelete.add(file2path.get(name));
+					toDelete.add(name2path.get(name));
 					// ..and update data structures
 					file2timestamp.put(name, timestamp);
-					file2path.put(name, path);
+					name2path.put(name, f);
 				}
 				else { // This file is older, and should be deleted
-					toDelete.add(path);
+					toDelete.add(f);
 				}				
 			}
 			else { // is first version of file so far
 				file2timestamp.put(name, timestamp);
-				file2path.put(name, path);
+				name2path.put(name, f);
 			}
 		}
 		
 		int nDeleted = 0;
 		int nErrors = 0;
-		for (Path p: toDelete) {
+		for (String f: toDelete) {
 			try {
-				tfs.hdfs.delete(p, false);
+				tfs.deleteFile(f);
 				nDeleted++;
 			} catch (IOException e1) {
-				logger.warn("Could not delete file: " + p.toString());
+				logger.warn("Could not delete file: " + f);
 				nErrors++;
 			}
 		}

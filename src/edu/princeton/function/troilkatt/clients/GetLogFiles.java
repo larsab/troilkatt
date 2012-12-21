@@ -2,12 +2,11 @@ package edu.princeton.function.troilkatt.clients;
 
 import java.util.HashMap;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-
 import edu.princeton.function.troilkatt.PipelineException;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
+import edu.princeton.function.troilkatt.fs.LogTableTar;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import gnu.getopt.Getopt;
@@ -130,10 +129,21 @@ protected static final String clientName = "GetLogFiles";
 		}		
 		boolean isMR = args.get("mapReduce").equals("true");
 		
-		Configuration hbConf = HBaseConfiguration.create();
 		LogTable lt = null;
+		LogTableHbase lth = null;
 		try {
-			lt = new LogTable(pipelineName, hbConf);
+			String persistentStorage = troilkattProperties.get("persistent.storage");
+			if (persistentStorage.equals("hadoop")) {
+				lth = new LogTableHbase(pipelineName);
+				lt = lth;
+			}
+			else if (persistentStorage.equals("nfs")) {
+				lt = new LogTableTar(pipelineName);
+			}
+			else {
+				logger.fatal("Invalid valid for persistent storage");
+				throw new TroilkattPropertiesException("Invalid value for persistent storage property");
+			}		
 		} catch (PipelineException e) {
 			logger.error("Could not create log table handle", e);
 			System.out.println("Could not create log table handle");
@@ -142,7 +152,14 @@ protected static final String clientName = "GetLogFiles";
 		
 		try {
 			if (isMR) {
-				lt.getMapReduceLogFiles(stageName, timestamp, outputDir);			
+				if (lth != null) {
+					lth.getMapReduceLogFiles(stageName, timestamp, outputDir);
+				}
+				else {
+					logger.error("No MapReduce files since not a Hbase logtable");
+					System.out.println("No MapReduce files since not a Hbase logtable");
+					System.exit(2);
+				}
 			}
 			else {
 				lt.getLogFiles(stageName, timestamp, outputDir);

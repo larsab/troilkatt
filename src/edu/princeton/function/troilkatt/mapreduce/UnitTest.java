@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -24,9 +23,9 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import edu.princeton.function.troilkatt.PipelineException;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.fs.FSUtils;
-import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
@@ -72,7 +71,7 @@ public class UnitTest extends TroilkattMapReduce {
 		protected String taskTmpDir;
 		
 		protected Logger mapLogger;
-		protected LogTable logTable;
+		protected LogTableHbase logTable;
 
 		/**
 		 * Setup global variables. This function is called once per task before map()
@@ -80,10 +79,9 @@ public class UnitTest extends TroilkattMapReduce {
 		@Override
 		public void setup(Context context) throws IOException {
 			conf = context.getConfiguration();
-			Configuration hbConf = HBaseConfiguration.create();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTable(pipelineName, hbConf);
+				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable object: " + e.getMessage());
 			}
@@ -125,7 +123,7 @@ public class UnitTest extends TroilkattMapReduce {
 				mapLogger.fatal("Could not create FileSystem object: " + e1.toString());			
 				throw new IOException("Could not create FileSystem object: " + e1.toString());
 			}
-			TroilkattFS tfs = new TroilkattFS(hdfs);
+			TroilkattHDFS tfs = new TroilkattHDFS(hdfs);
 			try {
 				ArrayList<String> metaFiles = downloadMetaFiles(tfs, 
 						confEget(conf, "troilkatt.hdfs.meta.dir"),
@@ -235,7 +233,7 @@ public class UnitTest extends TroilkattMapReduce {
 		protected String taskMetaDir;
 		protected String taskTmpDir;
 		
-		protected LogTable logTable;
+		protected LogTableHbase logTable;
 		protected Logger reduceLogger;
 
 		/**
@@ -244,10 +242,9 @@ public class UnitTest extends TroilkattMapReduce {
 		@Override
 		public void setup(Context context) throws IOException {
 			conf = context.getConfiguration();
-			Configuration hbConf = HBaseConfiguration.create();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTable(pipelineName, hbConf);
+				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable object: " + e.getMessage());
 			}
@@ -276,7 +273,7 @@ public class UnitTest extends TroilkattMapReduce {
 				reduceLogger.fatal("Could not create FileSystem object: " + e1.toString());			
 				throw new IOException("Could not create FileSystem object: " + e1.toString());
 			}
-			TroilkattFS tfs = new TroilkattFS(hdfs);
+			TroilkattHDFS tfs = new TroilkattHDFS(hdfs);
 			try {
 				ArrayList<String> metaFiles = downloadMetaFiles(tfs, 
 						confEget(conf, "troilkatt.hdfs.meta.dir"),
@@ -544,7 +541,7 @@ public class UnitTest extends TroilkattMapReduce {
 
 		/* Verify that list of input files matches list in meta-data files */
 		try {
-			TroilkattFS tfs = new TroilkattFS(hdfs);
+			TroilkattHDFS tfs = new TroilkattHDFS(hdfs);
 			String localMetaDir = confEget(conf, "troilkatt.jobclient.meta.dir");
 			System.err.println("localMetaDir = " + localMetaDir);
 			ArrayList<String> metaFiles = downloadMetaFiles(tfs, 

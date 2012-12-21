@@ -59,7 +59,7 @@ public class LogTableHbase extends LogTable {
 	// The table itself
 	protected HTable table;
 
-	protected Configuration hbConfig;
+	public Configuration hbConfig;
 	
 	/**
 	 * Constructor.

@@ -4,13 +4,12 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 
 public class PipelinePlaceholderTest extends TestSuper {
 	private String pipelineName = "pipelinePlaceholderTest";
@@ -19,9 +18,8 @@ public class PipelinePlaceholderTest extends TestSuper {
 	
 	@Before
 	public void setUp() throws Exception {		
-		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
-		FileSystem hdfs = FileSystem.get(new Configuration());			
-		tfs = new TroilkattFS(hdfs);
+		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
+		tfs = new TroilkattHDFS();
 	}
 
 	@Test

@@ -23,6 +23,7 @@ import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.TroilkattStatus;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce;
 import edu.princeton.function.troilkatt.mapreduce.PerFile.WholeFileInputFormat;
 import gnu.getopt.Getopt;
@@ -56,7 +57,7 @@ public class ReCompressDir extends TroilkattClient {
 		public void setup(Context context) throws IOException {
 			conf = context.getConfiguration();
 			hdfs = FileSystem.get(conf);
-			tfs = new TroilkattFS(hdfs);
+			tfs = new TroilkattHDFS(hdfs);
 			
 			compressionFormat = TroilkattMapReduce.confEget(conf, "troilkatt.compression.format");
 			timestamp = Long.valueOf(TroilkattMapReduce.confEget(conf, "troilkatt.timestamp"));
