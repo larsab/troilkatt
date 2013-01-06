@@ -5,11 +5,21 @@
 
 <configuration>
     <property>
-		<name>admin.email</name>
+		<name>troilkatt.admin.email</name>
 		<value>larsab@cs.uit.no</value>
 		<description>
 
 			Administrator e-mail. It is used as password when logging to NCBI FTP servers.
+
+    	</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.persistent.storage</name>
+		<value>hadoop</value>
+		<description>
+
+			File system for persistent storage. Valid values: hadoop and nfs
 
     	</description>
 	</property>

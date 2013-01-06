@@ -29,7 +29,7 @@ public class TroilkattStatus {
 	
 	/* Status path on local FS and HDFS */
 	protected String localFilename;      // Local filename: absolute name	
-	protected String persistentFilename; // HDFS filename
+	protected String persistentFilename; // HDFS filename: absolute name
 	
 	
 	// Set in constructor

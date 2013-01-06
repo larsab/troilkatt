@@ -22,12 +22,9 @@ import gnu.getopt.Getopt;
 
 public class Troilkatt {
 	public Map<String, String> DEFAULT_ARGS = new HashMap<String, String>();	
-
-	/* Troilkatt FS handle */
-	protected TroilkattFS tfs = null; // initialized in constructor
 	
 	/* Status file object */
-	protected TroilkattStatus status = null; // initialized in run()
+	protected TroilkattStatus status; // initialized in run()
 	
 	/* Root logger */
 	public Logger logger;		
@@ -44,8 +41,6 @@ public class Troilkatt {
 		DEFAULT_ARGS.put("logProperties", "log4j.properties");
 		DEFAULT_ARGS.put("skip", "none");
 		DEFAULT_ARGS.put("only", "all");
-		
-		
 	}
 
 	/**
@@ -177,7 +172,7 @@ public class Troilkatt {
 	public TroilkattFS setupTFS(TroilkattProperties troilkattProperties) throws TroilkattPropertiesException {
 		TroilkattFS tfs = null;
 		try {			
-			String persistentStorage = troilkattProperties.get("persistent.storage");
+			String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 			if (persistentStorage.equals("hadoop")) {
 				tfs = new TroilkattHDFS();
 			}
@@ -232,12 +227,14 @@ public class Troilkatt {
 	 * Make sure Troilkatt directories exists on master node.
 	 * 
 	 * Note that logging may not have been setup so all error messages are written to stderr
-	 * 
+	 *
+	 * @param troilkattProperties initialized properties object
+	 * @param tfs initialized TFS handle
 	 * @return true if all directories exists and false otherwise
 	 * @throws IOException 
 	 * @throws TroilkattPropertiesException 
 	 */
-	public boolean verifyTroilkattDirs(TroilkattProperties troilkattProperties) throws IOException, TroilkattPropertiesException {
+	public boolean verifyTroilkattDirs(TroilkattProperties troilkattProperties, TroilkattFS tfs) throws IOException, TroilkattPropertiesException {
 		String[] localDirs = {"troilkatt.localfs.dir",
 				"troilkatt.localfs.log.dir",			
 				"troilkatt.globalfs.global-meta.dir",
@@ -272,11 +269,12 @@ public class Troilkatt {
 	 * 
 	 * Note that logging is not yet setup so all error messages are written to stderr
 	 * 
-	 * @param troilkattProperties initialized properties element
+	 * @param troilkattProperties initialized properties object
+	 * @param tfs initialized TFS handle
 	 * @throws TroilkattPropertiesException 
 	 * @throws IOException 
 	 */
-	public void createTroilkattDirs(TroilkattProperties troilkattProperties) throws TroilkattPropertiesException, IOException {
+	public void createTroilkattDirs(TroilkattProperties troilkattProperties, TroilkattFS tfs) throws TroilkattPropertiesException, IOException {
 		
 		String[] localDirs = {"troilkatt.localfs.dir",
 				"troilkatt.localfs.log.dir",			
@@ -314,13 +312,15 @@ public class Troilkatt {
 	 * Copy  global meta files from HDFS to local FS, and ensure that all 
 	 * files are readable by other (such as MapReduce) users.
 	 * 
+	 * @param tfs initialized TFS handle
 	 * @param hdfsGlobalMetaDir directory on HDFS to download
 	 * @param localfsGlobalMetaDir directory on local FS where files are downloaded to
 	 * @param logDir logfile directory
 	 * @param tmpDir temp file directory
 	 * @throws IOException 
 	 */
-	protected void downloadGlobalMetaFiles(String hdfsGlobalMetaDir, String localfsGlobalMetaDir,
+	protected void downloadGlobalMetaFiles(TroilkattFS tfs,
+			String hdfsGlobalMetaDir, String localfsGlobalMetaDir,
 			String logDir, String tmpDir) throws IOException {		
 		String newestGlobalMetaDir = tfs.getNewestDir(hdfsGlobalMetaDir);
 		if (newestGlobalMetaDir == null) {
@@ -354,11 +354,13 @@ public class Troilkatt {
 	/**
 	 * Recursive version of listAllLeafDirs
 	 * 
+	 * @param tfs initialized TFS handle
 	 * @param curDir current directory
 	 * @param leafDirs list where leaf directories are added
 	 * @return none
 	 */
-	private void addLeafDirsR(String curDir, ArrayList<String> leafDirs) {
+	private void addLeafDirsR(TroilkattFS tfs,
+			String curDir, ArrayList<String> leafDirs) {
 		ArrayList<String> files;
 		try {
 			files = tfs.listdir(curDir);
@@ -378,7 +380,7 @@ public class Troilkatt {
 				if (tfs.isdir(f)) {
 					isLeaf = false; // This directory is not a leaf
 					// Check subdir
-					addLeafDirsR(f, leafDirs);
+					addLeafDirsR(tfs, f, leafDirs);
 				}
 			} catch (IOException e) {
 				logger.error("Could not check file " + f , e);
@@ -394,12 +396,13 @@ public class Troilkatt {
 	/**
 	 * Helper function to list all leaf sub directories
 	 * 
+	 * @param tfs initialized TFS handle
 	 * @param hdfsRootDir root directory
 	 * @return list of leaf sub directories
 	 */
-	protected ArrayList<String> listAllLeafDirs(String hdfsRootDir) {		
+	protected ArrayList<String> listAllLeafDirs(TroilkattFS tfs, String hdfsRootDir) {		
 		ArrayList<String> leafDirs = new ArrayList<String>();
-		addLeafDirsR(hdfsRootDir, leafDirs);
+		addLeafDirsR(tfs, hdfsRootDir, leafDirs);
 		return leafDirs;
 	}
 
@@ -430,10 +433,10 @@ public class Troilkatt {
 		/*
 		 * Setup filesystem and directories
 		 */
-		tfs = setupTFS(troilkattProperties);
+		TroilkattFS tfs = setupTFS(troilkattProperties);
 		
-		createTroilkattDirs(troilkattProperties);
-		if (verifyTroilkattDirs(troilkattProperties) == false) {
+		createTroilkattDirs(troilkattProperties, tfs);
+		if (verifyTroilkattDirs(troilkattProperties, tfs) == false) {
 			System.err.println("One or more invalid directories.");
 			return;
 		}
@@ -462,7 +465,7 @@ public class Troilkatt {
 					logger);
 		} catch (PipelineException e) {
 			logger.fatal("Could not create pipelines");			
-			throw new RuntimeException("Pipeline parse configuration error: " + e);			
+			throw new RuntimeException("Pipeline parse configuration error: ",  e);			
 		}		
 
 						
@@ -558,7 +561,8 @@ public class Troilkatt {
 			 */		
 			if (firstTime && (! args.get("only").equals("cleanup"))) {
 				// Only need to download global meta data after first loop			
-				downloadGlobalMetaFiles(hdfsGlobalMetaDir,
+				downloadGlobalMetaFiles(tfs,
+						hdfsGlobalMetaDir,
 						localfsGlobalMetaDir,
 						rootLogDir,
 						rootTmpDir);
@@ -626,8 +630,8 @@ public class Troilkatt {
 				logger.info("Skipping cleanup");
 			}
 			else {
-				ArrayList<String> allDirs = listAllLeafDirs(OsPath.join(hdfsRootDir, "data"));
-				allDirs.addAll(listAllLeafDirs(OsPath.join(hdfsRootDir, "meta")));
+				ArrayList<String> allDirs = listAllLeafDirs(tfs, OsPath.join(hdfsRootDir, "data"));
+				allDirs.addAll(listAllLeafDirs(tfs, OsPath.join(hdfsRootDir, "meta")));
 				for (Pipeline p: pipelines) {
 					logger.info("Clean: pipeline "  + p.name);
 					ArrayList<String> cleanedDirs = p.cleanup(timestamp);

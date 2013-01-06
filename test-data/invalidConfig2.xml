@@ -1,9 +1,29 @@
 
 <?xml-stylesheet type="text/xsl"?>
 
-	<!-- Troilkatt configuration file -->
+	<!-- Invalid property in troilkatt.localfs.logdir -->
 
 <configuration>
+
+   <property>
+		<name>troilkatt.admin.email</name>
+		<value>larsab@cs.uit.no</value>
+		<description>
+
+			Administrator e-mail. It is used as password when logging to NCBI FTP servers.
+
+    	</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.persistent.storage</name>
+		<value>hadoop</value>
+		<description>
+
+			File system for persistent storage. Valid values: hadoop and nfs
+
+    	</description>
+	</property>
 
 	<property>
 		<name>troilkatt.localfs.dir</name>
@@ -99,7 +119,7 @@
 		<description>
 		
 			This directory contains various scripts and tools used by
-			the stages (excluding the Sleipnir tools.
+			the stages (excluding the Sleipnir tools).
 			
 		</description>
 	</property>

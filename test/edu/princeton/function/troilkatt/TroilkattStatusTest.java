@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import edu.princeton.function.troilkatt.fs.FSUtils;
 import edu.princeton.function.troilkatt.fs.OsPath;
+import edu.princeton.function.troilkatt.fs.TroilkattFS;
 
 public class TroilkattStatusTest extends TestSuper {
 	protected Troilkatt troilkatt;
@@ -33,6 +34,7 @@ public class TroilkattStatusTest extends TestSuper {
 	protected String statusFilename = null;	
 	protected String hdfsStatusFilename = null;
 	
+	protected TroilkattFS tfs;	
 	protected static FileSystem hdfs;
 
 	@BeforeClass
@@ -52,9 +54,10 @@ public class TroilkattStatusTest extends TestSuper {
 		if (troilkattProperties == null) {
 			throw new Exception("Could not initialize troilkatt properties");
 		}
+		tfs = troilkatt.setupTFS(troilkattProperties);
 		String troilkattDir = troilkattProperties.get("troilkatt.localfs.dir");		
 		hdfsStatusFilename = troilkattProperties.get("troilkatt.hdfs.status.file");
-		statusFilename = OsPath.join(troilkattDir,hdfsStatusFilename);		
+		statusFilename = OsPath.join(troilkattDir, OsPath.basename(hdfsStatusFilename));		
 		
 		createStatusFile(statusFilename);		
 		System.out.printf("Copy %s to %s\n", statusFilename, troilkattProperties.get("troilkatt.hdfs.status.file"));
@@ -98,23 +101,22 @@ public class TroilkattStatusTest extends TestSuper {
 
 	@Test
 	public void testTroilkattStatus() throws IOException, TroilkattPropertiesException {
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 	
 		assertEquals(hdfsStatusFilename, s.persistentFilename);
 		assertEquals(statusFilename, s.localFilename);		
 		assertNotNull(s.logger);
-		assertEquals(troilkatt.tfs, s.tfs);
 		
 		// Test without a file on the local FS
 		OsPath.delete(statusFilename);
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		// Test with file that is already on local FS
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		// Test with a filename neither on local FS or remote FS
 		troilkattProperties.set("troilkatt.hdfs.status.file", statusFilename + ".2");
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 	}
 	
 	// Non-existing status file (create new)
@@ -123,24 +125,23 @@ public class TroilkattStatusTest extends TestSuper {
 		troilkattProperties.set("troilkatt.hdfs.status.file", "non-existing");
 		String troilkattDir = troilkattProperties.get("troilkatt.localfs.dir");	
 		statusFilename = OsPath.join(troilkattDir, "non-existing");		
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 	
 		//assertEquals(hdfsStatusPath, s.hdfsStatusPath);
-		assertEquals(hdfsStatusFilename, s.persistentFilename);
+		assertEquals("non-existing", s.persistentFilename);
 		assertEquals(statusFilename, s.localFilename);		
-		assertNotNull(s.logger);
-		assertEquals(troilkatt.tfs, s.tfs);
+		assertNotNull(s.logger);		
 		
 		// Test without a file on the local FS
 		OsPath.delete(statusFilename);
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		// Test with file that is already on local FS
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		// Test with a filename neither on local FS or remote FS
 		troilkattProperties.set("troilkatt.hdfs.status.file", statusFilename + ".2");
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 	}
 	
 	// Invalid filename
@@ -169,7 +170,7 @@ public class TroilkattStatusTest extends TestSuper {
 	// timeLong2Str and timeStr2Long are tested together
 	@Test
 	public void testTimeLong2Str() throws IOException, TroilkattPropertiesException {
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 				//
 		long timestamp = 1294671060000L;
 		String timeStr = "2011-01-10-15:51";
@@ -181,7 +182,7 @@ public class TroilkattStatusTest extends TestSuper {
 
 	@Test
 	public void testGetLastStatus() throws IOException, TroilkattPropertiesException {		
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		assertEquals("start", s.getLastStatus("Troilkatt"));
 		assertEquals("done", s.getLastStatus("theSource"));
@@ -195,7 +196,7 @@ public class TroilkattStatusTest extends TestSuper {
 	
 	@Test
 	public void testGetStatus() throws IOException, TroilkattPropertiesException {
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		long timestamp = 3;
 		
@@ -230,7 +231,7 @@ public class TroilkattStatusTest extends TestSuper {
 		OsPath.delete(OsPath.join(troilkattDir, ".status-test.txt.crc"));
 		hdfs.copyFromLocalFile(false, true, new Path(statusFilename), new Path(hdfsStatusFilename)); // keep local & overwrite
 		
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);		
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);		
 		long timestamp = 5;		
 		assertEquals(null, s.getStatus("invalid", timestamp));
 	}
@@ -245,14 +246,14 @@ public class TroilkattStatusTest extends TestSuper {
 		OsPath.delete(OsPath.join(troilkattDir, ".status-test.txt.crc"));
 		hdfs.copyFromLocalFile(false, true, new Path(statusFilename), new Path(hdfsStatusFilename)); // keep local & overwrite
 		
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);		
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);		
 		long timestamp = 5;		
 		assertEquals(null, s.getStatus("invalid", timestamp));
 	}
 
 	@Test
 	public void testGetLastStatusTimestamp() throws IOException, TroilkattPropertiesException {		
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);		
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);		
 		
 		assertEquals(4, s.getLastStatusTimestamp("Troilkatt"));
 		assertEquals(4, s.getLastStatusTimestamp("theSource"));
@@ -266,7 +267,7 @@ public class TroilkattStatusTest extends TestSuper {
 	@Test
 	public void testSetStatus() throws IOException, TroilkattPropertiesException {
 		troilkattProperties.set("troilkatt.hdfs.status.file", statusFilename + ".modified");
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		s.setStatus("Troilkatt", 10, "start");
 		assertEquals("start", s.getStatus("Troilkatt", 10));
@@ -279,7 +280,7 @@ public class TroilkattStatusTest extends TestSuper {
 		String modifiedName = troilkattProperties.get("troilkatt.hdfs.status.file") + ".modified";
 		
 		troilkattProperties.set("troilkatt.hdfs.status.file", modifiedName);
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		s.setStatus("secondStage", 4, "done");		
 		s.setStatus("thirdStage", 4, "recover");
@@ -288,7 +289,7 @@ public class TroilkattStatusTest extends TestSuper {
 		
 		OsPath.delete(statusFilename + ".modified");
 		// will download deleted file
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		// Compare files, line by line
 		BufferedReader is1 = new BufferedReader(new FileReader(statusFilename + ".modified"));
 		BufferedReader is2 = new BufferedReader(new FileReader(statusFilename + ".modified2"));
@@ -312,28 +313,28 @@ public class TroilkattStatusTest extends TestSuper {
 	}
 
 	@Test
-	public void testNFS() {
+	public void testNFS() throws IOException, TroilkattPropertiesException {
 		/*
 		 * Load
 		 */
-		TODO:
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		assertEquals(true, false);
+		//TODO:
+		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		assertEquals(hdfsStatusFilename, s.persistentFilename);
 		assertEquals(statusFilename, s.localFilename);		
-		assertNotNull(s.logger);
-		assertEquals(troilkatt.tfs, s.tfs);
+		assertNotNull(s.logger);		
 		
 		// Test without a file on the local FS
 		OsPath.delete(statusFilename);
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		// Test with file that is already on local FS
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		// Test with a filename neither on local FS or remote FS
 		troilkattProperties.set("troilkatt.hdfs.status.file", statusFilename + ".2");
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		/*
 		 * Save
@@ -342,7 +343,7 @@ public class TroilkattStatusTest extends TestSuper {
 		String modifiedName = troilkattProperties.get("troilkatt.hdfs.status.file") + ".modified";
 		
 		troilkattProperties.set("troilkatt.hdfs.status.file", modifiedName);
-		TroilkattStatus s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		s.setStatus("secondStage", 4, "done");		
 		s.setStatus("thirdStage", 4, "recover");
@@ -351,7 +352,7 @@ public class TroilkattStatusTest extends TestSuper {
 		
 		OsPath.delete(statusFilename + ".modified");
 		// will download deleted file
-		s = new TroilkattStatus(troilkatt.tfs, troilkattProperties);
+		s = new TroilkattStatus(tfs, troilkattProperties);
 		// Compare files, line by line
 		BufferedReader is1 = new BufferedReader(new FileReader(statusFilename + ".modified"));
 		BufferedReader is2 = new BufferedReader(new FileReader(statusFilename + ".modified2"));

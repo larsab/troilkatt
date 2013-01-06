@@ -8,7 +8,7 @@
 
 <configuration>
     <property>
-		<name>admin.email</name>
+		<name>troilkatt.admin.email</name>
 		<value>larsab@cs.uit.no</value>
 		<description>
 
@@ -18,7 +18,7 @@
 	</property>
 
 	 <property>
-		<name>persistent.storage</name>
+		<name>troilkatt.persistent.storage</name>
 		<value>hadoop</value>
 		<description>
 

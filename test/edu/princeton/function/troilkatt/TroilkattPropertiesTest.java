@@ -65,7 +65,7 @@ public class TroilkattPropertiesTest extends TestSuper {
 		// The constructor has a call to a function that verifies the configuration file
 	}
 	
-	// Unsupported propery
+	// Unsupported property
 	@Test(expected=TroilkattPropertiesException.class)
 	public void testTroilkattProperties5() throws TroilkattPropertiesException {
 		TroilkattProperties p = new TroilkattProperties(OsPath.join(dataDir, "invalidConfig4.xml"));

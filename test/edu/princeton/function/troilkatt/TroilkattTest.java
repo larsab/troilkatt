@@ -67,8 +67,7 @@ public class TroilkattTest extends TestSuper {
 		Troilkatt t = new Troilkatt();
 		assertNotNull(t.DEFAULT_ARGS.get("configFile"));
 		assertNotNull(t.DEFAULT_ARGS.get("datasetFile"));
-		assertNotNull(t.DEFAULT_ARGS.get("logProperties"));
-		assertNotNull(t.tfs);
+		assertNotNull(t.DEFAULT_ARGS.get("logProperties"));		
 		// Set in run()
 		assertNull(t.status);
 	}
@@ -215,12 +214,13 @@ public class TroilkattTest extends TestSuper {
 	@Test
 	public void testGetLastTroilkattStatus() throws IOException, TroilkattPropertiesException {
 		Troilkatt t = new Troilkatt();
-		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));				
+		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
+		TroilkattFS tfs = t.setupTFS(p);
 		Path hdfsStatusPath = new Path(p.get("troilkatt.hdfs.status.file"));
 		String statusFilename = OsPath.join(p.get("troilkatt.localfs.dir"), hdfsStatusPath.getName());
 		OsPath.delete(statusFilename);
 		
-		t.status = new TroilkattStatus(t.tfs, p);
+		t.status = new TroilkattStatus(tfs, p);
 		t.status.localFilename = statusFilename;		
 		assertEquals(4, t.getLastTroilkattStatus());
 	}
@@ -228,9 +228,10 @@ public class TroilkattTest extends TestSuper {
 	@Test(expected=IOException.class)
 	public void testGetLastTroilkattStatus2() throws IOException, TroilkattPropertiesException {
 		Troilkatt t = new Troilkatt();
-		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));						
+		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
+		TroilkattFS tfs = t.setupTFS(p);
 		String statusFilename = "invalid-filename";		
-		t.status = new TroilkattStatus(t.tfs, p);
+		t.status = new TroilkattStatus(tfs, p);
 		t.status.localFilename = statusFilename;		
 		assertEquals(4, t.getLastTroilkattStatus());
 	}
@@ -239,6 +240,7 @@ public class TroilkattTest extends TestSuper {
 	public void testVerifyCreateTroilkattDirs() throws TroilkattPropertiesException, IOException {
 		Troilkatt t = new Troilkatt();
 		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
+		TroilkattFS tfs = t.setupTFS(p);
 		
 		String ctdt = OsPath.join(tmpDir, "create-troilkatt-dirs-test");
 		p.set("troilkatt.localfs.dir", OsPath.join(ctdt, "root"));
@@ -250,44 +252,58 @@ public class TroilkattTest extends TestSuper {
 		p.set("troilkatt.localfs.scripts.dir", OsPath.join(ctdt, "scripts"));
 		p.set("troilkatt.hdfs.root.dir", OsPath.join(hdfsRoot, "create-troilkatt-dirs-test"));
 				
-		t.tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));		
+		tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));		
 		OsPath.deleteAll(ctdt);
-		assertFalse(t.verifyTroilkattDirs(p));
+		assertFalse(t.verifyTroilkattDirs(p, tfs));
 				
-		t.createTroilkattDirs(p);
+		t.createTroilkattDirs(p, tfs);
 		// Not created by above function
 		OsPath.mkdir(p.get("troilkatt.localfs.binary.dir"));
 		OsPath.mkdir(p.get("troilkatt.localfs.utils.dir"));
 		OsPath.mkdir(p.get("troilkatt.localfs.scripts.dir"));
-		assertTrue(t.verifyTroilkattDirs(p));
+		assertTrue(t.verifyTroilkattDirs(p, tfs));
 		
-		t.tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));
-		assertFalse(t.verifyTroilkattDirs(p));
+		tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));
+		assertFalse(t.verifyTroilkattDirs(p, tfs));
 		
-		t.createTroilkattDirs(p);
-		assertTrue(t.verifyTroilkattDirs(p));
+		t.createTroilkattDirs(p, tfs);
+		assertTrue(t.verifyTroilkattDirs(p, tfs));
 		
 		OsPath.deleteAll(ctdt);
-		assertFalse(t.verifyTroilkattDirs(p));
+		assertFalse(t.verifyTroilkattDirs(p, tfs));
 		
-		t.tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));
+		tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));
 	}
 
 	@Test
-	public void testDownloadGlobalMeta() throws IOException {
+	public void createTroilkattDirs() {
+		assertFalse(true);
+	}
+	
+	//@Test
+	public void testDownloadGlobalMeta() throws IOException, TroilkattPropertiesException {
 		Troilkatt troilkatt = new Troilkatt();
 		troilkatt.logger = Logger.getLogger("troilkatt-test");
-		TroilkattFS tfs = troilkatt.tfs;
+		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
+		TroilkattFS tfs = troilkatt.setupTFS(p);
+				
+		String testTmpDir = OsPath.join(tmpDir, "tmp");
+		String testLogDir = OsPath.join(tmpDir, "log");
+				
+		OsPath.deleteAll(testTmpDir);
+		OsPath.mkdir(testTmpDir);
+		OsPath.deleteAll(testLogDir);
+		OsPath.mkdir(testLogDir);
 		
 		// Upload some data to act as a globa-meta
 		String datasetsDir = OsPath.join(dataDir, "datasets");
 		String[] globalFSFiles = OsPath.listdirR(datasetsDir);
 		assertNotNull(globalFSFiles);		
 		String hdfsGlobalMetaDir = OsPath.join(hdfsRoot, "global-meta");
-		assertTrue(tfs.putLocalDirFiles(hdfsGlobalMetaDir, 1314, Utils.array2list(globalFSFiles), "tar.gz", tmpDir, tmpDir));
+		assertTrue(tfs.putLocalDirFiles(hdfsGlobalMetaDir, 1314, Utils.array2list(globalFSFiles), "tar.gz", testLogDir, testTmpDir));
 		
 		String localfsGlobalMetaDir = OsPath.join(tmpDir, "global-meta");
-		troilkatt.downloadGlobalMetaFiles(hdfsGlobalMetaDir, localfsGlobalMetaDir, tmpDir, tmpDir);
+		troilkatt.downloadGlobalMetaFiles(tfs, hdfsGlobalMetaDir, localfsGlobalMetaDir, tmpDir, tmpDir);
 	
 		assertEquals(OsPath.listdir(datasetsDir).length, OsPath.listdir(localfsGlobalMetaDir).length);
 		assertTrue(OsPath.isfile(OsPath.join(localfsGlobalMetaDir, "test-pipeline.xml")));
@@ -295,17 +311,20 @@ public class TroilkattTest extends TestSuper {
 	}
 	
 	@Test
-	public void testListAllLeafDirs() {
+	public void testListAllLeafDirs() throws TroilkattPropertiesException {
 		Troilkatt troilkatt = new Troilkatt();
+		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
+		TroilkattFS tfs = troilkatt.setupTFS(p);
+		
 		troilkatt.logger = Logger.getLogger("troilkatt-test");
-		ArrayList<String> dirs = troilkatt.listAllLeafDirs(OsPath.join(hdfsRoot, "ls"));
+		ArrayList<String> dirs = troilkatt.listAllLeafDirs(tfs, OsPath.join(hdfsRoot, "ls"));
 		assertEquals(3, dirs.size());
 		Collections.sort(dirs);
 		assertEquals("subdir1", OsPath.basename(dirs.get(0)));
 		assertEquals("subdir2", OsPath.basename(dirs.get(1)));
 		assertEquals(OsPath.join(hdfsRoot, "ls/subdir3"), dirs.get(2));
 		
-		dirs = troilkatt.listAllLeafDirs(OsPath.join(hdfsRoot, "not/a/subdir"));
+		dirs = troilkatt.listAllLeafDirs(tfs, OsPath.join(hdfsRoot, "not/a/subdir"));
 		assertEquals(0, dirs.size());
 	}
 	

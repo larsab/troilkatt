@@ -72,7 +72,7 @@ public class Pipeline {
 		this.troilkattProperties = troilkattProperties;		
 		this.tfs = tfs;
 		
-		String persistentStorage = troilkattProperties.get("persistent.storage");
+		String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 		if (persistentStorage.equals("hadoop")) {
 			this.logTable = new LogTableHbase(name);
 		}
@@ -141,7 +141,7 @@ public class Pipeline {
 		this.troilkattProperties = troilkattProperties;
 		this.tfs = tfs;
 
-		String persistentStorage = troilkattProperties.get("persistent.storage");
+		String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 		if (persistentStorage.equals("hadoop")) {
 			this.logTable = new LogTableHbase(name);
 		}
