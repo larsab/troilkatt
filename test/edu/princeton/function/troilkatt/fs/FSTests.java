@@ -6,10 +6,12 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ 
-	OsPathTest.class, 
-	FSUtilsTest.class, 
-	HadoopSetupTest.class,
+	OsPathTest.class, // coverage
+	FSUtilsTest.class, // coverage
+	HadoopSetupTest.class, // coverage
 	TroilkattFSTest.class,
+	TroilkattHDFSTest.class,
+	TroilkattNFSTest.class,
 	LogTableTest.class})
 public class FSTests {
 

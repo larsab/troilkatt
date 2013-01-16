@@ -16,9 +16,7 @@ public class TroilkattFS {
 	public static final String[] compressionExtensions = {
 		"none", /* no compression */
 		"gz",   /* gnu zip compression */
-		//"gzip",   /* gnu zip compression */
 		"bz2",  /* bzip compression */
-		//"bzip"  /* bzip compression */
 	};
 		
 	protected Logger logger;
