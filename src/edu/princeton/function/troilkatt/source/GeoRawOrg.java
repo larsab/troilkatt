@@ -79,7 +79,7 @@ public class GeoRawOrg extends GeoGDSMirror {
 		}
 		
 		// Debug
-		if (argsParts.length != 2) {
+		/*if (argsParts.length != 2) {
 			logger.fatal("Debug mode requires second argument that specifies files to download");
 			throw new StageInitException("Missing ID file");
 		}
@@ -98,7 +98,7 @@ public class GeoRawOrg extends GeoGDSMirror {
 				}
 				currentIDList.add(id);
 			}
-		}
+		}*/
 		
 	}
 

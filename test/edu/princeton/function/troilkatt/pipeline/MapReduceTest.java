@@ -22,12 +22,13 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce;
 
 public class MapReduceTest extends TestSuper {
-	protected static TroilkattFS tfs;
+	protected static TroilkattHDFS tfs;
 	protected static Pipeline pipeline;	
 	protected static TroilkattProperties troilkattProperties;
 	protected static String hdfsOutput;
@@ -52,7 +53,7 @@ public class MapReduceTest extends TestSuper {
 		
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		hdfsOutput = "test/mapreduce/output";
@@ -69,7 +70,7 @@ public class MapReduceTest extends TestSuper {
 
 	@Before
 	public void setUp() throws Exception {
-		mrs = new MapReduce(8, "mapreduce-unittest", testJar + " " + testClass + " atn1 vcsd1",
+		mrs = new MapReduce(8, "mapreduce-unittest", testJar + " " + testClass + " 256 512 atn1 vcsd1",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -137,7 +138,8 @@ public class MapReduceTest extends TestSuper {
 		assertEquals(mrs.stageTmpDir, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "jobclient.tmp.dir"));
 		assertNotNull(TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "logging.level"));		
 		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "timestamp")) == 567);
-		
+		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "soft.max.memory.mb")) == 256);
+		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "hard.max.memory.mb")) == 512);		
 		assertEquals("input.files.start", ib.readLine());
 		
 		ArrayList<String> inputFiles2 = new ArrayList<String>();
@@ -164,7 +166,7 @@ public class MapReduceTest extends TestSuper {
 	@Test
 	public void testExecuteMapReduceCmd() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
 		mrs = new MapReduce(8, "mapreduce-unittest", 
-				"NonExisting.jar " + testClass + " atn1 vcsd1",
+				"NonExisting.jar " + testClass + " 256 512 atn1 vcsd1",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -178,7 +180,7 @@ public class MapReduceTest extends TestSuper {
 	@Test
 	public void testExecuteMapReduceCmd2() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
 		mrs = new MapReduce(8, "mapreduce-unittest", 
-				testJar + " foo.bar.Baz atn1 vcsd1",
+				testJar + " foo.bar.Baz 256 512 atn1 vcsd1",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -190,7 +192,7 @@ public class MapReduceTest extends TestSuper {
 	// Invalid arguments
 	@Test
 	public void testExecuteMapReduceCmd3() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
-		mrs = new MapReduce(8, "mapreduce-unittest", testJar + " " + testClass,
+		mrs = new MapReduce(8, "mapreduce-unittest", testJar + " " + testClass + " 256 512",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -203,13 +205,42 @@ public class MapReduceTest extends TestSuper {
 	// Output directory already exist
 	@Test
 	public void testExecuteMapReduceCmd4() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
-		mrs = new MapReduce(8, "mapreduce-unittest", testJar + " " + testClass,
+		mrs = new MapReduce(8, "mapreduce-unittest", 
+				testJar + " " + testClass + " 256 512 atn1 vscd1",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
 		
 		String hdfsTmpOutputDir = OsPath.join(hdfsStageTmpDir, mrs.pipelineName + "-" + mrs.stageName + "-" + 568);
 		tfs.mkdir(hdfsTmpOutputDir);
+		assertFalse(Stage.executeCmd(mrs.mapReduceCmd, testLogger) == 0);
+	}
+	
+	// Invalid soft MB
+	@Test(expected=StageInitException.class)
+	public void testExecuteMapReduceCmd5() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
+		mrs = new MapReduce(8, "mapreduce-unittest", 
+				testJar + " " + testClass + " foo 512 atn1 vcsd1",
+				hdfsOutput, "gz", -1, 
+				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				pipeline);
+		
+		String hdfsTmpOutputDir = OsPath.join(hdfsStageTmpDir, mrs.pipelineName + "-" + mrs.stageName + "-" + 568);
+		tfs.deleteDir(hdfsTmpOutputDir);
+		assertFalse(Stage.executeCmd(mrs.mapReduceCmd, testLogger) == 0);
+	}
+	
+	// Invalid hard MB
+	@Test(expected=StageInitException.class)
+	public void testExecuteMapReduceCmd6() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
+		mrs = new MapReduce(8, "mapreduce-unittest", 
+				testJar + " " + testClass + " 256 bar atn1 vcsd1",
+				hdfsOutput, "gz", -1, 
+				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				pipeline);
+		
+		String hdfsTmpOutputDir = OsPath.join(hdfsStageTmpDir, mrs.pipelineName + "-" + mrs.stageName + "-" + 568);
+		tfs.deleteDir(hdfsTmpOutputDir);
 		assertFalse(Stage.executeCmd(mrs.mapReduceCmd, testLogger) == 0);
 	}
 	
@@ -332,7 +363,7 @@ public class MapReduceTest extends TestSuper {
 		ArrayList<String> logFiles = new ArrayList<String>();
 		
 		mrs = new MapReduce(8, "mapreduce-unittest", 
-				"NonExisting.jar " + testClass + " atn1 vcsd1",
+				"NonExisting.jar " + testClass + " 256 512 atn1 vcsd1",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -381,7 +412,8 @@ public class MapReduceTest extends TestSuper {
 		 */
 		OsPath.deleteAll(tmpDir);
 		OsPath.mkdir(tmpDir);		
-		ArrayList<String> logFiles = mrs.logTable.getMapReduceLogFiles(mrs.stageName, 736, tmpDir);
+		LogTableHbase lt = (LogTableHbase) mrs.logTable;
+		ArrayList<String> logFiles = lt.getMapReduceLogFiles(mrs.stageName, 736, tmpDir);
 		assertFalse(logFiles.isEmpty());
 		String[] subDirs = OsPath.listdir(tmpDir);
 		int mappers = 0;

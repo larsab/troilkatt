@@ -24,13 +24,13 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.fs.FSUtils;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.MapReduce;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 public class TroilkattMapReduceTest extends TestSuper {
-	protected static TroilkattFS tfs;
+	protected static TroilkattHDFS tfs;
 	protected static Pipeline pipeline;	
 	protected static TroilkattProperties troilkattProperties;
 	protected static String hdfsOutput;
@@ -57,7 +57,7 @@ public class TroilkattMapReduceTest extends TestSuper {
 		
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		localRootDir = tmpDir;
@@ -76,7 +76,7 @@ public class TroilkattMapReduceTest extends TestSuper {
 
 	@Before
 	public void setUp() throws Exception {
-		mrs = new MapReduce(5, "mapreduce-unittest", testJar + " " + testClass + " add1 vcsd1",
+		mrs = new MapReduce(5, "mapreduce-unittest", testJar + " " + testClass + " 256 512 add1 vcsd1",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);	

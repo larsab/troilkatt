@@ -20,11 +20,12 @@ import edu.princeton.function.troilkatt.TestSuper;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 
 public class MapReduceStageTest extends TestSuper {
-	protected static TroilkattFS tfs;
+	protected static TroilkattHDFS tfs;
 	protected static Pipeline pipeline;	
 	protected static TroilkattProperties troilkattProperties;
 	protected static String hdfsOutput;
@@ -50,7 +51,7 @@ public class MapReduceStageTest extends TestSuper {
 		
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		hdfsOutput = "test/mapreducestage/output";
@@ -69,7 +70,7 @@ public class MapReduceStageTest extends TestSuper {
 
 	@Before
 	public void setUp() throws Exception {
-		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file " + executeCmd,
+		mrs = new MapReduceStage(stageNum, stageName, " execute_per_file 256 512 " + executeCmd,
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -122,8 +123,9 @@ public class MapReduceStageTest extends TestSuper {
 		 * Test MapReduce logfiles
 		 */
 		OsPath.deleteAll(tmpDir);
-		OsPath.mkdir(tmpDir);		
-		ArrayList<String> logFiles = mrs.logTable.getMapReduceLogFiles(mrs.stageName, 741, tmpDir);
+		OsPath.mkdir(tmpDir);	
+		LogTableHbase lt = (LogTableHbase) mrs.logTable;
+		ArrayList<String> logFiles = lt.getMapReduceLogFiles(mrs.stageName, 741, tmpDir);
 		assertFalse(logFiles.isEmpty());
 		String[] subDirs = OsPath.listdir(tmpDir);
 		int mappers = 0;
@@ -178,7 +180,8 @@ public class MapReduceStageTest extends TestSuper {
 		// Log files should still have been created 
 		OsPath.deleteAll(tmpDir);
 		OsPath.mkdir(tmpDir);		
-		ArrayList<String> logFiles = mrs.logTable.getMapReduceLogFiles(mrs.stageName, 741, tmpDir);
+		LogTableHbase lt = (LogTableHbase) mrs.logTable;
+		ArrayList<String> logFiles = lt.getMapReduceLogFiles(mrs.stageName, 741, tmpDir);
 		assertFalse(logFiles.isEmpty());
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.output", false));
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.error", false));
@@ -251,7 +254,8 @@ public class MapReduceStageTest extends TestSuper {
 		// Log files should still have been created 
 		OsPath.deleteAll(tmpDir);
 		OsPath.mkdir(tmpDir);		
-		ArrayList<String> logFiles = mrs.logTable.getMapReduceLogFiles(mrs.stageName, 744, tmpDir);
+		LogTableHbase lt = (LogTableHbase) mrs.logTable;
+		ArrayList<String> logFiles = lt.getMapReduceLogFiles(mrs.stageName, 744, tmpDir);
 		assertFalse(logFiles.isEmpty());
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.output", false));
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.error", false));		

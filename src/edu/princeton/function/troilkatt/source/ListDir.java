@@ -33,7 +33,7 @@ public class ListDir extends HDFSSource {
 		try {
 			if (! tfs.isdir(listDir)) {
 				logger.fatal("ListDir source initialization error: not a directory");
-				throw new StageInitException("ListDir source initialization error: not a directory");
+				throw new StageInitException("ListDir source initialization error: " + listDir + " is not a directory");
 			}
 		} catch (IOException e) {
 			logger.fatal("ListDir source initialization error: " + e.getMessage());

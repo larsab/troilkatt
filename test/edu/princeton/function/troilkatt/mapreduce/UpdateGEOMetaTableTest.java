@@ -29,7 +29,7 @@ import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.TroilkattStatus;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.hbase.GeoMetaTableSchema;
 import edu.princeton.function.troilkatt.hbase.HbaseException;
 import edu.princeton.function.troilkatt.pipeline.MapReduce;
@@ -37,7 +37,7 @@ import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 public class UpdateGEOMetaTableTest extends TestSuper {
-	protected static TroilkattFS tfs;
+	protected static TroilkattHDFS tfs;
 	protected static Pipeline pipeline;	
 	protected static TroilkattProperties troilkattProperties;
 	protected static Logger testLogger;
@@ -71,7 +71,7 @@ public class UpdateGEOMetaTableTest extends TestSuper {
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		localRootDir = tmpDir;

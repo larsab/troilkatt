@@ -103,6 +103,11 @@ public class GeoGSEParserTest extends TestSuper {
 
 		String val = parser.getSingleValue("title");
 		assertEquals("Expression profiling of pancreas development", val);
+	}
+	
+	@Test(expected = ParseException.class)
+	public void testGetSingleValue3() throws ParseException {
+		GeoGSEParser parser = new GeoGSEParser();	
 		assertNull(parser.getSingleValue("pmid"));
 	}
 
@@ -152,7 +157,7 @@ public class GeoGSEParserTest extends TestSuper {
 		assertEquals("GSE8070", parser.getSingleValue("id"));
 		assertEquals("Expression profiling of pancreas development", parser.getSingleValue("title"));
 		assertEquals("Dec 10 2010", parser.getSingleValue("date"));
-		assertNull(parser.getSingleValue("pmid"));		
+		//assertNull(parser.getSingleValue("pmid"));		
 		String val = parser.getSingleValue("description");		
 		assertTrue(val.startsWith("Development of the pancreas"));
 				

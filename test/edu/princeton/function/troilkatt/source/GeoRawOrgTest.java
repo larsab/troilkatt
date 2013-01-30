@@ -25,11 +25,11 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.fs.FSUtils;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 
 public class GeoRawOrgTest extends TestSuper {
-	protected TroilkattFS tfs;
+	protected TroilkattHDFS tfs;
 	protected GeoRawOrg source;
 
 	@BeforeClass
@@ -44,7 +44,7 @@ public class GeoRawOrgTest extends TestSuper {
 	public void setUp() throws Exception {
 		TroilkattProperties troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		String localRootDir = tmpDir;

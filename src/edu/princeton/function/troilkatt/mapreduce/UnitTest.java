@@ -494,7 +494,7 @@ public class UnitTest extends TroilkattMapReduce {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			System.err.println("Could not parse arguments: IOException: ");
 			return -1;
 		}
 

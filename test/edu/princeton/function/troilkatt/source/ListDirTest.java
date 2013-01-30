@@ -19,13 +19,13 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 public class ListDirTest extends TestSuper{
 	protected TroilkattProperties troilkattProperties = null;			
-	protected TroilkattFS tfs = null; 
+	protected TroilkattHDFS tfs = null; 
 	protected Pipeline pipeline;
 	
 	protected String localRootDir;
@@ -45,7 +45,7 @@ public class ListDirTest extends TestSuper{
 	public void setUp() throws Exception {		
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		localRootDir = tmpDir;

@@ -23,12 +23,12 @@ import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.hbase.HbaseException;
 
 public class ExecuteDirTest extends TestSuper {
 	protected static TroilkattProperties troilkattProperties;				
-	protected static TroilkattFS tfs;
+	protected static TroilkattHDFS tfs;
 	protected static Pipeline pipeline;
 	
 	protected static Logger testLogger;
@@ -46,7 +46,7 @@ public class ExecuteDirTest extends TestSuper {
 		
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		initTestDir();

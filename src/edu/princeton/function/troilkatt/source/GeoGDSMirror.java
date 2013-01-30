@@ -65,7 +65,7 @@ public class GeoGDSMirror extends HDFSSource {
 		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
 		
 		this.ftpDir = dir;
-		adminEmail = troilkattProperties.get("admin.email");		
+		adminEmail = troilkattProperties.get("troilkatt.admin.email");		
 	}
 
 	/**

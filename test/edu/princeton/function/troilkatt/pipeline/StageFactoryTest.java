@@ -18,11 +18,11 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 
 public class StageFactoryTest extends TestSuper {
 	protected TroilkattProperties troilkattProperties;						
-	protected TroilkattFS tfs;
+	protected TroilkattHDFS tfs;
 	protected Pipeline pipeline;
 	protected Logger testLogger;
 	
@@ -38,7 +38,7 @@ public class StageFactoryTest extends TestSuper {
 	public void setUp() throws Exception {		
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		testLogger = Logger.getLogger("testLogger");
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 	}
@@ -94,14 +94,14 @@ public class StageFactoryTest extends TestSuper {
 		
 		stage = StageFactory.newStage("mapreduce", 
 				6, "factoryTest", 
-				MapReduceTest.testJar + " " + MapReduceTest.testClass + " atn1 vcsd1", 
+				MapReduceTest.testJar + " " + MapReduceTest.testClass + " 256 512 atn1 vcsd1", 
 				"test/stage", "gz", 10, 
 				pipeline, testLogger);
 		assertEquals(MapReduce.class, stage.getClass());
 
 		stage = StageFactory.newStage("mapreduce_stage", 
 				7, "factoryTest", 
-				"execute_per_file " + MapReduceStageTest.executeCmd,
+				"execute_per_file 256 512 " + MapReduceStageTest.executeCmd,
 				"test/stage", "gz", 10, 
 				pipeline, testLogger);
 		assertEquals(MapReduceStage.class, stage.getClass());

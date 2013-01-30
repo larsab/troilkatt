@@ -38,7 +38,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, rawFtpDir);		
 		
 		// Debug
-		String[] argsParts = splitArgs(this.args);
+		/*String[] argsParts = splitArgs(this.args);
 		if (argsParts.length != 1) {
 			logger.fatal("Debug mode requires second argument that specifies files to download");
 			throw new StageInitException("Missing ID file");
@@ -58,7 +58,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 				}
 				currentIDList.add(id);
 			}
-		}
+		}*/
 	}
 
 	/**

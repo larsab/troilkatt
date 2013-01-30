@@ -171,7 +171,7 @@
 	
 	<property>
 		<name>troilkatt.libjars</name>
-		<value>/home/larsab/apps/hbase-0.90.4-cdh3u3/hbase-0.90.4-cdh3u3.jar,/usr/share/java/commons-cli.jar,/home/larsab/apps/zookeeper-3.3.4-cdh3u3/zookeeper-3.3.4-cdh3u3.jar,/usr/share/java/commons-logging.jar</value>
+		<value>/home/larsab/apps/hbase-ice/hbase.jar,/usr/share/java/commons-cli.jar,/home/larsab/apps/zookeeper-ice/zookeeper.jar,/usr/share/java/commons-logging.jar</value>
 		<description>
 
 			Jar files passed to the hadoop MapReduce startup script (-libjars). 

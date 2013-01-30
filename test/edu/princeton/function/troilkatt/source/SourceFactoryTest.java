@@ -19,17 +19,18 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 public class SourceFactoryTest extends TestSuper {
 	protected TroilkattProperties troilkattProperties;						
-	protected TroilkattFS tfs;
+	protected TroilkattHDFS tfs;
 	protected Pipeline pipeline;
 	protected Logger testLogger;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		TestSuper.initTestDir();
 	}
 
 	@AfterClass
@@ -40,7 +41,7 @@ public class SourceFactoryTest extends TestSuper {
 	public void setUp() throws Exception {		
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		testLogger = Logger.getLogger("testLogger");
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 	}

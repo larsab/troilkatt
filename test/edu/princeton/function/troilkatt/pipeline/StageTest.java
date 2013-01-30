@@ -22,13 +22,13 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.hbase.HbaseException;
 
 public class StageTest extends TestSuper {
 		
 	protected static TroilkattProperties troilkattProperties;
-	protected static TroilkattFS tfs;
+	protected static TroilkattHDFS tfs;
 	protected static Pipeline pipeline;	
 	protected static String hdfsRoot;
 	protected static Logger testLogger;
@@ -48,7 +48,7 @@ public class StageTest extends TestSuper {
 		
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
-		tfs = new TroilkattFS(hdfs);
+		tfs = new TroilkattHDFS(hdfs);
 		
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));	
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
@@ -146,7 +146,7 @@ public class StageTest extends TestSuper {
 	}
 	
 	// Invalid HDFS output dir
-	// This test will not fail when run in pesudo mode
+	// This test will not fail when HDFS is run in pesudo mode
 	@Test(expected=StageInitException.class)
 	public void testConstructor5() throws TroilkattPropertiesException, StageInitException {		
 		stage = new Stage(3, "unitStage", "foo bar baz",
@@ -165,7 +165,7 @@ public class StageTest extends TestSuper {
 	}
 	
 	// Invalid hdfs meta dir
-	// This test will not fail when run in pesudo mode
+	// This test will not fail when HDFS is run in pesudo mode
 	@Test(expected=StageInitException.class)
 	public void testConstructor7() throws TroilkattPropertiesException, StageInitException {		
 		stage = new Stage(3, "unitStage", "foo bar baz",
@@ -175,7 +175,7 @@ public class StageTest extends TestSuper {
 	}
 	
 	// Invalid hdfs tmp dir
-	// This test will not fail when run in pesudo mode
+	// This test will not fail when HDFS is run in pesudo mode
 	@Test(expected=StageInitException.class)
 	public void testConstructor8() throws TroilkattPropertiesException, StageInitException {		
 		stage = new Stage(3, "unitStage", "foo bar baz",
@@ -226,7 +226,7 @@ public class StageTest extends TestSuper {
 	}
 	
 	// Invalid hdfsStageMetaDir
-	// This test will not fail when run in pesudo mode
+	// This test will not fail when HDFS is run in pesudo mode
 	@Test(expected=StageInitException.class)
 	public void testSetHDFSDirs2() throws IOException, TroilkattPropertiesException, StageInitException {		
 		stage = new Stage(stageNum, stageName, "foo bar baz", localRootDir, "/foo/bar/baz", hdfsStageTmpDir, pipeline);
@@ -234,7 +234,7 @@ public class StageTest extends TestSuper {
 	}
 	
 	// Invalid hdfsStageTmpDir
-	// This test will not fail when run in pesudo mode
+	// This test will not fail when HDFS is run in pesudo mode
 	@Test(expected=StageInitException.class)
 	public void testSetHDFSDirs3() throws IOException, TroilkattPropertiesException, StageInitException {		
 		stage = new Stage(stageNum, stageName, "foo bar baz", localRootDir, hdfsStageMetaDir, "/foo/bar/baz", pipeline);
@@ -287,7 +287,7 @@ public class StageTest extends TestSuper {
 	}
 	
 	// Invalid meta-dir
-	// This test will not fail when run in pesudo mode
+	// This test will fail with AssertionException (and not StageException) when HDFS run in pesudo mode
 	@Test(expected=StageException.class)
 	public void testDownloadMetaFiles2() throws StageException {
 		stage.hdfsMetaDir = "/foo/bar";

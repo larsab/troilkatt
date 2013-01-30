@@ -46,7 +46,7 @@ public class MapReduce extends Stage {
 	/**
 	 * Constructor.
 	 * 
-	 * @param args [0] jar file to run, [1] main class, [2...] stage arguments
+	 * @param args [0] jar file to run, [1] main class, [2] max troilkatt in MB, [3] max VM in MB, [4...] stage arguments
 	 * @param see description for ExecutePerFile class
 	 */
 	public MapReduce(int stageNum, String name, String args, 

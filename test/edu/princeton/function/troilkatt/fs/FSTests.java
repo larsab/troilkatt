@@ -12,7 +12,9 @@ import org.junit.runners.Suite.SuiteClasses;
 	TroilkattFSTest.class,
 	TroilkattHDFSTest.class,
 	TroilkattNFSTest.class,
-	LogTableTest.class})
+	LogTableTest.class,
+	LogTableHbaseTest.class,
+	LogTableTarTest.class,})
 public class FSTests {
 
 }

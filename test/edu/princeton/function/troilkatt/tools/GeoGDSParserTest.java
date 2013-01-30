@@ -106,7 +106,12 @@ public class GeoGDSParserTest extends TestSuper {
 
 		String val = parser.getSingleValue("title");
 		assertEquals("Pancreatic development (MG-U74B)", val);
-		assertNull(parser.getSingleValue("pmid"));
+	}
+	
+	@Test(expected = ParseException.class)
+	public void testGetSingleValue3() throws ParseException {
+		GeoGDSParser parser = new GeoGDSParser();		
+		parser.getSingleValue("pmid");
 	}
 
 	@Test(expected = ParseException.class)
@@ -163,7 +168,7 @@ public class GeoGDSParserTest extends TestSuper {
 		assertEquals("GDS2949", parser.getSingleValue("id"));
 		assertEquals("Pancreatic development (MG-U74B)", parser.getSingleValue("title"));
 		assertEquals("Sep 11 2007", parser.getSingleValue("date"));
-		assertNull(parser.getSingleValue("pmid"));
+//		assertNull(parser.getSingleValue("pmid"));
 		assertEquals("Analysis of pancreatic tissues from NMRI animals from embryonic day E12.5 to E16.5. Results provide insight into the molecular mechanisms underlying the development of the pancreas.", parser.getSingleValue("description"));
 		
 		ArrayList<String> vals = parser.getValues("organisms");

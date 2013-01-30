@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
-	fprintf(stderr, "Usage: %s argc rv", argv[0]);
+	fprintf(stderr, "Usage: %s argc rv\n", argv[0]);
 	exit(-2);
     }
 
