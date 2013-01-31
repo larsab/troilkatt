@@ -2,9 +2,12 @@ package edu.princeton.function.troilkatt.fs;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.log4j.Logger;
 
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.pipeline.Stage;
 
 
 /**
@@ -63,7 +66,42 @@ public class TroilkattFS {
 	 * @throws IOException
 	 */
 	public ArrayList<String> listdirN(String hdfsDir) throws IOException {
-		throw new RuntimeException("Method not implemented");
+		ArrayList<String> allFiles = listdirR(hdfsDir);
+		if (allFiles == null) {
+			logger.warn("No files in directory: " + hdfsDir);
+			return null;
+		}
+					
+		HashMap<String, Long> name2timestamp = new HashMap<String, Long>();
+		HashMap<String, String> name2fullname = new HashMap<String, String>();
+		for (String f: allFiles) {
+			String name = getFilenameName(f);
+			long timestamp = getFilenameTimestamp(f);
+			
+			if ((name == null) || (timestamp == -1)) {
+				logger.warn("File without a valid timestamp: " + OsPath.basename(f));
+				continue;
+			}
+			
+			if (name2timestamp.containsKey(name)) {
+				long currentTimestamp = name2timestamp.get(name);
+				if (timestamp > currentTimestamp) {
+					name2timestamp.put(name, timestamp);
+					name2fullname.put(name, f);
+				}
+			}
+			else {
+				name2timestamp.put(name, timestamp);
+				name2fullname.put(name, f);
+			}
+		}
+		
+		ArrayList<String> newestFiles = new ArrayList<String>(); 
+		for (String n: name2fullname.keySet()) {
+			newestFiles.add(name2fullname.get(n));
+		}
+		
+		return newestFiles;
 	}
 	
 	/**
@@ -77,7 +115,21 @@ public class TroilkattFS {
 	 * @throws IOException
 	 */
 	public ArrayList<String> listdirT(String hdfsDir, long timestamp) throws IOException {
-		throw new RuntimeException("Method not implemented");
+		ArrayList<String> allFiles = listdirR(hdfsDir);
+		if (allFiles == null) {
+			logger.warn("No files in directory: " + hdfsDir);
+			return null;
+		}
+					
+		ArrayList<String> matchedFiles = new ArrayList<String>();
+		for (String f: allFiles) {
+			long ft = getFilenameTimestamp(f);
+			if (ft == timestamp) {
+				matchedFiles.add(f);
+			}
+		}
+		
+		return matchedFiles;
 	}
 	
 	/**
@@ -93,7 +145,33 @@ public class TroilkattFS {
 	 * @throws IOException 
 	 */
 	public String getNewestDir(String hdfsDir) throws IOException {
-		throw new RuntimeException("Method not implemented");
+		ArrayList<String> subdirs = listdir(hdfsDir);
+		
+		if (subdirs == null) {
+			logger.warn("Invalid directory: " + hdfsDir);
+			return null;
+		}
+		else if (subdirs.size() == 0) {
+			logger.warn("No timestamped sub-directories in: " + hdfsDir);
+			return null;
+		}
+				
+		long maxTimestamp = -1;
+		String newestSubdir = null;
+		for (String s: subdirs) {
+			long timestamp = getDirTimestamp(s);
+			if (timestamp == -1) {
+				logger.warn("Invalid subdirectory name: " + s);
+				continue;
+			}
+			
+			if (timestamp > maxTimestamp) {
+				maxTimestamp = timestamp;
+				newestSubdir = OsPath.basename(s);
+			}
+		}
+		
+		return newestSubdir;
 	}
 	
 	/**
@@ -229,7 +307,42 @@ public class TroilkattFS {
 	 * @return compressed filename, or null if compression failed.
 	 */
 	public String compressFile(String localFilename, String outputDir, String logDir, String compression) {
-		throw new RuntimeException("Method not implemented");
+		String basename = OsPath.basename(localFilename);
+		String cmd = null;
+		String compressedFilename = null;
+		if (compression.equals("gz") || compression.equals("gzip")) {
+			compressedFilename = OsPath.join(outputDir, basename + ".gz");
+			cmd = String.format("gzip -c %s > %s 2> %s",
+					localFilename,				
+					compressedFilename,					
+					OsPath.join(logDir, "gzip." + basename + ".error"));				
+		}
+		else if (compression.equals("bz2") || compression.equals("bzip")) {
+			compressedFilename = OsPath.join(outputDir, basename + ".bz2");
+			cmd = String.format("bzip2 -c %s > %s 2> %s",
+					localFilename,
+					compressedFilename,
+					OsPath.join(logDir, "bzip." + basename + ".error"));               
+		}
+		//else if (compression.equals("zip")) {
+		//	compressedFilename = OsPath.join(outputDir, basename + ".zip");
+		//	cmd = String.format("zip %s %s > %s 2> %s",										
+		//			compressedFilename,
+		//			localFilename,
+		//			OsPath.join(logDir, "zip." + basename + ".output"),
+		//			OsPath.join(logDir, "zip." + basename + ".error"));
+		//}  
+		else {
+			logger.fatal("Unknown compression format: " + compression);
+			return null;
+		}
+		
+		int rv = Stage.executeCmd(cmd, logger);
+		if (rv != 0) {
+			return null;
+		}
+		
+		return compressedFilename;
 	}
 	
 	/**
@@ -241,7 +354,39 @@ public class TroilkattFS {
 	 * @return true if file was successfully compressed, false otherwise.
 	 */
 	public boolean uncompressFile(String compressedName, String uncompressedName, String logDir) {
-		throw new RuntimeException("Method not implemented");	
+		String basename = OsPath.basename(compressedName);
+		String cmd = null;
+		if (basename.endsWith(".gz") || basename.endsWith(".Z")) {
+			cmd = String.format("gunzip -cf %s > %s 2> %s",
+					compressedName,
+					uncompressedName,        	    		
+					OsPath.join(logDir, "gunzip." + basename + ".error"));        	    
+		}		
+		//else if (basename.endsWith(".zip")) {
+		//	cmd = String.format("unzip -d %s %s %s > %s 2> %s",
+		//			OsPath.dirname(uncompressedName),
+		//			compressedName,
+		//			OsPath.basename(uncompressedName),
+		//			OsPath.join(logDir, "unzip." + basename + ".output"),
+		//			OsPath.join(logDir, "unzip." + basename + ".error"));
+		//}  
+		else if (basename.endsWith(".bz2") || basename.endsWith(".bz")) {
+			cmd = String.format("bunzip2 -c %s > %s 2> %s",
+					compressedName,
+					uncompressedName,
+					OsPath.join(logDir, "bunzip." + basename + ".error"));
+		}
+		else {
+			logger.warn("Unknown extension for file: " + basename);
+			return false;
+		}
+		
+		int rv = Stage.executeCmd(cmd, logger);
+		if (rv != 0) {
+			return false;
+		}
+		
+		return true;			
 	}
 	
 	/**
@@ -254,7 +399,51 @@ public class TroilkattFS {
 	 * @return compressed filename, or null if compression failed.
 	 */
 	public String compressDirectory(String localDir, String outDir, String logDir, String compression) {
-		throw new RuntimeException("Method not implemented");
+		if (OsPath.isdir(localDir) == false) {
+			logger.warn("Not a directory on the local file system: " + localDir);
+			return null;
+		}
+		
+		
+		String basename = OsPath.basename(localDir);
+		String cmd = null;
+		String compressedDir = null;		
+		
+		if (compression.equals("tar.gz")) {
+			compressedDir = OsPath.join(outDir, basename + ".tar.gz");
+			cmd = String.format("cd %s; tar cvzf %s . > %s 2> %s",
+					localDir,
+					compressedDir,					
+					OsPath.join(logDir, "tar." + basename + ".output"),
+					OsPath.join(logDir, "tar." + basename + ".error"));				
+		}
+		else if (compression.equals("tar.bz2")) {
+			compressedDir = OsPath.join(outDir, basename + ".tar.bz2");
+			cmd = String.format("cd %s; tar cvjf %s . > %s 2> %s",
+					localDir,
+					compressedDir,					
+					OsPath.join(logDir, "tar." + basename + ".output"),
+					OsPath.join(logDir, "tar." + basename + ".error"));               
+		}  
+		else if (compression.equals("tar")) {
+			compressedDir = OsPath.join(outDir, basename + ".tar");
+			cmd = String.format("cd %s; tar cvf %s . > %s 2> %s",
+					localDir,
+					compressedDir,
+					OsPath.join(logDir, "tar." + basename + ".output"),
+					OsPath.join(logDir, "tar." + basename + ".error"));               
+		}  
+		else {
+			logger.fatal("Unknown compression format: " + compression);
+			return null;
+		}
+		
+		int rv = Stage.executeCmd(cmd, logger);
+		if (rv != 0) {
+			return null;
+		}
+		
+		return compressedDir;
 	}
 
 	/**
@@ -267,7 +456,48 @@ public class TroilkattFS {
 	 * @return list of uncompressed directory content, or null if the directory could not be decompressed.
 	 */
 	public ArrayList<String> uncompressDirectory(String compressedDir, String dstDir, String logDir) {
-		throw new RuntimeException("Method not implemented");
+		String compression = getDirCompression(compressedDir);
+		String basename = OsPath.basename(compressedDir);
+		
+		String cmd = null;
+		if (compression.equals("tar.gz")) {
+			cmd = String.format("tar xvzf %s -C %s > %s 2> %s",
+					compressedDir,
+					dstDir,
+					OsPath.join(logDir, "untar." + basename + ".output"),
+					OsPath.join(logDir, "untar." + basename + ".error"));
+		}
+		else if (compression.equals("tar.bz2")) {
+			cmd = String.format("tar xvjf %s -C %s > %s 2> %s",
+					compressedDir,
+					dstDir,
+					OsPath.join(logDir, "untar." + basename + ".output"),
+					OsPath.join(logDir, "untar." + basename + ".error"));
+		}
+		else if (compression.equals("tar")) {
+			cmd = String.format("tar xvf %s -C %s > %s 2> %s",
+					compressedDir,
+					dstDir,
+					OsPath.join(logDir, "untar." + basename + ".output"),
+					OsPath.join(logDir, "untar." + basename + ".error"));
+		}		
+		else {
+			logger.warn("Unknown extension for compressed directory: " + basename);
+			return null;
+		}
+		
+		int rv = Stage.executeCmd(cmd, logger);
+		if (rv != 0) {
+			return null;
+		}
+				
+		String[] files = OsPath.listdirR(dstDir, logger);
+		
+		ArrayList<String> dirContent = new ArrayList<String>();
+		for (String f: files) {
+			dirContent.add(f);
+		}
+		return dirContent;	
 	}
 
 	/**
@@ -352,7 +582,46 @@ public class TroilkattFS {
 	 * @throws IOException 
 	 */
 	public void cleanupDir(String hdfsOutputDir, long timestamp, int storageTime) throws IOException {
-		throw new RuntimeException("Method not implemented");
+		if (storageTime <= -1) {
+			logger.info("All files in directory are kept forever: " + hdfsOutputDir);
+			return;
+		}
+		else if (storageTime == 0) {
+			storageTime = Integer.MIN_VALUE;; // to ensure all files are deleted
+		}
+		
+		ArrayList<String> files = listdirR(hdfsOutputDir);
+		if (files == null) {
+			logger.warn("Invalid directory: " + hdfsOutputDir);
+			return;
+		}
+		
+		int deleted = 0;
+		for (String f: files) {
+			long fileTimestamp = getFilenameTimestamp(f);
+			if (fileTimestamp == -1) {
+				logger.warn("Could not get timestamp for file: " + f);
+				continue;
+			}
+			
+			long fileAge = (timestamp - fileTimestamp) / (1000 * 60 * 60 * 24); // in days
+			if (fileAge < 0) {
+				logger.warn("Invalid file age: " + fileAge);
+				continue;
+			}
+			
+			if (fileAge > storageTime) {
+				if (deleteFile(f) == false) {
+					logger.warn("Could not delete file: " + f );
+				}
+				else {
+					deleted++;
+				}
+			}
+		}
+		if (deleted > 0) {
+			logger.info("Deleted " + deleted + " of " + files.size() + " files");
+		}
 	}
 	
 	/**
@@ -367,7 +636,57 @@ public class TroilkattFS {
 	 * @throws IOException 
 	 */
 	public void cleanupMetaDir(String hdfsMetaDir, long timestamp, int storageTime) throws IOException {
-		throw new RuntimeException("Method not implemented");
+		if (storageTime <= -1) {
+			logger.info("All files in directory are kept forever: " + hdfsMetaDir);
+			return;
+		}
+		else if (storageTime == 0) {
+			storageTime = Integer.MIN_VALUE; // to ensure all files are deleted
+		}
+		
+		String newestDir = getNewestDir(hdfsMetaDir);
+		if (newestDir == null) {
+			logger.warn("No directory archive found: " + hdfsMetaDir);
+			return;
+		}
+		
+		ArrayList<String> files = listdir(hdfsMetaDir);
+		if (files == null) {
+			logger.warn("Invalid directory: " + hdfsMetaDir);
+			return;
+		}
+		int deleted = 0;
+		for (String f: files) {
+			String basename = OsPath.basename(f);
+			if (basename.equals(newestDir)) {
+				// Do not delete newest dir
+				continue;
+			}
+			
+			long fileTimestamp = getDirTimestamp(f);
+			if (fileTimestamp == -1) {
+				logger.warn("Could not get timestamp for file: " + f);
+				continue;
+			}
+			
+			long fileAge = (timestamp - fileTimestamp) / (1000 * 60 * 60 * 24); // in days
+			if (fileAge < 0) {
+				logger.warn("Invalid file age: " + fileAge);
+				continue;
+			}
+			
+			if (fileAge > storageTime) {
+				if (deleteFile(f) == false) {
+					logger.warn("Could not delete file: " + f );
+				}
+				else {
+					deleted++;
+				}
+			}
+		}
+		if (deleted > 0) {
+			logger.info("Deleted " + deleted + " of " + files.size() + " meta dirs");
+		}
 	}
 
 	/**
@@ -432,7 +751,7 @@ public class TroilkattFS {
 	 * Get compression format from filename
 	 * 
 	 * @param hdfsName filename with timestamp and compression format.
-	 * @return compression format, or null if the filename is invalid.
+	 * @return compression format (gz, bz2, etc), or null if the filename is invalid.
 	 */
 	public String getFilenameCompression(String hdfsName) {
 		String basename = OsPath.basename(hdfsName);

@@ -88,6 +88,36 @@ public class OsPath {
 	}
 	
 	/**
+	 * Remove the last extension in a filename
+	 * 
+	 * @param filename
+	 * @return filename with last extension removed, or null if the 
+	 * filename is invalid
+	 */
+	public static String removeLastExtension(String filename) {
+		if (filename == null) {
+			return null;
+		}
+		
+		if (filename.isEmpty()) {
+			return null;
+		}
+		
+		String[] parts = filename.split("\\.");
+		if (parts.length < 2) {
+			// no extension in filename
+			return null;
+		}
+		
+				
+		String newFilename = parts[0];
+		for (int i = 1; i < parts.length - 1; i++) { // do not inclue last extension
+			newFilename = newFilename + "." + parts[i];
+		}
+		return newFilename;			
+	}
+	
+	/**
 	 * Replace last extension in a filename
 	 * 
 	 * @param filename
