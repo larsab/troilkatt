@@ -32,7 +32,8 @@ public class MapReduceStage extends MapReduce {
 	}
 	
 	/**
-	 * Helper function to parse Mapreduce specific arguments
+	 * Helper function to parse MapReduce specific arguments.
+	 * 
      * @throws StageInitException
 	 * @throws TroilkattPropertiesException 
 	 */

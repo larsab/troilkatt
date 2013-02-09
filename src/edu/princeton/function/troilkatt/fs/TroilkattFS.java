@@ -1,13 +1,31 @@
 package edu.princeton.function.troilkatt.fs;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveOutputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
+import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorInputStream;
+import org.apache.commons.compress.compressors.CompressorOutputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.log4j.Logger;
 
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
-import edu.princeton.function.troilkatt.pipeline.Stage;
 
 
 /**
@@ -300,46 +318,91 @@ public class TroilkattFS {
 	/**
 	 * Compress a file using an external program.
 	 * 
-	 * @param localFilename file to compress.
+	 * @param secFilename file to compress.
 	 * @param outpitDir directory where compressed file is written
 	 * @param logDir directory where log files are written.
 	 * @param compression format to use.
 	 * @return compressed filename, or null if compression failed.
 	 */
-	public String compressFile(String localFilename, String outputDir, String logDir, String compression) {
-		String basename = OsPath.basename(localFilename);
-		String cmd = null;
-		String compressedFilename = null;
-		if (compression.equals("gz") || compression.equals("gzip")) {
-			compressedFilename = OsPath.join(outputDir, basename + ".gz");
-			cmd = String.format("gzip -c %s > %s 2> %s",
-					localFilename,				
-					compressedFilename,					
-					OsPath.join(logDir, "gzip." + basename + ".error"));				
-		}
-		else if (compression.equals("bz2") || compression.equals("bzip")) {
-			compressedFilename = OsPath.join(outputDir, basename + ".bz2");
-			cmd = String.format("bzip2 -c %s > %s 2> %s",
-					localFilename,
-					compressedFilename,
-					OsPath.join(logDir, "bzip." + basename + ".error"));               
-		}
-		//else if (compression.equals("zip")) {
-		//	compressedFilename = OsPath.join(outputDir, basename + ".zip");
-		//	cmd = String.format("zip %s %s > %s 2> %s",										
-		//			compressedFilename,
-		//			localFilename,
-		//			OsPath.join(logDir, "zip." + basename + ".output"),
-		//			OsPath.join(logDir, "zip." + basename + ".error"));
-		//}  
-		else {
-			logger.fatal("Unknown compression format: " + compression);
-			return null;
-		}
+	public String compressFile(String uncompressedFilename, String outputDir, String logDir, String compression) {
+		String basename = OsPath.basename(uncompressedFilename);
+		String compressedFilename = OsPath.join(outputDir, basename + "." + compression);
 		
-		int rv = Stage.executeCmd(cmd, logger);
-		if (rv != 0) {
+		// Check if commons-compress has codec for the file format (gz, bzip, xz, pack200)
+		OutputStream os = null;
+		try {
+			os = new FileOutputStream(compressedFilename);
+		} catch (FileNotFoundException e1) {
+			logger.fatal("Could not open output stream: " + e1);
 			return null;
+		}
+		CompressorOutputStream cos = null;
+		try {
+			cos = new CompressorStreamFactory().createCompressorOutputStream(compression, os);
+		} catch (CompressorException e) { 
+			// This is expected, for example for the "none" format
+			logger.warn("Unknown compression format: " + compression);			
+		}
+
+		if (cos == null) { // codec not supported
+			// output stream is not used if the codec is not supported
+			try {
+				os.close();
+				OsPath.delete(compressedFilename);
+			} catch (IOException e) {
+				logger.warn("Could not close output stream");
+				// Attempt to continue
+			} 
+
+			/*
+			 * Execute script to compress file to local FS, then copy compressed file to HDFS
+			 */
+			if (compression.equals("none")) { // No compression to use
+				if (OsPath.rename(uncompressedFilename, compressedFilename) == false) {
+					logger.error("Could not rename file: " + uncompressedFilename + " to " + compressedFilename);
+					return null;
+				} 
+			}
+			else { // Attempt fallback compression
+				logger.fatal("Unknown compression format: " + compression);
+				return null;				
+			}
+		}
+		else { // codec supported
+			// Use commons compress libraries
+			InputStream is = null;
+			try {
+				is = new FileInputStream(uncompressedFilename);
+			} catch (FileNotFoundException e) {
+				logger.error("Could not open local file: " + uncompressedFilename + ": " + e);
+				return null;
+			}
+
+			/*
+			 * Copy file data
+			 */
+			try {
+				final byte[] buffer = new byte[4096]; // use a 4KB buffer
+				int n = 0;
+				while (true) {
+					n = is.read(buffer);
+					if (n == -1) { // EOF
+						break;
+					}
+					cos.write(buffer, 0, n);
+				}
+			} catch (IOException e) {
+				logger.error("IOException during file copy: " + e);
+				try {
+					cos.close();
+					if (OsPath.delete(compressedFilename)) {
+						logger.error("Could not delete output file: " + compressedFilename);
+					}
+				} catch (IOException e1) {
+					logger.error("Could not close output stream: " + e);					
+				}
+				return null;
+			}
 		}
 		
 		return compressedFilename;
@@ -355,56 +418,95 @@ public class TroilkattFS {
 	 */
 	public boolean uncompressFile(String compressedName, String uncompressedName, String logDir) {
 		String basename = OsPath.basename(compressedName);
-		String cmd = null;
-		if (basename.endsWith(".gz") || basename.endsWith(".Z")) {
-			cmd = String.format("gunzip -cf %s > %s 2> %s",
-					compressedName,
-					uncompressedName,        	    		
-					OsPath.join(logDir, "gunzip." + basename + ".error"));        	    
-		}		
-		//else if (basename.endsWith(".zip")) {
-		//	cmd = String.format("unzip -d %s %s %s > %s 2> %s",
-		//			OsPath.dirname(uncompressedName),
-		//			compressedName,
-		//			OsPath.basename(uncompressedName),
-		//			OsPath.join(logDir, "unzip." + basename + ".output"),
-		//			OsPath.join(logDir, "unzip." + basename + ".error"));
-		//}  
-		else if (basename.endsWith(".bz2") || basename.endsWith(".bz")) {
-			cmd = String.format("bunzip2 -c %s > %s 2> %s",
-					compressedName,
-					uncompressedName,
-					OsPath.join(logDir, "bunzip." + basename + ".error"));
-		}
-		else {
-			logger.warn("Unknown extension for file: " + basename);
+		String compression = OsPath.getLastExtension(compressedName);
+		
+		// Check if commons-compress supports the file format
+		InputStream is = null;
+		try {
+			is = new FileInputStream(compressedName);
+		} catch (FileNotFoundException e1) {
+			logger.error("Could not open compressed file: " + compressedName);
 			return false;
 		}
-		
-		int rv = Stage.executeCmd(cmd, logger);
-		if (rv != 0) {
-			return false;
+		CompressorInputStream cin = null;
+		try {
+			cin = new CompressorStreamFactory().createCompressorInputStream(compression, is);
+		} catch (CompressorException e) { // This is expected, for example for the "none" format
+			logger.warn("Unknwon compression: " + compression);			
 		}
+
+		if (cin == null) { // Codec is not supported
+			// Input stream is not used if codec is not supported
+			try {
+				is.close();
+			} catch (IOException e) {
+				logger.warn("Could not close input stream" + e);
+				// Attempt to continue
+			}
+
+			if (compression.equals("none")) {
+				// Copy file to local storage
+				if (OsPath.copy(compressedName, uncompressedName) == false) {
+					logger.fatal("Could not copy " + compressedName + " to: " + uncompressedName);
+					return false;
+				}			
+			}
+			else { // attempt other compressors
+				logger.warn("Unknown extension for file: " + basename);
+				return false;
+			}
+
+		}
+		else { // codec is supported
+			FileOutputStream out = null;
+			try {
+				out = new FileOutputStream(uncompressedName);
+			} catch (FileNotFoundException e) {
+				logger.warn("Could not open uncompressed file stream: " + e);
+				return false;
+			}
+
+			/*
+			 * Copy file data
+			 */
+			try {
+				final byte[] buffer = new byte[4096]; // use a 4KB buffer
+				int n = 0;
+				while (true) {
+					n = cin.read(buffer);
+					if (n == -1) { // EOF
+						break;
+					}
+					out.write(buffer, 0, n);
+				}
+
+				out.close();
+				cin.close();
+			} catch (IOException e) {
+				logger.warn("IOException when uncompress file: " + e);
+				OsPath.delete(uncompressedName);
+			}
+		}	
 		
-		return true;			
+		return true;
 	}
 	
 	/**
-	 * Compress a directory using a specified compression method.
+	 * Compress and archive a directory using a specified compression method.
 	 * 
-	 * @param localDir directory to compress.
-	 * @param outDir output directory for compressed file
+	 * @param inputDir directory with files to archive/ compress.
+	 * @param outputDirname name of archive without compression extension 
 	 * @param logDir directory where log files are written.
 	 * @param compression format to use.
 	 * @return compressed filename, or null if compression failed.
 	 */
-	public String compressDirectory(String localDir, String outDir, String logDir, String compression) {
-		if (OsPath.isdir(localDir) == false) {
-			logger.warn("Not a directory on the local file system: " + localDir);
+	public String compressDirectory(String inputDir, String outputDirname, String logDir, String compression) {
+		if (OsPath.isdir(inputDir) == false) {
+			logger.warn("Not a directory on the local file system: " + inputDir);
 			return null;
-		}
+		}		
 		
-		
+		/*
 		String basename = OsPath.basename(localDir);
 		String cmd = null;
 		String compressedDir = null;		
@@ -444,10 +546,130 @@ public class TroilkattFS {
 		}
 		
 		return compressedDir;
+		*/
+		
+		final byte[] buffer = new byte[4096]; // use a 4KB buffer
+		
+		String[] inputFiles = OsPath.listdirR(inputDir, logger);
+				
+		//String compressedName = OsPath.join(outDir, basename + "." + compression);
+		String compressedName = outputDirname + "." + compression;
+		String compressionFormat = OsPath.getLastExtension(compression);
+		String archiverFormat = OsPath.removeLastExtension(compression);
+		
+		// Attempt to open compression stream
+		OutputStream os = null;		
+		CompressorOutputStream cos = null;
+		try {
+			os = new FileOutputStream(compressedName);
+			cos = new CompressorStreamFactory().createCompressorOutputStream(compressionFormat, os);
+		} catch (CompressorException e) { 
+			// This is expected, for example if compression should not be used
+			logger.warn("Unknown compression format: " + compressionFormat);			
+		} catch (FileNotFoundException e) {
+			logger.error("Could not open output stream to file: " + compressedName);
+			return null;
+		}
+
+		ArchiveOutputStream aos = null;
+		if (cos == null) { // no compression		 
+			try {
+				aos = new ArchiveStreamFactory().createArchiveOutputStream(compression, os);
+			} catch (ArchiveException e) { 
+				// This is (somewhat) expected, for example if an alternative 
+				logger.warn("Unknown archiver format: " + compression);			
+			}
+		} 
+		else { // with compression
+			try {
+				aos = new ArchiveStreamFactory().createArchiveOutputStream(archiverFormat, cos);
+			} catch (ArchiveException e) { 
+				// This is (somewhat) expected, for example if an alternative 
+				logger.warn("Unknown archiver format: " + archiverFormat);
+			}			
+		}		
+		
+		if (aos != null) {
+			// Make sure it is one of the below supported archive formats
+			if  (! archiverFormat.equals("ar") &&  
+					! archiverFormat.equals("zip") &&
+					! archiverFormat.equals("tar") &&
+					! archiverFormat.equals("jar") &&
+					! archiverFormat.equals("cpio")) {				
+				logger.error("Unexpected archive format");
+				try {
+					aos.close();
+				} catch (IOException e) {
+					logger.warn("Could not close archvie in exception clause: " + e);
+				}
+				if (OsPath.delete(compressedName) == false) {
+					logger.warn("Could not delete archive file in exception clause: " + compressedName);
+				}
+				return null;
+			}
+			
+			try { // one big try that catches all IOexceptions when adding files to an archive
+				for (String f: inputFiles) {				
+					InputStream is = new FileInputStream(f);								
+					String arName = OsPath.absolute2relative(f, inputDir);
+								
+					ArchiveEntry ar = null;
+					if  (archiverFormat.equals("ar")) {
+						ar = new ArArchiveEntry(new File(f), arName);
+					}
+					else if (archiverFormat.equals("zip")) {
+						ar = new ZipArchiveEntry(new File(f), arName);
+					}
+					else if (archiverFormat.equals("tar")) {
+						ar = new TarArchiveEntry(new File(f), arName);				
+					}				
+					else if (archiverFormat.equals("cpio")) {
+						ar = new CpioArchiveEntry(new File(f), arName);
+					}				
+					
+					/*
+					 * Add entry and copy file data
+					 */
+					aos.putArchiveEntry(ar);					 					
+									
+					int n = 0;
+					while (true) {
+						n = is.read(buffer);
+						if (n == -1) { // EOF
+							break;
+						}
+						aos.write(buffer, 0, n);
+					}				
+					aos.closeArchiveEntry();
+					is.close();				
+				} // for input files
+			
+				aos.close();			
+			} catch (IOException e1) {
+				logger.error("Could not add file to archive: " + e1);
+				try {
+					aos.close();
+				} catch (IOException e2) {
+					logger.warn("Could not close archvie in exception clause: " + e2);
+				}
+				if (OsPath.delete(compressedName) == false) {
+					logger.warn("Could not delete archive file in exception clause: " + compressedName);
+				}
+				return null;
+			}
+			return compressedName;
+		}
+		else { // archiver not supported
+			logger.fatal("Unknown archive format: " + compression);
+			return null;
+		}		
 	}
 
 	/**
 	 * Uncompress a directory using an external program.
+	 * 
+	 * Note. If the uncompress/unpack fails before all files are unpacked, the files that were 
+	 * unpacked before the fail are not deleted. 
 	 * 
 	 * @param compressedDir compressed directory
 	 * @param dstDir destination directory. Note that the files are uncompressed to this directory, and not to a sub-directory
@@ -457,8 +679,94 @@ public class TroilkattFS {
 	 */
 	public ArrayList<String> uncompressDirectory(String compressedDir, String dstDir, String logDir) {
 		String compression = getDirCompression(compressedDir);
-		String basename = OsPath.basename(compressedDir);
+		// the local variable compression my contain both the archive and compression format (e.g. tar.gz) 
+		String compressionExtension = OsPath.getLastExtension(compression); // just compression format
+		String archiveExtension = OsPath.getLastExtension(OsPath.removeLastExtension(compression)); // just archive format		
 		
+		ArrayList<String> dirContent = new ArrayList<String>();
+		
+		/*
+		 *  Attempt to open using commons-compress libraries
+		 */
+		// Check if commons-compress supports the file format
+		InputStream is;
+		try {
+			is = new FileInputStream(compressedDir);
+		} catch (FileNotFoundException e1) {
+			logger.warn("Could not open: " + compressedDir + ": " + e1);
+			return null;
+		}
+		CompressorInputStream cin = null;
+		ArchiveInputStream ain = null;
+		
+		try {
+			cin = new CompressorStreamFactory().createCompressorInputStream(compressionExtension, is);
+		} catch (CompressorException e) { // This is expected, for example for the "none" format
+			logger.warn("Unknwon compression: " + compressionExtension);			
+		}
+		
+		if (cin != null) { // valid compression extension
+			try {
+				ain = new ArchiveStreamFactory().createArchiveInputStream(archiveExtension, cin);
+			} catch (ArchiveException e) { // This is expected, for example for the "none" format
+				logger.warn("Unknwon archive: " + archiveExtension);			
+			}
+		} 
+		else { // not a valid compression extension, so we assume it is not a compressed archive
+			try {
+				ain = new ArchiveStreamFactory().createArchiveInputStream(compression, is);
+			} catch (ArchiveException e) { // This is expected, for example for the "none" format
+				logger.warn("Unknwon archive: " + archiveExtension);			
+			}
+		}
+		
+		if ((cin == null) || (ain == null)) { // Attempt to use fallback compression methods
+			logger.fatal("Unknown archive format: " + compression);
+			return null;
+		}
+		
+		final byte[] buffer = new byte[4096]; // use a 4KB buffer	
+		try {
+			while (true) { // for all files in archive
+				ArchiveEntry ae = ain.getNextEntry();					
+				if (ae == null) { // no more entries
+					break;
+				}				
+				if (ae.isDirectory()) {
+					OsPath.mkdir(OsPath.join(dstDir, ae.getName()));
+					continue;
+				}
+				
+				// entry is for a file
+				String outputFilename = OsPath.join(dstDir, ae.getName());
+				FileOutputStream fos = new FileOutputStream(outputFilename);
+				long fileSize = ae.getSize();
+				long bytesRead = 0;
+				while (bytesRead < fileSize) {
+					int n = ain.read(buffer);
+					if (n == -1) { // EOF
+						break;
+					}
+					fos.write(buffer, 0, n);
+					bytesRead += n;
+				}
+				fos.close();
+				dirContent.add(outputFilename);
+			}
+		} catch (IOException e1) {
+			logger.error("Could not unpack archive entry: " + e1);
+			try {
+				ain.close();
+			} catch (IOException e2) {
+				logger.warn("Could not close archive in exception clause: " + e2);
+			}
+			return null;
+		}
+		
+		return dirContent;
+			
+		
+		/*
 		String cmd = null;
 		if (compression.equals("tar.gz")) {
 			cmd = String.format("tar xvzf %s -C %s > %s 2> %s",
@@ -497,7 +805,8 @@ public class TroilkattFS {
 		for (String f: files) {
 			dirContent.add(f);
 		}
-		return dirContent;	
+		return dirContent;
+		*/	
 	}
 
 	/**

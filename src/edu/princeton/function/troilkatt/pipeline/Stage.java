@@ -390,7 +390,7 @@ public class Stage {
 	 * does not have any metadata files.
 	 * @throws StageException if metafiles could not be downloaded
 	 */
-	protected ArrayList<String> downloadMetaFiles() throws StageException {
+	public ArrayList<String> downloadMetaFiles() throws StageException {
 		try {
 			String newestMetaDir = tfs.getNewestDir(hdfsMetaDir);
 			if (newestMetaDir == null) {
@@ -503,7 +503,7 @@ public class Stage {
 	 * 
 	 * @throws StageException if all tmp files could not be deleted 
 	 */
-	protected void cleanupLocalDirs() throws StageException {
+	public void cleanupLocalDirs() throws StageException {
 		String[] dirs = {stageInputDir, stageLogDir, stageOutputDir, stageMetaDir, stageTmpDir};
 		
 		// Delete and then re-create directory

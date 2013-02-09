@@ -127,7 +127,6 @@ public class ExecuteStage extends PerFile {
 				PipelinePlaceholder pipeline = new PipelinePlaceholder(confEget(conf, "troilkatt.pipeline.name"), 
 						troilkattProperties, tfs);
 
-								
 				String hdfsStageMetaDir = confEget(conf, "troilkatt.hdfs.meta.dir");
 				
 				// Get stage number from stageName

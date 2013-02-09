@@ -277,7 +277,7 @@ public class TroilkattHDFS extends TroilkattFS {
 	 * NOTE! This function will move the source file, since we assume that there may be some large files
 	 * that are put to HDFS and that creating multiple copies of these is both space and time consuming.
 	 *  
-	 * @param localFilename absolute filename on local FS.
+	 * @param localFilename absolute filename on local FS. 
 	 * @param hdfsOutputDir HDFS output directory where file is copied.
 	 * @param tmpDir directory on local FS where temporary files can be stored
 	 * @param logDir logfile directory on local FS
@@ -380,12 +380,13 @@ public class TroilkattHDFS extends TroilkattFS {
 	}
 	
 	/**
-	 * Compress a file and move the file from local FS to HDFS.
+	 * Compress a file and move the file from local FS to HDFS. (Note no timestamp is added to the 
+	 * filename).
 	 * 
 	 * NOTE! This function will move the source file, since we assume that there may be some large files
 	 * that are put to HDFS and that creating multiple copies of these is both space and time consuming.
 	 *  
-	 * @param localFilename absolute filename on local FS.
+	 * @param localFilename absolute filename on local FS.  The filename should include a timestamp.
 	 * @param hdfsOutputDir HDFS output directory where file is copied.
 	 * @param tmpDir directory on local FS where temporary files can be stored
 	 * @param logDir logfile directory on local FS

@@ -201,8 +201,15 @@ public class TroilkattTest extends TestSuper {
 		logger.fatal("Fatal message");
 	}
 	
+	// HDFS & NFS
 	@Test
 	public void testSetupTFS() {
+		assertTrue(false);
+	}
+	
+	// Invalid property
+	@Test
+	public void testSetupTFS2() {
 		assertTrue(false);
 	}
 
@@ -280,7 +287,7 @@ public class TroilkattTest extends TestSuper {
 		assertFalse(true);
 	}
 	
-	//@Test
+	@Test
 	public void testDownloadGlobalMeta() throws IOException, TroilkattPropertiesException {
 		Troilkatt troilkatt = new Troilkatt();
 		troilkatt.logger = Logger.getLogger("troilkatt-test");

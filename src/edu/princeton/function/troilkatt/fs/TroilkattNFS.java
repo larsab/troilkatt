@@ -1,33 +1,9 @@
 package edu.princeton.function.troilkatt.fs;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import org.apache.log4j.Logger;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.compressors.CompressorException;
-import org.apache.commons.compress.compressors.CompressorInputStream;
-import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.CompressionCodecFactory;
-import org.apache.hadoop.io.compress.CompressionInputStream;
-import org.apache.hadoop.io.compress.CompressionOutputStream;
-
-import edu.princeton.function.troilkatt.pipeline.Stage;
 import edu.princeton.function.troilkatt.utils.Utils;
 
 /**
@@ -97,8 +73,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * @throws IOException 
 	 */
 	@Override
-	public String getFile(String nfsName, String localDir, String tmpDir, String logDir) throws IOException {
-		
+	public String getFile(String nfsName, String localDir, String tmpDir, String logDir) throws IOException {		
 		if (! isfile(nfsName)) {
 			logger.error("Not a file: " + nfsName);
 			return null;
@@ -121,64 +96,20 @@ public class TroilkattNFS extends TroilkattFS {
 			logger.fatal("Invalid filename: " + nfsName);
 			return null;
 		}
-		String finalName = OsPath.join(localDir, basename);
 		
-		// Check if commons-compress supports the file format
-		InputStream is = new FileInputStream(nfsName);
-		CompressorInputStream cin = null;
-		try {
-			cin = new CompressorStreamFactory().createCompressorInputStream(compression, is);
-		} catch (CompressorException e) { // This is expected, for example for the "none" format
-			logger.warn("Unknwon compression: " + compression);			
-		}
-		
-		if (cin == null) { // Codec is not supported
-			if (compression.equals("none")) {
-				// Copy file to local storage
-				if (OsPath.copy(nfsName, finalName) == false) {
-					logger.fatal("Could not copy " + nfsName + " to: " + finalName);
-					return null;
-				}			
-			}
-			else { // attempt other compressors
-				if (! uncompressFile(nfsName, finalName, logDir)) {
-					logger.fatal("Could not uncompress file: " + nfsName);
-					return null;
-				}				
-			}
-			is.close();
-		}
-		else { // codec is supported
-			FileOutputStream out = null;
-			try {
-				out = new FileOutputStream(finalName);
-			} catch (FileNotFoundException e) {
-				logger.warn("File not found: " + e);
-				return null;
-			}
-			
-			/*
-			 * Copy file data
-			 */
-			final byte[] buffer = new byte[4096]; // use a 4KB buffer
-			int n = 0;
-			while (true) {
-				n = cin.read(buffer);
-				if (n == -1) { // EOF
-					break;
-				}
-				out.write(buffer, 0, n);
-			}
-			
-			out.close();
-			cin.close();
-		}
-		if (! OsPath.isfile(finalName)) {
-			logger.fatal("Uncompressed file does not exist");
+		if (! OsPath.isdir(localDir)) {
+			logger.fatal("Invalid directory: " + localDir);
 			return null;
 		}
 		
-		return finalName;
+		String finalName = OsPath.join(localDir, basename);
+		
+		if (uncompressFile(nfsName, finalName, logDir)) { // success
+			return finalName;
+		} 
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -216,6 +147,7 @@ public class TroilkattNFS extends TroilkattFS {
 			}
 		}
 		
+		localFiles = new ArrayList<String>();		
 		if (compression.equals("none")) { 
 			// Directory is not compressed or packed, so just copy all files
 			ArrayList<String> nfsFiles = listdirR(nfsName);
@@ -223,8 +155,7 @@ public class TroilkattNFS extends TroilkattFS {
 				logger.warn("Empty directory, or directory could not be listed: " + nfsName);
 				return null;
 			}
-			
-			localFiles = new ArrayList<String>();
+						
 			for (String f: nfsFiles) {
 				String localName = OsPath.join(localDir, OsPath.basename(f));
 				if (OsPath.copy(f, localName) == false) {
@@ -236,77 +167,9 @@ public class TroilkattNFS extends TroilkattFS {
 			}
 		}
 		else {	// Directory is compressed or packed
-			String tmpName = OsPath.join(tmpDir, OsPath.basename(nfsName));
-			
-			/*
-			 *  Attempt to open using commons-compress libraries
-			 */
-			// Check if commons-compress supports the file format
-			InputStream is = new FileInputStream(nfsName);
-			CompressorInputStream cin = null;
-			ArchiveInputStream ain = null;
-			// the local varuable compression contains both the archive and compression format (e.g. tar.gz) 
-			String compressionExtension = OsPath.getLastExtension(nfsName); // just compression format
-			String archiveExtension = OsPath.getLastExtension(OsPath.removeLastExtension(nfsName)); // just archive format
-			try {
-				cin = new CompressorStreamFactory().createCompressorInputStream(compressionExtension, is);
-			} catch (CompressorException e) { // This is expected, for example for the "none" format
-				logger.warn("Unknwon compression: " + compressionExtension);			
-			}
-			try {
-				ain = new ArchiveStreamFactory().createArchiveInputStream(archiveExtension, cin);
-			} catch (ArchiveException e) { // This is expected, for example for the "none" format
-				logger.warn("Unknwon archive: " + archiveExtension);			
-			}
-			
-			if ((cin == null) || (ain == null)) { // Attempt to use fallback compression methods
-				OsPath.copy(nfsName, tmpName);
-				localFiles = uncompressDirectory(tmpName, localDir, logDir);
-				
-				OsPath.delete(tmpName);
-				
-				if (localFiles == null) {
-					logger.warn("Could not uncompressed directory: " + nfsName);
-					return null;
-				}
-			}
-			else {
-				while (true) { // for all files in archive
-					ArchiveEntry ae = ain.getNextEntry();
-					String outputFilename = OsPath.join(ae.getName())
-					FileOutputStream fos = new FileOutputStream();
-					long fileSize = ae.getSize();
-					long bytesRead = 0;
-					while (bytesRead < fileSize) {
-						ain.read(b, off, len)
-					}
-					fos.write(b, off, len)
-				}
-				
-				/*
-				 * Copy file data
-				 */
-				final byte[] buffer = new byte[4096]; // use a 4KB buffer
-				int n = 0;
-				while (true) {
-					n = cin.read(buffer);
-					if (n == -1) { // EOF
-						break;
-					}
-					out.write(buffer, 0, n);
-				}
-			}
-			
-			// Download compressed/packed file
-			if (copyFileFromHdfs(hdfsName, tmpName) == false) {
-				logger.warn("Could not download compressed directory: " + hdfsName);
-				return null;
-			}
-			
-			
+			localFiles = uncompressDirectory(nfsName, localDir, logDir);					
 		}
-				
-		
+
 		return localFiles;
 	}
 
@@ -314,118 +177,78 @@ public class TroilkattNFS extends TroilkattFS {
 	 * Compress a file, add a timestamp, and move the file from local FS to HDFS.
 	 * 
 	 * NOTE! This function will move the source file, since we assume that there may be some large files
-	 * that are put to HDFS and that creating multiple copies of these is both space and time consuming.
+	 * that are put to NFS and that creating multiple copies of these is both space and time consuming.
 	 *  
 	 * @param localFilename absolute filename on local FS.
-	 * @param hdfsOutputDir HDFS output directory where file is copied.
+	 * @param nfsOutputDir NFS output directory where file is copied.
 	 * @param tmpDir directory on local FS where temporary files can be stored
 	 * @param logDir logfile directory on local FS
 	 * @param compression compression method to use for file 
 	 * @param timestamp timestamp to add to file
-	 * @return HDFS filename on success, null otherwise
+	 * @return NFS filename on success, null otherwise
 	 */
 	@Override
-	public String putLocalFile(String localFilename, String hdfsOutputDir, String tmpDir, String logDir, 
+	public String putLocalFile(String localFilename, String nfsOutputDir, String tmpDir, String logDir, 
 			String compression, long timestamp) {
 		
-		logger.debug("Put local file " + localFilename + " to HDFS dir " + hdfsOutputDir + " with timestamp " + timestamp + " using compression " + compression);
+		logger.debug("Put local file " + localFilename + " to HDFS dir " + nfsOutputDir + " with timestamp " + timestamp + " using compression " + compression);						
 		
+		/*
+		 * Check input file and output directory
+		 */
+		try {
+			if (! isfile(localFilename)) {
+				logger.error("Not a file: " + localFilename);
+				return null;
+			}
+			if (fileSize(localFilename) == 0) {
+				logger.warn("Empty file ignored: " + localFilename);
+				return null;
+			}
+			
+			if (isfile(nfsOutputDir)) {
+				logger.fatal("Destiantion is a file and not a directory: " + nfsOutputDir);
+			}
+			else if (! isdir(nfsOutputDir)) {
+				logger.warn("Creating destination directory: " + nfsOutputDir);
+				mkdir(nfsOutputDir);
+			}
+			if (! isValidCompression(compression)) {
+				logger.fatal("Invalid compression format: " + compression);
+				return null;
+			}
+		} catch (IOException e1) {
+			logger.fatal("Could not check if argument is a file: " + e1);
+			return null; 
+		}
+		
+		/*
+		 * Check arguments
+		 */
 		if (timestamp < 0) {
 			logger.fatal("Invalid timestamp: " + timestamp);
 			return null;
 		}
+		String timestampFilename = OsPath.join(tmpDir, OsPath.basename(localFilename) + "." + timestamp);
 		
-		String timestampFilename = OsPath.join(tmpDir, OsPath.basename(localFilename) + "." + timestamp);	
-		String compressedName = timestampFilename + "." + compression;
-		String hdfsFilename = OsPath.join(hdfsOutputDir, OsPath.basename(compressedName));
+		if (OsPath.rename(localFilename, timestampFilename) == false) {
+			logger.fatal("Could not rename file: " + localFilename + " to " + timestampFilename);
+			return null;
+		} 
 		
-		// Check if the compression format for the output file is supported by hadoop
-		CompressionCodecFactory factory = new CompressionCodecFactory(conf);
-		Path outputPath = new Path(hdfsFilename);
-		CompressionCodec codec = factory.getCodec(outputPath);
-		
-		if (codec == null) { // codec not supported
-			/*
-			 * Execute script to compress file to local FS, then copy compressed file to HDFS
-			 */
-			if (compression.equals("none")) {
-				if (OsPath.rename(localFilename, compressedName) == false) {
-					logger.fatal("Could not rename file: " + localFilename + " to " + compressedName);
-					return null;
-				} 
-			}
-			else {
-				if (OsPath.rename(localFilename, timestampFilename) == false) {
-					logger.fatal("Could not rename file: " + localFilename + " to " + timestampFilename);
-					return null;
-				}
-
-				compressedName = compressFile(timestampFilename, tmpDir, logDir, compression); 			
-			}
-
-			if (compressedName == null) {
-				logger.fatal("Could not compress file: " + timestampFilename + " with " + compression);
-				return null;
-			}
-
-			if (copyFileToHdfs(compressedName, hdfsFilename) == false) {
-				logger.fatal("Could not copy compressed file: " + compressedName + " to HDFS file: " + hdfsFilename);
-				return null;
-			}
-			//logger.debug("File added to HDFS (via local FS): " + outputPath.toString());
-		}
-		else { // codec supported
-			// Directly write file to HDFS
-			try {						
-				FileInputStream in = new FileInputStream(localFilename);
-				CompressionOutputStream out = codec.createOutputStream(hdfs.create(outputPath));
-				IOUtils.copyBytes(in, out, conf); // also closes streams at the end
-								
-				/*byte[] buf = new byte[512];
-				while (true) {
-					int nRead = in.read(buf);
-					if (nRead > 0) {
-						out.write(buf, 0, nRead);
-					}
-					else {
-						break;
-					}
-				}
-				
-				logger.debug("Flush compression output stream");
-				out.flush();
-				logger.debug("Finnish compression output stream");
-				out.finish();
-				
-				in.close();
-				out.close();
-				
-				if (! isfile(hdfsFilename)) {
-					logger.fatal("File not in HDFS: " + hdfsFilename);
-					return null;
-				}
-				
-				logger.debug("File added to HDFS (using codec): " + outputPath.toString());*/
-			} catch (FileNotFoundException e) {
-				logger.fatal("Could not open input file: " + localFilename + ": " + e.getMessage());
-				return null;
-			} catch (IOException e) {
-				logger.fatal("Could not write file to HDFS: IOException: " + e.getMessage());
-				return null;
-			} 
-		}
-		
-		return hdfsFilename;
+		// This function does the actual compression
+		return compressFile(timestampFilename, nfsOutputDir, logDir, compression);
 	}
 	
 	/**
-	 * Compress a file and move the file from local FS to HDFS.
+	 * Compress a file and move the file from local FS to NFS. Note that this function does not 
+	 * add a timestamp to the filename.
 	 * 
 	 * NOTE! This function will move the source file, since we assume that there may be some large files
 	 * that are put to HDFS and that creating multiple copies of these is both space and time consuming.
 	 *  
-	 * @param localFilename absolute filename on local FS.
-	 * @param hdfsOutputDir HDFS output directory where file is copied.
+	 * @param localFilename absolute filename on local FS. The filename should include a timestamp.
+	 * @param nfsOutputDir NFS output directory where file is copied.
 	 * @param tmpDir directory on local FS where temporary files can be stored
 	 * @param logDir logfile directory on local FS
 	 * @param compression compression method to use for file 
@@ -433,58 +256,37 @@ public class TroilkattNFS extends TroilkattFS {
 	 * @return HDFS filename on success, null otherwise
 	 */
 	@Override
-	public String putLocalFile(String localFilename, String hdfsOutputDir, String tmpDir, String logDir, String compression) {
-		if (OsPath.fileSize(localFilename) == 0) {
-			return null;
-		}
-		
-		String compressedName = localFilename + "." + compression;
-		String hdfsFilename = OsPath.join(hdfsOutputDir, OsPath.basename(compressedName));
-		
-		// Check if the compression format for the output file is supported by hadoop
-		CompressionCodecFactory factory = new CompressionCodecFactory(conf);
-		Path outputPath = new Path(hdfsFilename);
-		CompressionCodec codec = factory.getCodec(outputPath);
-		
-		if (codec == null) { // codec not supported
-			/*
-			 * Execute script to compress file to local FS, then copy compressed file to HDFS
-			 */
-			if (compression.equals("none")) {
-				if (OsPath.rename(localFilename, compressedName) == false) {
-					logger.fatal("Could not rename file: " + localFilename + " to " + compressedName);
-					return null;
-				} 
+	public String putLocalFile(String localFilename, String nfsOutputDir, String tmpDir, String logDir, String compression) {
+		/*
+		 * Check input file and output directory
+		 */
+		try {
+			if (! isfile(localFilename)) {
+				logger.error("Not a file: " + localFilename);
+				return null;
 			}
-			else {
-				compressedName = compressFile(localFilename, tmpDir, logDir, compression); 		
-				if (compressedName == null) {
-					logger.fatal("Could not compress file: " + localFilename + " with " + compression);
-					return null;
-				}
+			if (fileSize(localFilename) == 0) {
+				logger.warn("Empty file ignored: " + localFilename);
+				return null;
 			}
 			
-			if (copyFileToHdfs(compressedName, hdfsFilename) == false) {
-				logger.fatal("Could not copy compressed file: " + compressedName + " to HDFS file: " + hdfsFilename);
-				return null;
+			if (isfile(nfsOutputDir)) {
+				logger.fatal("Destiantion is a file and not a directory: " + nfsOutputDir);
 			}
+			else if (! isdir(nfsOutputDir)) {
+				logger.warn("Creating destination directory: " + nfsOutputDir);
+				mkdir(nfsOutputDir);
+			}			
+		} catch (IOException e1) {
+			logger.fatal("Could not check if argument is a file: " + e1);
+			return null; 
 		}
-		else { // codec supported
-			// Directly write file to HDFS
-			try {
-				FileInputStream in = new FileInputStream(localFilename);
-				CompressionOutputStream out = codec.createOutputStream(hdfs.create(outputPath));
-				IOUtils.copyBytes(in, out, conf); // also closes streams at the end
-			} catch (FileNotFoundException e) {
-				logger.fatal("Could not open input file: " + localFilename + ": " + e.getMessage());
-				return null;
-			} catch (IOException e) {
-				logger.fatal("Could not write file to HDFS: IOException: " + e.getMessage());
-				return null;
-			} 
-		}
+		if (! isValidCompression(compression)) {
+			logger.fatal("Invalid compression format: " + compression);
+			return null;
+		}		
 		
-		return hdfsFilename;
+		return compressFile(localFilename, nfsOutputDir, logDir, compression);
 	}
 	
 
@@ -492,7 +294,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * Create a directory using the timestamp as name, compress  the directory files, and copy the 
 	 * compressed directory from local FS to HDFS 
 	 * 
-	 * @param hdfsDir HDFS directory where new sub-directory is created
+	 * @param nfsDir HDFS directory where new sub-directory is created
 	 * @param timestamp name for new sub-directory
 	 * @param metaFiles files to copy to HDFS
 	 * @param localFiles list of absolute filenames in directory to copy to HDFS
@@ -502,13 +304,31 @@ public class TroilkattNFS extends TroilkattFS {
 	 * @return true if all files were copied to HDFS, false otherwise
 	 */
 	@Override
-	public boolean putLocalDirFiles(String hdfsDir, long timestamp, ArrayList<String> localFiles, 
+	public boolean putLocalDirFiles(String nfsDir, long timestamp, ArrayList<String> localFiles, 
 			String compression, String logDir, String tmpDir) {		
+		if (! isValidCompression(compression)) {
+			logger.fatal("Invalid compression format: " + compression);
+			return false;
+		}
+		try {
+			if (! isdir(nfsDir)) {
+				logger.fatal("Invalid NFS output directory: " + nfsDir);
+				return false;
+			}
+		} catch (IOException e) {
+			logger.fatal("Could not check NFS directory: " + nfsDir);
+			return false;
+		}
+		if (timestamp < 0) {
+			logger.fatal("Invalid timestamp: " + timestamp);
+			return false;
+		}
+		
 		if (compression.equals("none")) {
-			String subdir = OsPath.join(hdfsDir, timestamp + "." + compression);
+			String subdir = OsPath.join(nfsDir, timestamp + "." + compression);
 			for (String f: localFiles) {
 				String hdfsName = OsPath.join(subdir, OsPath.basename(f));
-				if (! copyFileToHdfs(f, hdfsName)) {
+				if (! OsPath.copy(f, hdfsName)) {
 					return false;
 				}				
 			}	
@@ -520,27 +340,23 @@ public class TroilkattNFS extends TroilkattFS {
 				logger.fatal("Could not make tmp directory: " + tmpDir);
 			}
 			
-			System.out.println("Copy files to " + tmpSubdir);
+			System.out.println("Move files to " + tmpSubdir);
 			for (String f: localFiles) {
 				String tmpFilename = OsPath.join(tmpSubdir, OsPath.basename(f));				
-				if (! OsPath.copy(f, tmpFilename, logger)) {
+				if (! OsPath.rename(f, tmpFilename)) {
 					logger.fatal("Could not copy file to tmp directory: " + f);
 					return false;
 				}	
 			}			
 			
 			// Compress the tmp directory
-			String compressedDir = compressDirectory(tmpSubdir, tmpDir, logDir, compression); 
+			String compressedDir = compressDirectory(tmpSubdir, 
+					OsPath.join(nfsDir, String.valueOf(timestamp)), 
+					logDir, compression); 
 			if (compressedDir == null) {
 				logger.fatal("Could not compress directory: " + tmpSubdir);						
 				return false;
-			}
-			
-			// Copy directory to HDFS
-			String subdir = OsPath.join(hdfsDir, OsPath.basename(compressedDir));
-			if (! copyFileToHdfs(compressedDir, subdir)) {
-				return false;
-			}
+			}			
 		}
 		return true;
 	}
@@ -548,6 +364,7 @@ public class TroilkattNFS extends TroilkattFS {
 	/**
 	 * Move a file from a temporary directory to an output directory. A timestamp
 	 * will be added to the filename and the file will be compressed if necessary.
+	 * The source file will be deleted.
 	 * 
 	 * @param srcFilename source filename
 	 * @param dstDir destination directory
@@ -565,103 +382,23 @@ public class TroilkattNFS extends TroilkattFS {
 		
 		logger.info(String.format("Move file %s to %s using compression %s and timestamp %d\n", srcFilename, dstDir, compression, timestamp));
 		
-		if (! isfile(srcFilename)) {
-			logger.fatal("Source is not a file: " + srcFilename);
-			return null;
-		}
-		else if (timestamp < 0) {
-			logger.fatal("Invalid timestamp: " + timestamp);
-			return null;
-		}
-		else if (! isValidCompression(compression)) {
-			logger.fatal("Invalid compression format: " + compression);
-			return null;
-		}
-		else if (fileSize(srcFilename) == 0) {
-			logger.warn("Empty file ignored: " + srcFilename);
-			return null;
+		// There is no difference in local and NFS files
+		String dstFilename = putLocalFile(srcFilename, dstDir, tmpDir, logDir, compression, timestamp);
+		if (dstFilename == null) {
+			putLocalFile(srcFilename, dstDir, tmpDir, logDir, compression, timestamp);
 		}
 		
-		if (isfile(dstDir)) {
-			logger.fatal("Destiantion is a file and not a directory: " + dstDir);
-		}
-		else if (! isdir(dstDir)) {
-			logger.warn("Creating destination directory: " + dstDir);
-			mkdir(dstDir);
-		}
-		
-		String srcCompression = OsPath.getLastExtension(srcFilename);				
-		Path srcPath = new Path(srcFilename);
-				
-		/*
-		 * Case 1: Source file is already compressed and can just be renamed
-		 */
-		if (srcCompression.equals(compression)) {
-			// Replace compression extension with timestamp + compression extension
-			String dstFilename = OsPath.join(dstDir, OsPath.basename(srcFilename.substring(0, srcFilename.length() - compression.length()) + timestamp + "." + compression));					
-			if (moveHDFSFile(srcFilename, dstFilename) == false) {
-				logger.fatal("Could not move " + srcFilename + " to " + dstFilename);
-				return null;
-			}
-			return dstFilename;			
-		}
-		/*
-		 * Case 2: The output file should not be compressed so the source file can just be 
-		 * moved
-		 */
-		else if (compression.equals("none")) {
-			String dstFilename = OsPath.join(dstDir, OsPath.basename(srcFilename)) + "." + timestamp + "." + compression;					
-			if (moveHDFSFile(srcFilename, dstFilename) == false) {
-				logger.fatal("Could not move " + srcFilename + " to " + dstFilename);
-				return null;
-			}
-			return dstFilename;
-		}
-		/*
-		 * Case 3: Compression is necessary so the files cannot simply be moved
-		 */
-		else {
-			String dstFilename = OsPath.join(dstDir, OsPath.basename(srcFilename)) + "." + timestamp + "." + compression;
-			Path dstPath = new Path(dstFilename);
-			
-			// Check if the compression formats of the files are supported by hadoop
-			CompressionCodecFactory factory = new CompressionCodecFactory(conf);
-			//CompressionCodec inputCodec = factory.getCodec(srcPath);
-			CompressionCodec outputCodec = factory.getCodec(dstPath);
-			
-			if (outputCodec != null) { // output codec is supported by hadoop
-				// Read compressed file directly and write compressed file directly
-				InputStream in = hdfs.open(srcPath); 
-				CompressionOutputStream out = outputCodec.createOutputStream(hdfs.create(dstPath));
-				IOUtils.copyBytes(in, out, conf); // also closes streams at the end
-			}
-			else {
-				// Copy input file to local FS, compress and rewrite back to hadoop
-				// The TroilkattFS methods will use a compression codec if possible
-				String localSrcFilename = OsPath.join(tmpDir, OsPath.basename(srcFilename));
-				if (copyFileFromHdfs(srcFilename, localSrcFilename) == false) {
-					logger.fatal("Could not copy srcFile to local FS");
-					return null;
-				}				
-				dstFilename = putLocalFile(localSrcFilename, dstDir, tmpDir, logDir, compression, timestamp); 
-				if (dstFilename == null) {
-					logger.fatal("Could not write file to: " + dstDir);
-					return null;
-				}
-			}
-			
-			// Delete source file
-			if(! deleteFile(srcFilename)) {
-				logger.warn("Could not delete source file: " + srcFilename);
-			}
-			
-			return dstFilename;
-		}
+		// Delete source file
+		if(! deleteFile(srcFilename)) {
+			logger.warn("Could not delete source file: " + srcFilename);
+		}			
+		return dstFilename;		
 	}
 	
 	/**
 	 * Move a file from a temporary directory to an output directory. The source
-	 * filename is assumed to have a valid timestamp and compression format.
+	 * filename is assumed to have a valid timestamp and compression format. The
+	 * source file is deleted.
 	 * 
 	 * @param srcFilename source filename
 	 * @param dstDir destination directory
@@ -696,7 +433,7 @@ public class TroilkattNFS extends TroilkattFS {
 		}
 				
 		String dstFilename = OsPath.join(dstDir, OsPath.basename(srcFilename));					
-		if (moveHDFSFile(srcFilename, dstFilename) == false) {
+		if (OsPath.rename(srcFilename, dstFilename) == false) {
 			logger.fatal("Could not move " + srcFilename + " to " + dstFilename);
 			return null;
 		}
@@ -817,28 +554,5 @@ public class TroilkattNFS extends TroilkattFS {
 		}
 		
 		return OsPath.fileSize(filename);
-	}
-	
-	/**
-	 * Copy file data in 4KB chunks
-	 * 
-	 * @param fin initialized file input stream
-	 * @param fos initialized file output stream
-	 * @return none
-	 * @throws IOException 
-	 */
-	private void copyFileData(FileInputStream fin, FileOutputStream fos) throws IOException {
-		/*
-		 * Copy file data
-		 */
-		final byte[] buffer = new byte[4096]; // use a 4KB buffer
-		int n = 0;
-		while (true) {
-			n = fin.read(buffer);
-			if (n == -1) { // EOF
-				break;
-			}
-			fos.write(buffer, 0, n);
-		}
-	}
+	}		
 }

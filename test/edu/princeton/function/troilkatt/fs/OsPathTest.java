@@ -299,11 +299,11 @@ public class OsPathTest extends TestSuper {
 	}
 
 	@Test
-	public void testGetRelativePath() {
-		assertEquals("baz", OsPath.getRelativePath("/foo/bar", "/foo/bar/baz"));
-		assertEquals("bar/baz", OsPath.getRelativePath("/foo", "/foo/bar/baz"));
-		assertEquals("baz", OsPath.getRelativePath("bar", "/foo/bar/baz"));
-		assertNull(OsPath.getRelativePath("/foo/bongo", "/foo/bar/baz"));
+	public void testAbsoluteRelative() {
+		assertEquals("baz", OsPath.absolute2relative("/foo/bar/baz", "/foo/bar"));
+		assertEquals("bar/baz", OsPath.absolute2relative("/foo/bar/baz", "/foo"));
+		assertEquals("baz", OsPath.absolute2relative("/foo/bar/baz", "bar"));
+		assertNull(OsPath.absolute2relative("/foo/bar/baz", "/foo/bongo"));
 	}
 	
 	@Test

@@ -348,7 +348,7 @@ public class OsPath {
 	 * @param filename: file or directory to delete
 	 * @return: true if file was deleted, false otherwise
 	 */
-	public static boolean delete(String filename) {
+	public static boolean delete(String filename) {		
 		File f = new File(filename);
 		return f.delete();
 	}
@@ -386,29 +386,7 @@ public class OsPath {
 		}
 		
 		return dir.delete();
-	}
-	
-	/**
-	 * Get a file path relative to a root directory
-	 * 
-	 * @param rootDir the directory the returned filename is relative to
-	 * @param filename file path to convert
-	 * @return filename path relative to rootDir, or null if the specified file is
-	 * not in rootDir or one of its subdirectories
-	 */
-	public static String getRelativePath(String rootDir, String filename) {
-		if (filename.contains(rootDir) == false) {
-			return null;
-		}
-		
-		// Get the part of the filename that follows rootDir
-		String relativeName = filename.substring(filename.indexOf(rootDir) + rootDir.length());
-		if (relativeName.startsWith("/")) {
-			relativeName = relativeName.substring(1);
-		}
-		
-		return relativeName;
-	}
+	}	
 	
 	/**
 	 * Create list with absolute pathnames.
@@ -453,6 +431,29 @@ public class OsPath {
 	 */
 	public static String relative2absolute(String dir, String file) {
 		return OsPath.join(dir, file);		
+	}
+	
+	/**
+	 * Get a file path relative to a root directory
+	 *
+	 * @param absolute: absolute filename
+	 * @param dir: directory to make filename relative to
+	 *    
+	 * @return: relative filename, or null if the absolute filename does not contain a file
+	 * relative to dir
+	 */
+	public static String absolute2relative(String absolute, String dir) {		
+		if (absolute.contains(dir) == false) {
+			return null;
+		}
+		
+		// Get the part of the filename that follows rootDir
+		String relativeName = absolute.substring(absolute.indexOf(dir) + dir.length());
+		if (relativeName.startsWith("/")) {
+			relativeName = relativeName.substring(1);
+		}
+
+		return relativeName;
 	}
 	
 	/**

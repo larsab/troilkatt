@@ -95,7 +95,7 @@ public class ListDirNew extends ListDir {
 				throw new StageException("Could not read from metadata file: " + e.getMessage());
 			}
 			for (String l: lines) {
-				String relativeName = OsPath.getRelativePath(rootDir, l);
+				String relativeName = OsPath.absolute2relative(l, rootDir);
 				if (relativeName == null) {
 					logger.fatal("Previous file not in listed directory: " + l);
 					throw new StageException("Previous file not in listed directory: " + l);
@@ -122,7 +122,7 @@ public class ListDirNew extends ListDir {
 		ArrayList<String> relativeFilenames = new ArrayList<String>();
 		
 		for (String f: absoluteFilenames) {			
-			String relativeName = OsPath.getRelativePath(rootDir, f);
+			String relativeName = OsPath.absolute2relative(f, rootDir);
 			if (relativeName == null) {				
 				throw new StageException("Listed file not in listed directory: " + f);
 			}			

@@ -49,7 +49,7 @@ public class Pipeline {
 	protected Sink sink = null;
 	
 	// Directory on local FS for temporary files
-	public String localFSDir;
+	public String localTmpDir;
 	
 	/**
 	 * Constructor
@@ -72,32 +72,41 @@ public class Pipeline {
 		this.troilkattProperties = troilkattProperties;		
 		this.tfs = tfs;
 		
+		// Create tmp directory on local filesystem if needed
+		localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);		
+		if (! OsPath.isdir(localTmpDir)) {
+			if (! OsPath.mkdir(localTmpDir)) {
+				logger.fatal("Could not create directory: " + localTmpDir);
+				throw new PipelineException("mkdir " + localTmpDir + " failed");
+			}
+		}
+		
+		String tfsRootDir;
 		String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 		if (persistentStorage.equals("hadoop")) {
 			this.logTable = new LogTableHbase(name);
+			tfsRootDir = troilkattProperties.get("troilkatt.hdfs.root.dir");		
 		}
 		else if (persistentStorage.equals("nfs")) {
-			this.logTable = new LogTableTar(name);
+			String sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");
+			String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "logtar");
+			if (! OsPath.mkdir(localLogDir)) {
+				logger.fatal("Could not create directory: " + localLogDir);
+				throw new PipelineException("mkdir " + localLogDir + " failed");
+			}
+			this.logTable = new LogTableTar(tfs, sgeDir, name, localLogDir, localTmpDir);
+			tfsRootDir = troilkattProperties.get("troilkatt.nfs.root.dir");
 		}
 		else {
 			logger.fatal("Invalid valid for persistent storage");
 			throw new PipelineException("Invalid valid for persistent storage");
 		}
-
-		// Create tmp file on local filesystem if needed
-		localFSDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);		
-		if (! OsPath.isdir(localFSDir)) {
-			if (! OsPath.mkdir(localFSDir)) {
-				logger.fatal("Could not create directory: " + localFSDir);
-				throw new PipelineException("mkdir " + localFSDir + " failed");
-			}
-		}
 		
 		// Create directories on HDFS if needed
-		String hdfsDatadir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "data/");		
-		String hdfsLogdir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "log/" + name);
-		String hdfsMetadir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "meta/" + name);
-		String hdfsGlobalMetadir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "global-meta");			
+		String hdfsDatadir = OsPath.join(tfsRootDir, "data/");		
+		String hdfsLogdir = OsPath.join(tfsRootDir, "log/" + name);
+		String hdfsMetadir = OsPath.join(tfsRootDir, "meta/" + name);
+		String hdfsGlobalMetadir = OsPath.join(tfsRootDir, "global-meta");
 		try {
 			// The tfs.mkdir function will check if a directory exists before the mkdir call.
 			// If a directory exists the function returns without a warning or exceptions
@@ -140,13 +149,28 @@ public class Pipeline {
 		logger = Logger.getLogger("troilkatt.pipeline-" + name); 
 		this.troilkattProperties = troilkattProperties;
 		this.tfs = tfs;
+		
+		// Create tmp directory on local filesystem if needed
+		localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);		
+		if (! OsPath.isdir(localTmpDir)) {
+			if (! OsPath.mkdir(localTmpDir)) {
+				logger.fatal("Could not create directory: " + localTmpDir);
+				throw new PipelineException("mkdir " + localTmpDir + " failed");
+			}
+		}
 
 		String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 		if (persistentStorage.equals("hadoop")) {
 			this.logTable = new LogTableHbase(name);
 		}
 		else if (persistentStorage.equals("nfs")) {
-			this.logTable = new LogTableTar(name);
+			String sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");
+			String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "logtar");
+			if (! OsPath.mkdir(localLogDir)) {
+				logger.fatal("Could not create directory: " + localLogDir);
+				throw new PipelineException("mkdir " + localLogDir + " failed");
+			}
+			this.logTable = new LogTableTar(tfs, sgeDir, name, localLogDir, localTmpDir);
 		}
 		else {
 			logger.fatal("Invalid valid for persistent storage");
@@ -155,11 +179,11 @@ public class Pipeline {
 		
 		// Create tmp file on local filesystem if needed
 		// Create tmp file on local filesystem if needed
-		localFSDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);		
-		if (! OsPath.isdir(localFSDir)) {
-			if (! OsPath.mkdir(localFSDir)) {
-				logger.fatal("Could not create directory: " + localFSDir);
-				throw new PipelineException("mkdir " + localFSDir + " failed");
+		localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);		
+		if (! OsPath.isdir(localTmpDir)) {
+			if (! OsPath.mkdir(localTmpDir)) {
+				logger.fatal("Could not create directory: " + localTmpDir);
+				throw new PipelineException("mkdir " + localTmpDir + " failed");
 			}
 		}
 	}
