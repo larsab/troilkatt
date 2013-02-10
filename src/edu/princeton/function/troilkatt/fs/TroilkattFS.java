@@ -319,7 +319,7 @@ public class TroilkattFS {
 	 * Compress a file using an external program.
 	 * 
 	 * @param secFilename file to compress.
-	 * @param outpitDir directory where compressed file is written
+	 * @param outputDir directory where compressed file is written
 	 * @param logDir directory where log files are written.
 	 * @param compression format to use.
 	 * @return compressed filename, or null if compression failed.
@@ -338,7 +338,12 @@ public class TroilkattFS {
 		}
 		CompressorOutputStream cos = null;
 		try {
-			cos = new CompressorStreamFactory().createCompressorOutputStream(compression, os);
+			if (compression.equals("bz2")) {
+				cos = new CompressorStreamFactory().createCompressorOutputStream("bzip2", os);
+			}
+			else {
+				cos = new CompressorStreamFactory().createCompressorOutputStream(compression, os);
+			}
 		} catch (CompressorException e) { 
 			// This is expected, for example for the "none" format
 			logger.warn("Unknown compression format: " + compression);			
@@ -391,6 +396,8 @@ public class TroilkattFS {
 					}
 					cos.write(buffer, 0, n);
 				}
+				cos.close();
+				is.close();
 			} catch (IOException e) {
 				logger.error("IOException during file copy: " + e);
 				try {
@@ -430,7 +437,12 @@ public class TroilkattFS {
 		}
 		CompressorInputStream cin = null;
 		try {
-			cin = new CompressorStreamFactory().createCompressorInputStream(compression, is);
+			if (compression.equals("bz2")) {
+				cin = new CompressorStreamFactory().createCompressorInputStream("bzip2", is);
+			}
+			else {
+				cin = new CompressorStreamFactory().createCompressorInputStream(compression, is);
+			}
 		} catch (CompressorException e) { // This is expected, for example for the "none" format
 			logger.warn("Unknwon compression: " + compression);			
 		}
@@ -562,7 +574,12 @@ public class TroilkattFS {
 		CompressorOutputStream cos = null;
 		try {
 			os = new FileOutputStream(compressedName);
-			cos = new CompressorStreamFactory().createCompressorOutputStream(compressionFormat, os);
+			if (compressionFormat.equals("bz2")) {
+				cos = new CompressorStreamFactory().createCompressorOutputStream("bzip2", os);
+			}
+			else {
+				cos = new CompressorStreamFactory().createCompressorOutputStream(compressionFormat, os);
+			}
 		} catch (CompressorException e) { 
 			// This is expected, for example if compression should not be used
 			logger.warn("Unknown compression format: " + compressionFormat);			
@@ -575,6 +592,7 @@ public class TroilkattFS {
 		if (cos == null) { // no compression		 
 			try {
 				aos = new ArchiveStreamFactory().createArchiveOutputStream(compression, os);
+				archiverFormat = compression;
 			} catch (ArchiveException e) { 
 				// This is (somewhat) expected, for example if an alternative 
 				logger.warn("Unknown archiver format: " + compression);			
@@ -700,7 +718,13 @@ public class TroilkattFS {
 		ArchiveInputStream ain = null;
 		
 		try {
-			cin = new CompressorStreamFactory().createCompressorInputStream(compressionExtension, is);
+			if (compressionExtension.equals("bz2")) {
+				cin = new CompressorStreamFactory().createCompressorInputStream("bzip2", is);
+			}
+			else {
+				System.out.println("|" + compressionExtension + "|");
+				cin = new CompressorStreamFactory().createCompressorInputStream(compressionExtension, is);
+			}
 		} catch (CompressorException e) { // This is expected, for example for the "none" format
 			logger.warn("Unknwon compression: " + compressionExtension);			
 		}
@@ -720,7 +744,7 @@ public class TroilkattFS {
 			}
 		}
 		
-		if ((cin == null) || (ain == null)) { // Attempt to use fallback compression methods
+		if ((cin == null) && (ain == null)) { // Attempt to use fallback compression methods
 			logger.fatal("Unknown archive format: " + compression);
 			return null;
 		}

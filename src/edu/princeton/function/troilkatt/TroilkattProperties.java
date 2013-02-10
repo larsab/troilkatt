@@ -26,6 +26,7 @@ public class TroilkattProperties {
 			"troilkatt.localfs.log.dir",			
 			"troilkatt.globalfs.global-meta.dir",
 			"troilkatt.global-meta.retain.days",
+			"troilkatt.globalfs.sge.dir",
 			"troilkatt.localfs.mapreduce.dir",
 			"troilkatt.localfs.binary.dir",
 			"troilkatt.localfs.utils.dir",

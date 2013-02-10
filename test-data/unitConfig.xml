@@ -60,6 +60,16 @@
 	</property>
 	
 	<property>
+		<name>troilkatt.globalfs.sge.dir</name>
+		<value>/home/larsab/troilkatt2/test-tmp/sge</value>
+		<description>
+		
+			This directory contains globally shared files for SGE jobs.
+			
+		</description>
+	</property>
+	
+	<property>
 		<name>troilkatt.global-meta.retain.days</name>
 		<value>-1</value>
 		<description>

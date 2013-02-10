@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+
 import org.apache.log4j.Logger;
 
 import org.apache.hadoop.conf.Configuration;
@@ -466,6 +467,15 @@ public class TroilkattHDFS extends TroilkattFS {
 	@Override
 	public boolean putLocalDirFiles(String hdfsDir, long timestamp, ArrayList<String> localFiles, 
 			String compression, String logDir, String tmpDir) {		
+		if (timestamp < 0) {
+			logger.fatal("Invalid timestamp: " + timestamp);
+			return false;
+		}
+		if (localFiles.isEmpty()) {
+			logger.warn("No local files to add to directory");
+			return false;
+		}
+		
 		if (compression.equals("none")) {
 			String subdir = OsPath.join(hdfsDir, timestamp + "." + compression);
 			for (String f: localFiles) {
@@ -492,7 +502,7 @@ public class TroilkattHDFS extends TroilkattFS {
 			}			
 			
 			// Compress the tmp directory
-			String compressedDir = compressDirectory(tmpSubdir, tmpDir, logDir, compression); 
+			String compressedDir = compressDirectory(tmpSubdir, tmpSubdir, logDir, compression); 
 			if (compressedDir == null) {
 				logger.fatal("Could not compress directory: " + tmpSubdir);						
 				return false;

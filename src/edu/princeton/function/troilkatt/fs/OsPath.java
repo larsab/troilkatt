@@ -228,7 +228,7 @@ public class OsPath {
 	}
 	
 	/**
-	 * Create a new directory if ti does not already exist
+	 * Create a new directory if it does not already exist
 	 * 
 	 * @param dirName: directory name.
 	 * @return: true on success, including if the directory already exist. False otherwise.

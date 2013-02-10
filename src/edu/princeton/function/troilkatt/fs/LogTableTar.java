@@ -33,11 +33,11 @@ import edu.princeton.function.troilkatt.pipeline.StageException;
  * -Just a single version of each cell is kept.
  */
 public class LogTableTar extends LogTable {	
-	private String compressionFormat = "tar.bz2";
+	private final String compressionFormat = "tar.bz2";
 	
 	protected String pipelineLogDir;
-	protected TroilkattFS tfs;
-	protected String logDir;
+	protected TroilkattFS tfs;	
+	protected String myLogDir;
 	protected String tmpDir;
 	
 	/**
@@ -46,19 +46,32 @@ public class LogTableTar extends LogTable {
 	 * Note! creating a Hbase Table is expensive, so it should only be done once. In addition,
 	 * there should be one instance per thread.
 	 * 
+	 * @param tfs TroilkattFS handle
+	 * @param logRooteDir root directory on NFS for log files. This is where log files will be put).
+	 * @param pipelineName
+	 * @param logDir logfile directory to be used by this class
+	 * @param tmpDir directory for temporary files needed while saving packing log files
+	 * 
 	 * @throws PipelineException 
 	 * 
 	 */
-	public LogTableTar(TroilkattFS tfs, String sgeDir, String pipelineName, String logDir, String tmpDir) throws PipelineException {	
+	public LogTableTar(String pipelineName, TroilkattFS tfs, String logRootDir, String logDir, String tmpDir) throws PipelineException {	
 		super(pipelineName);
 		this.tfs = tfs;
-		this.logDir = logDir;
+		myLogDir = logDir;
+		this.tmpDir = tmpDir;
+		pipelineLogDir = OsPath.join(logRootDir, pipelineName);
 		
-		if (! OsPath.isdir(sgeDir)) {
-			throw new PipelineException("Invalid global log dir: " + sgeDir);
-		}
-		if (! OsPath.mkdir(OsPath.join(sgeDir, "log/" + pipelineName))) {
-			throw new PipelineException("Could not create global logfile directory for pipeline: " + pipelineName);
+		try {
+			if (! tfs.isdir(logRootDir)) {
+				throw new PipelineException("Invalid global log dir: " + logRootDir);
+			}
+			if (! tfs.isdir(pipelineLogDir)) {
+				tfs.mkdir(pipelineLogDir);				
+			}
+		} catch (IOException e) {
+			logger.fatal("Could not check or create pipelien logdir: " + e);
+			throw new PipelineException("Failed to initialize log directory");
 		}
 	}
 	
@@ -78,23 +91,37 @@ public class LogTableTar extends LogTable {
 	 * @param logFiles log files to save
 	 * 
 	 * @throws StageException if file content could not be save in Hbase
-	 * @return number of files save 
+	 * @return number of files saved, or -1 if an error occired
 	 */
 	@Override
 	public int putLogFiles(String stageName, long timestamp, ArrayList<String> localFiles) throws StageException {		
-		// First make a temporary directory
+		if (localFiles.isEmpty()) {
+			logger.warn("No log files to save");
+			return 0;
+		}
+		
+		//	First make a temporary directory
 		String tmpSubdir = OsPath.join(tmpDir, String.valueOf(timestamp));
 		if (! OsPath.mkdir(tmpSubdir)) {
 			logger.fatal("Could not make tmp directory: " + tmpDir);
 		}
+		
+		String stageDir = OsPath.join(pipelineLogDir, stageName);
+		
+		if (! OsPath.isdir(stageDir)) {
+			if (! OsPath.mkdir(stageDir)) {
+				logger.fatal("Could not make stage directory: " + stageDir);
+				return -1;				
+			}
+		}
 
-		System.out.println("Move files to " + tmpSubdir);
+		System.out.println("Copy files to " + tmpSubdir);
 		int fileCnt = 0;
 		for (String f: localFiles) {
 			String tmpFilename = OsPath.join(tmpSubdir, OsPath.basename(f));				
-			if (! OsPath.rename(f, tmpFilename)) {
-				logger.fatal("Could not copy file to tmp directory: " + f);
-				return 0;
+			if (! OsPath.copy(f, tmpFilename)) {
+				logger.fatal("Could not move file to tmp directory: " + f);
+				return -1;
 			}	
 			fileCnt++;
 		}			
@@ -102,10 +129,10 @@ public class LogTableTar extends LogTable {
 		// Compress the tmp directory
 		String compressedDir = tfs.compressDirectory(tmpSubdir, 
 				getSubdirNameNoCompression(stageName, timestamp), // compression will be added
-				logDir, compressionFormat); 
+				myLogDir, compressionFormat); 
 		if (compressedDir == null) {
 			logger.fatal("Could not compress directory: " + tmpSubdir);						
-			return 0;
+			return -1;
 		}
 		
 		return fileCnt;
@@ -130,13 +157,18 @@ public class LogTableTar extends LogTable {
 			}
 		}
 		
-		String subDir = getSubdirName(stageName, timestamp);
-		// Unpack directory content
-		String compressedDir = OsPath.join(pipelineLogDir, subDir);
-		ArrayList<String> logFiles = tfs.uncompressDirectory(compressedDir, localDir, logDir);
+		String compressedDir = getSubdirName(stageName, timestamp);
+		if (! OsPath.isfile(compressedDir)) {
+			logger.fatal("There is no logfile archive for stage " + stageName + " at timestamp " + timestamp);
+			return null;
+		}
+		
+		// Unpack directory content		
+		ArrayList<String> logFiles = tfs.uncompressDirectory(compressedDir, localDir, myLogDir);
 		
 		if (logFiles == null) {
-			throw new StageException("Could not read logfiles");
+			logger.fatal("Could not unpack log files archive");
+			throw new StageException("Could not unpack logfiles");
 		}
 		return logFiles;
 	}
@@ -144,7 +176,7 @@ public class LogTableTar extends LogTable {
 	/**
 	 * Check if a logfile exists. This function is mostly used for testing and debugging.
 	 * 
-	 * @param stageName stage name used finor the row ID
+	 * @param stageName stage name used or the row ID
 	 * @param timestamp Troilkatt timestamp used in the row ID
 	 * @param logFilename file to check
 	 * @return true if a logfile exists, false otherwise
@@ -156,7 +188,7 @@ public class LogTableTar extends LogTable {
 			
 		InputStream is;
 		try {
-			is = new FileInputStream(OsPath.join(pipelineLogDir, subDir));
+			is = new FileInputStream(subDir);
 		} catch (FileNotFoundException e1) {
 			logger.fatal("Could not open: " + subDir + ": " + e1);
 			return false;
@@ -165,7 +197,7 @@ public class LogTableTar extends LogTable {
 		ArchiveInputStream ain = null;
 		
 		try {
-			cin = new CompressorStreamFactory().createCompressorInputStream("bz2", is);
+			cin = new CompressorStreamFactory().createCompressorInputStream("bzip2", is);
 		} catch (CompressorException e) { // This is expected, for example for the "none" format
 			logger.fatal("Unknwon compression format");
 			throw new RuntimeException("Unknwon compression format");
@@ -212,7 +244,7 @@ public class LogTableTar extends LogTable {
 	 * @return row key based on stageNum, stageName and timestamp
 	 */
 	private String getSubdirName(String stageName, long timestamp) {
-		return String.format("%s.%d.%s", stageName, timestamp, compressionFormat); 
+		return OsPath.join(pipelineLogDir, String.format("%s/%d.%s", stageName, timestamp, compressionFormat)); 
 	}
 	
 	/**
@@ -224,6 +256,6 @@ public class LogTableTar extends LogTable {
 	 * @return row key based on stageNum, stageName and timestamp
 	 */
 	private String getSubdirNameNoCompression(String stageName, long timestamp) {
-		return String.format("%s.%d.%s", stageName, timestamp); 
+		return OsPath.join(pipelineLogDir, String.format("%s/%d", stageName, timestamp)); 
 	}
 }

@@ -59,7 +59,7 @@ public class TroilkattHDFSTest extends TestSuper {
 	}
 
 	@Test
-	public void testTroilkattFS() {		
+	public void testTroilkattHDFS() {		
 		assertEquals(tfs.hdfs, hdfs);
 		assertNotNull(tfs.logger);
 	}
@@ -90,211 +90,6 @@ public class TroilkattHDFSTest extends TestSuper {
 		assertNull(files);		
 	}
 
-	@Test
-	public void testCompressUncompressFile() throws IOException {
-		String srcName = OsPath.join(dataDir, "files/file1");
-		String uncompressedName = OsPath.join(outDir, "file1");
-		
-		String compressedName = tfs.compressFile(srcName, tmpDir, logDir, "gz");
-		assertNotNull(compressedName);
-		assertTrue( tfs.uncompressFile(compressedName, uncompressedName, logDir) );
-		assertTrue(fileCmp(uncompressedName, srcName));
-		
-		OsPath.deleteAll(outDir);
-		OsPath.mkdir(outDir);
-		compressedName = tfs.compressFile(srcName, tmpDir, logDir, "bz2");
-		assertNotNull(compressedName);
-		assertTrue( tfs.uncompressFile(compressedName, uncompressedName, logDir) );
-		assertTrue(fileCmp(uncompressedName, srcName));
-		
-		// Zip compression is not supported
-		OsPath.deleteAll(outDir);
-		OsPath.mkdir(outDir);
-		compressedName = tfs.compressFile(srcName, tmpDir, logDir, "zip");
-		assertNull(compressedName);
-		//assertTrue( tfs.uncompressFile(compressedName, uncompressedName, logDir) );
-		//assertTrue(fileCmp(uncompressedName, srcName));
-	}
-
-	// Invalid filename
-	@Test
-	public void testCompressFile2() throws IOException {
-		String compressedName = tfs.compressFile(OsPath.join(dataDir, "files/non-existing"), tmpDir, logDir, "gz");
-		assertNull(compressedName);
-	}
-	
-	// Invalid tmpDir
-	@Test
-	public void testCompressFile3() throws IOException {
-		String compressedName = tfs.compressFile(OsPath.join(dataDir, "files/file1"), "/foo", logDir, "gz");
-		assertNull(compressedName);
-	}
-	
-	// Invalid logDir
-	@Test
-	public void testCompressFile4() throws IOException {
-		String compressedName = tfs.compressFile(OsPath.join(dataDir, "files/file1"), tmpDir, "/foo", "gz");
-		assertNull(compressedName);
-	}
-	
-	// Invalid compression
-	@Test
-	public void testCompressFile5() throws IOException {
-		String compressedName = tfs.compressFile(OsPath.join(dataDir, "files/file1"), tmpDir, logDir, "foo");
-		assertNull(compressedName);
-	}
-	
-	// Invalid filename
-	@Test
-	public void testUncompressFile2() {
-		assertFalse( tfs.uncompressFile(OsPath.join(dataDir, "files/non-existing.gz"), 
-				OsPath.join(tmpDir, "non-existing"), logDir) );
-	}
-	
-	// Invalid file
-	//@Test
-	//public void testUncompressFile3() {
-	//	assertFalse( tfs.uncompressFile(OsPath.join(dataDir, "files/invalid.5.gz"), 
-	//			OsPath.join(tmpDir, "invalid"), logDir) );
-	//}
-	
-	// Invalid compression format
-	@Test
-	public void testUncompressFile4() {
-		assertFalse( tfs.uncompressFile(OsPath.join(dataDir, "files/invalid6.boink"), 
-				OsPath.join(tmpDir, "invalid"), logDir) );
-	}
-	
-	// Invalid uncompressed name
-	@Test
-	public void testUncompressFile5() {
-		assertFalse( tfs.uncompressFile(OsPath.join(dataDir, "files/file1.1.gz"), outDir, logDir) );
-	}
-	
-	// Invalid log dir
-	@Test
-	public void testUncompressFile6() {
-		assertFalse( tfs.uncompressFile(OsPath.join(dataDir, "files/file1.1.gz"), 
-				OsPath.join(tmpDir, "file1"), "/foo") );
-	}
-	
-	@Test
-	public void testCompressUncompressDirectory() throws IOException {	
-		OsPath.delete(outDir);
-		OsPath.mkdir(outDir);
-		OsPath.copy(OsPath.join(dataDir, "files/file1"), OsPath.join(outDir, "file1"));
-		OsPath.copy(OsPath.join(dataDir, "files/file2"), OsPath.join(outDir, "file2"));
-		String compressedDir = tfs.compressDirectory(outDir, tmpDir, logDir, "tar.gz");
-		assertNotNull(compressedDir);
-		assertTrue( OsPath.isfile(OsPath.join(tmpDir, "output.tar.gz")) );
-		OsPath.delete(outDir);
-		OsPath.mkdir(outDir);
-		ArrayList<String> files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
-		assertEquals(2, files.size());
-		Collections.sort(files);		
-		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
-		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
-		
-		OsPath.delete(outDir);
-		OsPath.mkdir(outDir);
-		OsPath.copy(OsPath.join(dataDir, "files/file1"), OsPath.join(outDir, "file1"));
-		OsPath.copy(OsPath.join(dataDir, "files/file2"), OsPath.join(outDir, "file2"));
-		compressedDir = tfs.compressDirectory(outDir, tmpDir, logDir, "tar.bz2");
-		assertNotNull(compressedDir);
-		assertTrue( OsPath.isfile(OsPath.join(tmpDir, "output.tar.bz2")) );
-		OsPath.delete(outDir);
-		OsPath.mkdir(outDir);
-		files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
-		assertEquals(2, files.size());
-		Collections.sort(files);		
-		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
-		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
-		
-		OsPath.delete(outDir);
-		OsPath.mkdir(outDir);
-		OsPath.copy(OsPath.join(dataDir, "files/file1"), OsPath.join(outDir, "file1"));
-		OsPath.copy(OsPath.join(dataDir, "files/file2"), OsPath.join(outDir, "file2"));
-		compressedDir = tfs.compressDirectory(outDir, tmpDir, logDir, "tar");
-		assertNotNull(compressedDir);
-		assertTrue( OsPath.isfile(OsPath.join(tmpDir, "output.tar")) );
-		OsPath.delete(outDir);
-		OsPath.mkdir(outDir);
-		files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
-		assertEquals(2, files.size());
-		Collections.sort(files);		
-		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
-		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
-				
-		// Zlib not supported
-		compressedDir = tfs.compressDirectory(outDir, tmpDir, logDir, "zip");
-		assertNull(compressedDir);
-		//assertTrue( OsPath.isfile(OsPath.join(tmpDir, "files.zip")) );
-		//OsPath.delete(outDir);
-		//OsPath.mkdir(outDir);
-		//files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
-		//assertEquals(2, files.size());
-		//Collections.sort(files);		
-		//assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
-		//assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));		
-	}
-
-	// Invalid source dir
-	@Test
-	public void testCompressDirectory2() throws IOException {
-		String srcDir = OsPath.join(dataDir, "files-non-existing");
-		String compressedDir = tfs.compressDirectory(srcDir, tmpDir, logDir, "tar.gz");
-		assertNull(compressedDir);
-	}
-	
-	// Invalid out dir
-	@Test
-	public void testCompressDirectory3() throws IOException {
-		String srcDir = OsPath.join(dataDir, "files");
-		String compressedDir = tfs.compressDirectory(srcDir, "/foo", logDir, "tar.gz");
-		assertNull(compressedDir);
-	}
-	// Invalid log dir
-	@Test
-	public void testCompressDirectory4() throws IOException {
-		String srcDir = OsPath.join(dataDir, "files");
-		String compressedDir = tfs.compressDirectory(srcDir, tmpDir, "/foo", "tar.gz");
-		assertNull(compressedDir);
-	}
-	
-	// Invalid compression format
-	@Test
-	public void testCompressDirectory5() throws IOException {
-		String srcDir = OsPath.join(dataDir, "files");
-		String compressedDir = tfs.compressDirectory(srcDir, tmpDir, logDir, "dfdz");
-		assertNull(compressedDir);
-	}
-	
-	// Non-existing file
-	@Test
-	public void testUncompressDirectory2() {
-		assertNull( tfs.uncompressDirectory("/foo/bar.tar.gz", outDir, logDir) );	
-	}
-	
-	// Invalid file
-	@Test
-	public void testUncompressDirectory3() {
-		assertNull( tfs.uncompressDirectory(OsPath.join(dataDir, "invalid.tar.gz"), outDir, logDir) );
-	}
-	
-	// Invalid compression format
-	public void testUncompressDirectory4() {
-		assertNull( tfs.uncompressDirectory(OsPath.join(dataDir, "files/file1"), outDir, logDir) );
-	}
-	
-	// Invalid tmp dir
-	public void testUncompressDirectory5() {
-		assertNull( tfs.uncompressDirectory(OsPath.join(dataDir, "dir.tar.gz"), "/foo", logDir) );
-	}
-	
-	// Invalid log dir
-	public void testUncompressDirectory6() {
-		assertNull( tfs.uncompressDirectory(OsPath.join(dataDir, "dir.tar.gz"), outDir, "/foo") );
-	}
 	
 	@Test
 	public void testIsfile() throws IOException {
@@ -382,6 +177,142 @@ public class TroilkattHDFSTest extends TestSuper {
 	}
 	
 	@Test
+	public void testGetFilenameDir() {
+		assertEquals("/user/larsab/troilkatt/test/names", tfs.getFilenameDir("hdfs://localhost/user/larsab/troilkatt/test/names/foo.123.gz"));
+		assertEquals("/user/larsab/troilkatt/test/names", tfs.getFilenameDir("/user/larsab/troilkatt/test/names/foo.123.gz"));
+		assertEquals("troilkatt/test/names", tfs.getFilenameDir("troilkatt/test/names/foo.123"));		
+	}
+	
+	@Test
+	public void testListdirRecursive() throws IOException {		
+		ArrayList<String> files = tfs.listdirR(OsPath.join(hdfsRoot, "ls"));
+		
+		assertEquals(6, files.size());
+		Collections.sort(files);
+		assertTrue(files.get(0).endsWith("file1"));
+		assertTrue(files.get(1).endsWith("file2"));
+		assertTrue(files.get(2).endsWith("file3"));
+		assertTrue(files.get(3).endsWith("subdir1/file4"));
+		assertTrue(files.get(4).endsWith("subdir1/file5"));
+		assertTrue(files.get(5).endsWith("subdir2/file6"));
+	}
+	
+	// Empty directory
+	@Test
+	public void testListdirRecursive2() throws IOException {
+		ArrayList<String> files = tfs.listdirR(OsPath.join(hdfsRoot, "ls/subdir3"));
+		assertEquals(0, files.size());		
+	}
+	
+	// Invalid directory
+	@Test
+	public void testListdirRecursive3() throws IOException {		
+		ArrayList<String> files = tfs.listdirR(OsPath.join(hdfsRoot, "ls/invalid-subdir"));
+		assertNull(files);		
+	}
+	
+	@Test
+	public void testListdirNewest() throws IOException {
+		ArrayList<String> files = tfs.listdirN(OsPath.join(hdfsRoot, "ts"));
+		
+		assertEquals(6, files.size());
+		Collections.sort(files);
+		assertTrue(files.get(0).endsWith("file1.3.gz"));
+		assertTrue(files.get(1).endsWith("file2.3.bz2"));
+		assertTrue(files.get(2).endsWith("file3.2.none"));
+		assertTrue(files.get(3).endsWith("subdir1/file4.3.gz"));
+		assertTrue(files.get(4).endsWith("subdir1/file5.2.none"));
+		assertTrue(files.get(5).endsWith("subdir2/file6.2.none"));
+	}
+	
+	// Empty directory
+	@Test
+	public void testListdirNewest2() throws IOException {		
+		ArrayList<String> files = tfs.listdirN(OsPath.join(hdfsRoot, "ts/subdir3"));
+		assertEquals(0, files.size());		
+	}
+	
+	// Invalid directory
+	@Test
+	public void testListdirNewest3() throws IOException {
+		ArrayList<String> files = tfs.listdirN(OsPath.join(hdfsRoot, "ts/invalid-subdir"));
+		assertNull(files);		
+	}
+	
+	@Test
+	public void testGetNewestDir() throws IOException {
+		String dir = tfs.getNewestDir(OsPath.join(hdfsRoot, "tsd"));
+		assertEquals("4.zip", dir);
+	}
+
+	// Invalid directory
+	@Test
+	public void testGetNewestDir2() throws IOException {
+		String dir = tfs.getNewestDir(OsPath.join(hdfsRoot, "tsd-invalid"));
+		assertNull(dir);
+	}
+	
+	// Empty directory
+	@Test
+	public void testGetNewestDir3() throws IOException {
+		String dir = tfs.getNewestDir(OsPath.join(hdfsRoot, "tsd-empty"));
+		assertNull(dir);
+	}
+	
+	@Test
+	public void testListdirTimestamp() throws IOException {
+		String cleanupRoot = OsPath.join(hdfsRoot, "cleanup");
+		long ts1 = 15 * 1000 * 60 * 60 * 24; 
+		
+		/* Just resuse the cleanup file structure which is:
+		   foo.1.gz
+		   bar.2.gz
+		   foo.ts1.gz
+		   baz.ts1.gz
+		   bongo.ts1.gz
+		   subdir/sd-foo.1.gz
+		   subdir/sd-bar.2.gz
+	  	   subdir/sd-foo.ts1.hz
+	  	*/
+		initCleanupDir(cleanupRoot, ts1);
+		
+		ArrayList<String> files = tfs.listdirT(cleanupRoot, 1);
+		Collections.sort(files);
+		assertEquals(2, files.size());		
+		assertTrue(files.get(0).endsWith("foo.1.gz"));
+		assertTrue(files.get(1).endsWith("subdir/sd-foo.1.gz"));
+				
+		files = tfs.listdirT(cleanupRoot, ts1);
+		Collections.sort(files);
+		assertEquals(4, files.size());				
+		assertTrue(files.get(0).endsWith("baz." + ts1 + ".gz"));
+		assertTrue(files.get(1).endsWith("bongo." + ts1 + ".gz"));
+		assertTrue(files.get(2).endsWith("foo." + ts1 + ".gz"));		
+		assertTrue(files.get(3).endsWith("sd-foo." + ts1 + ".gz"));
+				
+		files = tfs.listdirT(cleanupRoot, ts1 + 1);
+		assertTrue(files.isEmpty());
+		
+		files = tfs.listdirT("/invalid/dir", ts1);
+		assertNull(files);
+	}
+	
+	private void initCleanupDir(String cleanupRoot, long ts) throws IOException {
+		Path testFile = new Path(OsPath.join(dataDir, "files/file1")); // on local FS
+				
+		tfs.mkdir(cleanupRoot);
+		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "foo.1.gz")));
+		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "bar.2.gz")));
+		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "foo." + ts + ".gz")));
+		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "baz." + ts + ".gz")));
+		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "bongo." + ts + ".gz")));
+		
+		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "subdir/sd-foo.1.gz")));
+		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "subdir/sd-bar.2.gz")));
+		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "subdir/sd-foo." + ts + ".gz")));
+	}
+	
+	@Test
 	public void testCleanupDir() throws IOException {
 		String cleanupRoot = OsPath.join(hdfsRoot, "cleanup");          // on HDFS
 		long ts = 15 * 1000 * 60 * 60 * 24; // 15 days in ms
@@ -428,21 +359,6 @@ public class TroilkattHDFSTest extends TestSuper {
 		tfs.cleanupDir(cleanupRoot, 3, 1);
 		files = tfs.listdirR(cleanupRoot);		
 		assertEquals(8, files.size());
-	}
-	
-	private void initCleanupDir(String cleanupRoot, long ts) throws IOException {
-		Path testFile = new Path(OsPath.join(dataDir, "files/file1")); // on local FS
-				
-		tfs.mkdir(cleanupRoot);
-		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "foo.1.gz")));
-		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "bar.2.gz")));
-		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "foo." + ts + ".gz")));
-		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "baz." + ts + ".gz")));
-		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "bongo." + ts + ".gz")));
-		
-		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "subdir/sd-foo.1.gz")));
-		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "subdir/sd-bar.2.gz")));
-		tfs.hdfs.copyFromLocalFile(testFile, new Path(OsPath.join(cleanupRoot, "subdir/sd-foo." + ts + ".gz")));
 	}
 	
 	@Test
@@ -507,143 +423,6 @@ public class TroilkattHDFSTest extends TestSuper {
 		tfs.cleanupMetaDir(cleanupRoot, 3, 1);
 		files = tfs.listdirR(cleanupRoot);		
 		assertEquals(4, files.size());
-	}
-	
-	@Test
-	public void testGetFilenameDir() {
-		assertEquals("/user/larsab/troilkatt/test/names", tfs.getFilenameDir("hdfs://localhost/user/larsab/troilkatt/test/names/foo.123.gz"));
-		assertEquals("/user/larsab/troilkatt/test/names", tfs.getFilenameDir("/user/larsab/troilkatt/test/names/foo.123.gz"));
-		assertEquals("troilkatt/test/names", tfs.getFilenameDir("troilkatt/test/names/foo.123"));		
-	}
-
-	@Test
-	public void testIsValidCompression() {
-		String[] valid = {"none", "gz", "bz2"};
-		
-		for (String s: valid) {
-			assertTrue(TroilkattFS.isValidCompression(s));
-		}
-		assertFalse(TroilkattFS.isValidCompression("foo"));
-	}
-
-	// Getter not tested
-	//@Test
-	//public void testGetValidCompression() {
-	//	
-	//}
-	
-	@Test
-	public void testListdirRecursive() throws IOException {		
-		ArrayList<String> files = tfs.listdirR(OsPath.join(hdfsRoot, "ls"));
-		
-		assertEquals(6, files.size());
-		Collections.sort(files);
-		assertTrue(files.get(0).endsWith("file1"));
-		assertTrue(files.get(1).endsWith("file2"));
-		assertTrue(files.get(2).endsWith("file3"));
-		assertTrue(files.get(3).endsWith("subdir1/file4"));
-		assertTrue(files.get(4).endsWith("subdir1/file5"));
-		assertTrue(files.get(5).endsWith("subdir2/file6"));
-	}
-	
-	// Empty directory
-	@Test
-	public void testListdirRecursive2() throws IOException {
-		ArrayList<String> files = tfs.listdirR(OsPath.join(hdfsRoot, "ls/subdir3"));
-		assertEquals(0, files.size());		
-	}
-	
-	// Invalid directory
-	@Test
-	public void testListdirRecursive3() throws IOException {		
-		ArrayList<String> files = tfs.listdirR(OsPath.join(hdfsRoot, "ls/invalid-subdir"));
-		assertNull(files);		
-	}
-
-	@Test
-	public void testListdirNewest() throws IOException {
-		ArrayList<String> files = tfs.listdirN(OsPath.join(hdfsRoot, "ts"));
-		
-		assertEquals(6, files.size());
-		Collections.sort(files);
-		assertTrue(files.get(0).endsWith("file1.3.gz"));
-		assertTrue(files.get(1).endsWith("file2.3.bz2"));
-		assertTrue(files.get(2).endsWith("file3.2.none"));
-		assertTrue(files.get(3).endsWith("subdir1/file4.3.gz"));
-		assertTrue(files.get(4).endsWith("subdir1/file5.2.none"));
-		assertTrue(files.get(5).endsWith("subdir2/file6.2.none"));
-	}
-	
-	// Empty directory
-	@Test
-	public void testListdirNewest2() throws IOException {		
-		ArrayList<String> files = tfs.listdirN(OsPath.join(hdfsRoot, "ts/subdir3"));
-		assertEquals(0, files.size());		
-	}
-	
-	// Invalid directory
-	@Test
-	public void testListdirNewest3() throws IOException {
-		ArrayList<String> files = tfs.listdirN(OsPath.join(hdfsRoot, "ts/invalid-subdir"));
-		assertNull(files);		
-	}
-
-	@Test
-	public void testListdirTimestamp() throws IOException {
-		String cleanupRoot = OsPath.join(hdfsRoot, "cleanup");
-		long ts1 = 15 * 1000 * 60 * 60 * 24; 
-		
-		/* Just resuse the cleanup file structure which is:
-		   foo.1.gz
-		   bar.2.gz
-		   foo.ts1.gz
-		   baz.ts1.gz
-		   bongo.ts1.gz
-		   subdir/sd-foo.1.gz
-		   subdir/sd-bar.2.gz
-	  	   subdir/sd-foo.ts1.hz
-	  	*/
-		initCleanupDir(cleanupRoot, ts1);
-		
-		ArrayList<String> files = tfs.listdirT(cleanupRoot, 1);
-		Collections.sort(files);
-		assertEquals(2, files.size());		
-		assertTrue(files.get(0).endsWith("foo.1.gz"));
-		assertTrue(files.get(1).endsWith("subdir/sd-foo.1.gz"));
-				
-		files = tfs.listdirT(cleanupRoot, ts1);
-		Collections.sort(files);
-		assertEquals(4, files.size());				
-		assertTrue(files.get(0).endsWith("baz." + ts1 + ".gz"));
-		assertTrue(files.get(1).endsWith("bongo." + ts1 + ".gz"));
-		assertTrue(files.get(2).endsWith("foo." + ts1 + ".gz"));		
-		assertTrue(files.get(3).endsWith("sd-foo." + ts1 + ".gz"));
-				
-		files = tfs.listdirT(cleanupRoot, ts1 + 1);
-		assertTrue(files.isEmpty());
-		
-		files = tfs.listdirT("/invalid/dir", ts1);
-		assertNull(files);
-	}
-	
-	@Test
-	public void testGetNewestDir() throws IOException {
-		String dir = tfs.getNewestDir(OsPath.join(hdfsRoot, "tsd"));
-		assertEquals("4.zip", dir);
-	}
-
-	// Invalid directory
-	@Test
-	public void testGetNewestDir2() throws IOException {
-		String dir = tfs.getNewestDir(OsPath.join(hdfsRoot, "tsd-invalid"));
-		assertNull(dir);
-	}
-	
-	// Empty directory
-	@Test
-	public void testGetNewestDir3() throws IOException {
-		String dir = tfs.getNewestDir(OsPath.join(hdfsRoot, "tsd-empty"));
-		assertNull(dir);
 	}
 	
 	@Test
@@ -795,12 +574,12 @@ public class TroilkattHDFSTest extends TestSuper {
 	}
 
 	// Invalid log dir
-	@Test
-	public void testGetDirFiles8() throws IOException {
-		ArrayList<String> files = tfs.getDirFiles(OsPath.join(hdfsRoot, "compressed-dirs/2.tar.bz2"),
-				outDir, "/foo/bar", tmpDir);
-		assertNull(files);		
-	}
+	//@Test
+	//public void testGetDirFiles8() throws IOException {
+	//	ArrayList<String> files = tfs.getDirFiles(OsPath.join(hdfsRoot, "compressed-dirs/2.tar.bz2"),
+	//			outDir, "/foo/bar", tmpDir);
+	//	assertNull(files);		
+	//}
 
 	// Invalid tmp dir
 	@Test
@@ -1017,7 +796,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		hdfs.mkdirs(new Path(houtDir));
 		
 		// Zip compression is not supported
-		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "zip", logDir, tmpDir) );
+		//assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "zip", logDir, tmpDir) );
 		//assertTrue( tfs.isfile(OsPath.join(houtDir, "10.zip")));
 		//OsPath.delete(outDir);
 		//OsPath.mkdir(outDir);
@@ -1061,7 +840,7 @@ public class TroilkattHDFSTest extends TestSuper {
 	// Non-existing HDFS dir
 	@Test
 	public void testPutDirFiles2() throws IOException {
-		assertFalse( tfs.putLocalDirFiles("/foo/bar", 10, localFiles, "zip", logDir, tmpDir) );
+		assertFalse( tfs.putLocalDirFiles("/foo/bar", 10, localFiles, "tar", logDir, tmpDir) );
 	}
 	
 	// Invalid timestamp
@@ -1070,7 +849,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		String houtDir = OsPath.join(hdfsRoot, "out");
 		hdfs.mkdirs(new Path(houtDir));
 		
-		assertFalse( tfs.putLocalDirFiles(houtDir, -10, localFiles, "zip", logDir, tmpDir) );
+		assertFalse( tfs.putLocalDirFiles(houtDir, -10, localFiles, "tar", logDir, tmpDir) );
 	}
 	
 	// Invalid local file
@@ -1079,7 +858,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		String houtDir = OsPath.join(hdfsRoot, "out");
 		hdfs.mkdirs(new Path(houtDir));
 		localFiles.add("/foo/bar/baz");
-		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "zip", logDir, tmpDir) );
+		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "tar", logDir, tmpDir) );
 	}
 	
 	// No local files
@@ -1088,7 +867,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		String houtDir = OsPath.join(hdfsRoot, "out");
 		hdfs.mkdirs(new Path(houtDir));
 		localFiles.clear();
-		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "zip", logDir, tmpDir) );
+		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "tar", logDir, tmpDir) );
 	}
 	
 	// Invalid compression
@@ -1101,13 +880,13 @@ public class TroilkattHDFSTest extends TestSuper {
 	}
 	
 	// Invalid log dir
-	@Test
-	public void testPutDirFiles7() throws IOException {
-		String houtDir = OsPath.join(hdfsRoot, "out");
-		hdfs.mkdirs(new Path(houtDir));
-		
-		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "zip", "/doo/bar", tmpDir) );
-	}
+	//@Test
+	//public void testPutDirFiles7() throws IOException {
+	//	String houtDir = OsPath.join(hdfsRoot, "out");
+	//	hdfs.mkdirs(new Path(houtDir));
+	//	
+	//	assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "tar", "/doo/bar", tmpDir) );
+	//}
 	
 	// Invalid tmpDir
 	@Test
@@ -1115,7 +894,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		String houtDir = OsPath.join(hdfsRoot, "out");
 		hdfs.mkdirs(new Path(houtDir));
 		
-		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "zip", logDir, "/doo/bna") );
+		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "tar", logDir, "/doo/bna") );
 	}
 
 	@Test

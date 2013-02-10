@@ -16,7 +16,6 @@ public class TroilkattNFS extends TroilkattFS {
 	/**
 	 * Constructor.
 	 * 
-	 * @param hdfs HDFS handle
 	 */
 	public TroilkattNFS() {
 		logger = Logger.getLogger("troilkatt.nfs");
@@ -126,12 +125,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * @throws IOException 
 	 */
 	@Override
-	public ArrayList<String> getDirFiles(String nfsName, String localDir, String logDir, String tmpDir) throws IOException {		
-		if (! isdir(nfsName)) {
-			logger.error("Not a directory: " + nfsName);
-			return null;
-		}
-				
+	public ArrayList<String> getDirFiles(String nfsName, String localDir, String logDir, String tmpDir) throws IOException {				
 		ArrayList<String> localFiles = null;
 		String compression = getDirCompression(nfsName);
 		if (compression == null) {
@@ -305,11 +299,12 @@ public class TroilkattNFS extends TroilkattFS {
 	 */
 	@Override
 	public boolean putLocalDirFiles(String nfsDir, long timestamp, ArrayList<String> localFiles, 
-			String compression, String logDir, String tmpDir) {		
-		if (! isValidCompression(compression)) {
-			logger.fatal("Invalid compression format: " + compression);
+			String compression, String logDir, String tmpDir) {				
+		if (localFiles.isEmpty()) {
+			logger.warn("No files to put");
 			return false;
 		}
+		
 		try {
 			if (! isdir(nfsDir)) {
 				logger.fatal("Invalid NFS output directory: " + nfsDir);
@@ -327,8 +322,15 @@ public class TroilkattNFS extends TroilkattFS {
 		if (compression.equals("none")) {
 			String subdir = OsPath.join(nfsDir, timestamp + "." + compression);
 			for (String f: localFiles) {
-				String hdfsName = OsPath.join(subdir, OsPath.basename(f));
-				if (! OsPath.copy(f, hdfsName)) {
+				String name = OsPath.join(subdir, OsPath.basename(f));
+				String dir = OsPath.dirname(name);
+				
+				if (! OsPath.isdir(dir)) {
+					if (! OsPath.mkdir(dir)) {
+						return false;
+					}
+				}
+				if (! OsPath.copy(f, name)) {
 					return false;
 				}				
 			}	
@@ -340,10 +342,10 @@ public class TroilkattNFS extends TroilkattFS {
 				logger.fatal("Could not make tmp directory: " + tmpDir);
 			}
 			
-			System.out.println("Move files to " + tmpSubdir);
+			System.out.println("copy files to " + tmpSubdir);
 			for (String f: localFiles) {
 				String tmpFilename = OsPath.join(tmpSubdir, OsPath.basename(f));				
-				if (! OsPath.rename(f, tmpFilename)) {
+				if (! OsPath.copy(f, tmpFilename)) {
 					logger.fatal("Could not copy file to tmp directory: " + f);
 					return false;
 				}	
@@ -385,7 +387,10 @@ public class TroilkattNFS extends TroilkattFS {
 		// There is no difference in local and NFS files
 		String dstFilename = putLocalFile(srcFilename, dstDir, tmpDir, logDir, compression, timestamp);
 		if (dstFilename == null) {
-			putLocalFile(srcFilename, dstDir, tmpDir, logDir, compression, timestamp);
+			if (putLocalFile(srcFilename, dstDir, tmpDir, logDir, compression, timestamp) == null) {
+				logger.error("Could not put NFS file");
+				return null;
+			}
 		}
 		
 		// Delete source file

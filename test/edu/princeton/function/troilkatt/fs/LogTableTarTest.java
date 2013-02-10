@@ -7,13 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import org.apache.log4j.Logger;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -31,25 +24,28 @@ import edu.princeton.function.troilkatt.pipeline.StageException;
  * to clear a table. One soultion is to step through the tests in debug mode
  */
 public class LogTableTarTest extends TestSuper {
-	static final protected String tableName = "troilkatt-log-unitLogTable";
-	static protected Configuration hbConf;
-	static protected HBaseAdmin hbAdm;
+	static final protected String tarName = "troilkatt-log-unitLogTable";
+	protected static TroilkattNFS nfs;
 	protected static Logger testLogger;
+	protected LogTableTar logTable;
+	static String rootLogDir;
 	
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		hbConf = HBaseConfiguration.create();
-		hbAdm = new HBaseAdmin(hbConf);
+	public static void setUpBeforeClass() throws Exception {		
 		testLogger = Logger.getLogger("test");
+		rootLogDir = OsPath.join(outDir, "log/unitLogTable");
+		OsPath.mkdir(rootLogDir);
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		OsPath.deleteAll(rootLogDir);
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		//System.out.println("Break before each test (for debugging)");
+		nfs = new TroilkattNFS();
+		logTable = new LogTableTar("unitLogTable", nfs, OsPath.join(outDir, "log"), logDir, tmpDir);
 	}
 
 	@After
@@ -58,107 +54,15 @@ public class LogTableTarTest extends TestSuper {
 
 	@Test
 	public void testLogTable() throws PipelineException, IOException {
-		if (hbAdm.isTableAvailable(tableName)) {
-			hbAdm.disableTable(tableName);
-			hbAdm.deleteTable(tableName);
-		}
-		assertFalse(hbAdm.isTableAvailable(tableName));
-		
-		LogTable logTable = new LogTable("unitLogTable", hbConf);
-		assertEquals(tableName, logTable.tableName);
-		assertNotNull(logTable.table);
-		assertEquals(hbConf, logTable.hbConfig);
+		assertEquals(nfs, logTable.tfs);
 		assertNotNull(logTable.logger);
-		
-		assertTrue(hbAdm.isTableAvailable(tableName));
-		assertTrue(HTable.isTableEnabled(tableName));
+		assertEquals(rootLogDir, logTable.pipelineLogDir);
+		assertEquals(logDir, logTable.myLogDir);
+		assertEquals(tmpDir, logTable.tmpDir);
 	}
 
 	@Test
-	public void testDeleteTable() throws PipelineException, IOException, InterruptedException, HbaseException {
-		LogTable logTable = new LogTable("unitLogTable", hbConf);
-		assertTrue(hbAdm.isTableAvailable(tableName));
-		
-		logTable.schema.deleteTable();
-		Thread.sleep(5000);
-		// Note! Test may fail since table delete can return before the table is actually deleted
-		assertFalse(hbAdm.isTableAvailable(tableName));
-	}
-
-	@Test
-	public void testClearTable() throws PipelineException, IOException, HbaseException {
-		LogTable logTable = new LogTable("unitLogTable", hbConf);
-		assertTrue(hbAdm.isTableAvailable(tableName));
-		
-		String content = "unitValue";
-		Put put = new Put(Bytes.toBytes("unitRow"));
-		put.add(Bytes.toBytes("log"), Bytes.toBytes("unitCol"), Bytes.toBytes(content));
-		logTable.table.put(put);
-		logTable.table.flushCommits();
-		
-		Get get = new Get(Bytes.toBytes("unitRow"));	
-		get.addColumn(Bytes.toBytes("log"), Bytes.toBytes("unitCol"));
-		assertTrue(logTable.table.exists(get));
-		
-		logTable.schema.clearTable();
-		assertTrue(hbAdm.isTableAvailable(tableName));
-		assertFalse(logTable.table.exists(get));
-	}
-
-	@Test
-	public void testContainsFile() throws PipelineException, IOException, StageException, HbaseException {
-		LogTable logTable = new LogTable("unitLogTable", hbConf);
-		// Note this line often causes the test to fail
-		logTable.schema.clearTable();
-		assertTrue(hbAdm.isTableAvailable(tableName));
-		
-		byte[] content = Bytes.toBytes("The content");
-		Put put = new Put(Bytes.toBytes("001-unitTest.701"));
-		put.add(Bytes.toBytes("log"), Bytes.toBytes("foo.log"), content);
-		// If this statement fails the test, it is probably due to the above clearTable()
-		logTable.table.put(put);
-		put = new Put(Bytes.toBytes("002-unitTest2.701"));
-		put.add(Bytes.toBytes("log"), Bytes.toBytes("foo.log"), content);
-		logTable.table.put(put);
-		put = new Put(Bytes.toBytes("001-unitTest.702"));
-		put.add(Bytes.toBytes("log"), Bytes.toBytes("foo.log"), content);
-		logTable.table.put(put);
-		put = new Put(Bytes.toBytes("001-unitTest.701"));
-		put.add(Bytes.toBytes("error"), Bytes.toBytes("foo.error"), content);
-		put.add(Bytes.toBytes("out"), Bytes.toBytes("foo.out"), content);
-		put.add(Bytes.toBytes("other"), Bytes.toBytes("foo"), content);
-		logTable.table.put(put);		
-		
-		put = new Put(Bytes.toBytes("003-mapreduceUnitTest.701.task1"));
-		put.add(Bytes.toBytes("log"), Bytes.toBytes("foo.log"), content);
-		logTable.table.put(put);
-		put = new Put(Bytes.toBytes("003-mapreduceUnitTest.701.task2"));
-		put.add(Bytes.toBytes("log"), Bytes.toBytes("foo.log"), content);
-		logTable.table.put(put);
-		put = new Put(Bytes.toBytes("003-mapreduceUnitTest.701.task3"));
-		put.add(Bytes.toBytes("log"), Bytes.toBytes("foo.log"), content);
-		logTable.table.put(put);		
-		
-		assertTrue(logTable.containsFile("001-unitTest", 701, "foo.log"));
-		assertTrue(logTable.containsFile("002-unitTest2", 701, "foo.log"));
-		assertTrue(logTable.containsFile("001-unitTest", 702, "foo.log"));
-		assertTrue(logTable.containsFile("001-unitTest", 701, "foo.error"));
-		assertTrue(logTable.containsFile("001-unitTest", 701, "foo.out"));
-		assertTrue(logTable.containsFile("001-unitTest", 701, "foo"));
-		assertFalse(logTable.containsFile("003-unitTest", 701, "foo.log"));
-		assertFalse(logTable.containsFile("001-unitTest2", 701, "foo.log"));
-		assertFalse(logTable.containsFile("001-unitTest", 703, "foo.log"));
-		assertFalse(logTable.containsFile("001-unitTest", 701, "bar.log"));
-		assertFalse(logTable.containsFile("001-unitTest", 702, "foo"));
-		assertTrue(logTable.containsFile("003-mapreduceUnitTest", 701, "task1", "foo.log"));
-		assertTrue(logTable.containsFile("003-mapreduceUnitTest", 701, "task2", "foo.log"));
-		assertTrue(logTable.containsFile("003-mapreduceUnitTest", 701, "task3", "foo.log"));
-		assertFalse(logTable.containsFile("003- mapreduceUnitTest", 701, "task4", "foo.log"));
-	}
-	
-	
-	@Test
-	public void testPutGetLogFiles() throws PipelineException, IOException, StageException, HbaseException {
+	public void testPutGetContainLogFiles() throws PipelineException, IOException, StageException, HbaseException {
 		ArrayList<String> logFiles = new ArrayList<String>();
 		String dstFile1 = OsPath.join(tmpDir, "1.log");
 		OsPath.copy(OsPath.join(dataDir, "files/file1"), dstFile1);
@@ -172,18 +76,16 @@ public class LogTableTarTest extends TestSuper {
 		String dstFile4 = OsPath.join(tmpDir, "4.log");
 		OsPath.copy(OsPath.join(dataDir, "files/file2"), dstFile4);
 		logFiles.add(dstFile4);		
-		
-		LogTable logTable = new LogTable("unitLogTable", hbConf);
-		// Again a possible source of failure
-		logTable.schema.clearTable();
-		assertTrue(hbAdm.isTableAvailable(tableName));
+				
+		OsPath.delete(OsPath.join(logTable.pipelineLogDir, "004-unitTest/710.tar.gz"));
 		
 		// This can fail due to the above clearTable()
 		assertEquals(4, logTable.putLogFiles("004-unitTest", 710, logFiles));
-		logTable.table.flushCommits();
+		assertTrue(OsPath.isfile(OsPath.join(logTable.pipelineLogDir, "004-unitTest/710.tar.bz2")));
 		
 		assertTrue(logTable.containsFile("004-unitTest", 710, "4.log"));
 		assertFalse(logTable.containsFile("004-unitTest", 710, "6.log"));
+		assertFalse(logTable.containsFile("004-unitTest", 711, "4.log"));
 		
 		logFiles = logTable.getLogFiles("004-unitTest", 710, logDir);
 		assertEquals(4, logFiles.size());
@@ -199,15 +101,18 @@ public class LogTableTarTest extends TestSuper {
 		
 		// Invalid stage number
 		logFiles = logTable.getLogFiles("005-unitTest", 710, logDir);
-		assertEquals(0, logFiles.size());
+		assertNull(logFiles);
 		
 		// Invalid stage name
 		logFiles = logTable.getLogFiles("004-unknown", 710, logDir);
-		assertEquals(0, logFiles.size());
+		assertNull(logFiles);
 		
 		// Invalid timestamp
 		logFiles = logTable.getLogFiles("004-unitTest", 717, logDir);
-		assertEquals(0, logFiles.size());
+		assertNull(logFiles);
+		
+		// Invalid log table
+		assertFalse(logTable.containsFile("444-unitTest", 710, "4.log"));
 	}
 	
 	// Invalid input log file
@@ -219,31 +124,14 @@ public class LogTableTarTest extends TestSuper {
 		OsPath.copy(OsPath.join(dataDir, "files/file1"), dstFile1);
 		logFiles.add(dstFile1);
 		
-		LogTable logTable = new LogTable("unitLogTable", hbConf);		
-		assertTrue(hbAdm.isTableAvailable(tableName));
-		
-		assertEquals(1, logTable.putLogFiles("004-unitTest", 713, logFiles));
+		assertEquals(-1, logTable.putLogFiles("004-unitTest", 713, logFiles));
 	}
 	
 	// Invalid output directory
+	// Note. test assumes that testPutGetLogFiles is run before this test
 	@Test(expected=StageException.class)
 	public void testGetLogFiles2() throws PipelineException, IOException, StageException {		
-		LogTable logTable = new LogTable("unitLogTable", hbConf);		
-		assertTrue(hbAdm.isTableAvailable(tableName));		
+		assertTrue(OsPath.isfile(OsPath.join(logTable.pipelineLogDir, "004-unitTest/710.tar.bz2")));
 		assertEquals(0, logTable.getLogFiles("004-unknown", 710, "/invalud/dir"));
 	}
-
-	// In test...mapreduce.LogTableTest
-	//@Test
-	//public void testPutMapReduceLogFiles() {
-	//	
-	//}
-
-
-	// In test...mapreduce.logTableTest
-	//@Test
-	//public void testGetMapReduceLogFiles() {
-	//
-	//}
-
 }

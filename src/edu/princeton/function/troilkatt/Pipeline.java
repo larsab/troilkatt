@@ -94,7 +94,7 @@ public class Pipeline {
 				logger.fatal("Could not create directory: " + localLogDir);
 				throw new PipelineException("mkdir " + localLogDir + " failed");
 			}
-			this.logTable = new LogTableTar(tfs, sgeDir, name, localLogDir, localTmpDir);
+			this.logTable = new LogTableTar(name, tfs, OsPath.join(sgeDir, "log"), localLogDir, localTmpDir);
 			tfsRootDir = troilkattProperties.get("troilkatt.nfs.root.dir");
 		}
 		else {
@@ -170,7 +170,7 @@ public class Pipeline {
 				logger.fatal("Could not create directory: " + localLogDir);
 				throw new PipelineException("mkdir " + localLogDir + " failed");
 			}
-			this.logTable = new LogTableTar(tfs, sgeDir, name, localLogDir, localTmpDir);
+			this.logTable = new LogTableTar(name, tfs, OsPath.join(sgeDir, "log"), localLogDir, localTmpDir);
 		}
 		else {
 			logger.fatal("Invalid valid for persistent storage");
