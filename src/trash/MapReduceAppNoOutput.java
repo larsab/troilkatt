@@ -94,7 +94,7 @@ public class MapReduceAppNoOutput extends MapReduce {
 		// Set iteration specific local variables        
 		this.timestamp = timestamp;
 		setLocalFSDirs(timestamp);
-		hdfsOutputDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), 
+		hdfsOutputDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), 
 				"output/" + name + "-" + timestamp);
 
 		logger.debug("Do processing for stage: " + name);

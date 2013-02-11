@@ -68,7 +68,7 @@ public class PipelineTest extends TestSuper {
 		assertNotNull(p.logTable);
 		String localRoot = troilkattProperties.get("troilkatt.localfs.dir");
 		assertTrue(OsPath.isdir(OsPath.join(localRoot, pipelineName)));
-		String hdfsRoot = troilkattProperties.get("troilkatt.hdfs.root.dir");
+		String hdfsRoot = troilkattProperties.get("troilkatt.tfs.root.dir");
 		assertTrue(tfs.isdir(OsPath.join(hdfsRoot, "data")));
 		assertTrue(tfs.isdir(OsPath.join(hdfsRoot, "log/" + pipelineName)));
 		assertTrue(tfs.isdir(OsPath.join(hdfsRoot, "meta/" + pipelineName)));
@@ -89,7 +89,7 @@ public class PipelineTest extends TestSuper {
 		assertEquals("000-theSource", p.source.stageName);
 		assertEquals(NullSource.class, p.source.getClass());
 		assertEquals("arg1 arg2 arg3", p.source.args);
-		String hdfsRoot = troilkattProperties.get("troilkatt.hdfs.root.dir");
+		String hdfsRoot = troilkattProperties.get("troilkatt.tfs.root.dir");
 		assertEquals(OsPath.join(hdfsRoot, "data/test/crawler-output"), p.source.hdfsOutputDir);
 		assertEquals("gz", p.source.compressionFormat);
 		assertEquals(-1, p.source.storageTime);

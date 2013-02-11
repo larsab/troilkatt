@@ -85,7 +85,7 @@ public class Pipeline {
 		String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 		if (persistentStorage.equals("hadoop")) {
 			this.logTable = new LogTableHbase(name);
-			tfsRootDir = troilkattProperties.get("troilkatt.hdfs.root.dir");		
+			tfsRootDir = troilkattProperties.get("troilkatt.tfs.root.dir");		
 		}
 		else if (persistentStorage.equals("nfs")) {
 			String sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");

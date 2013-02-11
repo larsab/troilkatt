@@ -223,7 +223,7 @@ public class TroilkattTest extends TestSuper {
 		Troilkatt t = new Troilkatt();
 		TroilkattProperties p = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
 		TroilkattFS tfs = t.setupTFS(p);
-		Path hdfsStatusPath = new Path(p.get("troilkatt.hdfs.status.file"));
+		Path hdfsStatusPath = new Path(p.get("troilkatt.tfs.status.file"));
 		String statusFilename = OsPath.join(p.get("troilkatt.localfs.dir"), hdfsStatusPath.getName());
 		OsPath.delete(statusFilename);
 		
@@ -257,9 +257,9 @@ public class TroilkattTest extends TestSuper {
 		p.set("troilkatt.localfs.binary.dir", OsPath.join(ctdt, "bin"));
 		p.set("troilkatt.localfs.utils.dir", OsPath.join(ctdt, "utils"));
 		p.set("troilkatt.localfs.scripts.dir", OsPath.join(ctdt, "scripts"));
-		p.set("troilkatt.hdfs.root.dir", OsPath.join(hdfsRoot, "create-troilkatt-dirs-test"));
+		p.set("troilkatt.tfs.root.dir", OsPath.join(hdfsRoot, "create-troilkatt-dirs-test"));
 				
-		tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));		
+		tfs.deleteDir(p.get("troilkatt.tfs.root.dir"));		
 		OsPath.deleteAll(ctdt);
 		assertFalse(t.verifyTroilkattDirs(p, tfs));
 				
@@ -270,7 +270,7 @@ public class TroilkattTest extends TestSuper {
 		OsPath.mkdir(p.get("troilkatt.localfs.scripts.dir"));
 		assertTrue(t.verifyTroilkattDirs(p, tfs));
 		
-		tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));
+		tfs.deleteDir(p.get("troilkatt.tfs.root.dir"));
 		assertFalse(t.verifyTroilkattDirs(p, tfs));
 		
 		t.createTroilkattDirs(p, tfs);
@@ -279,7 +279,7 @@ public class TroilkattTest extends TestSuper {
 		OsPath.deleteAll(ctdt);
 		assertFalse(t.verifyTroilkattDirs(p, tfs));
 		
-		tfs.deleteDir(p.get("troilkatt.hdfs.root.dir"));
+		tfs.deleteDir(p.get("troilkatt.tfs.root.dir"));
 	}
 
 	@Test

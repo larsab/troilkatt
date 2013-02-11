@@ -50,7 +50,7 @@ public class TroilkattStatus {
 		tfs = tfsHandle;
 		
 		String troilkattDir = troilkattProperties.get("troilkatt.localfs.dir");		
-		persistentFilename = troilkattProperties.get("troilkatt.hdfs.status.file");
+		persistentFilename = troilkattProperties.get("troilkatt.tfs.status.file");
 		localFilename = OsPath.join(troilkattDir, OsPath.basename(persistentFilename));
 				
 		/*

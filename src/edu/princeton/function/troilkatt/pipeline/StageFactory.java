@@ -174,10 +174,10 @@ public class StageFactory {
 	    
 		TroilkattProperties troilkattProperties = pipeline.troilkattProperties;
 		String localRootDir = troilkattProperties.get("troilkatt.localfs.dir");
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"),
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				OsPath.join("meta", pipeline.name));
 		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", stageNum, name));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");
+		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
 		return newStage(type, stageNum, name, args,	outputDirectory, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, logger);				
 	}	

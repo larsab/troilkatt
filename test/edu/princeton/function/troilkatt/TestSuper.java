@@ -31,6 +31,7 @@ public class TestSuper {
 	protected static final String outDir = "/home/larsab/troilkatt2/test-tmp/output";
 	// Configuration file 
 	protected static final String configurationFile = "unitConfig.xml";
+	protected static final String configurationFileNFS = "unitConfigNFS.xml";
 	// Log4j properties file
 	protected static final String logProperties = "log4j-unit.properties";
 	

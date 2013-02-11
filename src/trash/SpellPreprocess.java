@@ -126,7 +126,7 @@ public class SpellPreprocess extends PerFile{
 
 			// Must use task specific output directory in case of speculative execution
 			mapredOutputDir = confEget("mapred.output.dir");
-			troilkattProperties.set("troilkatt.hdfs.root.dir", mapredOutputDir);			
+			troilkattProperties.set("troilkatt.tfs.root.dir", mapredOutputDir);			
 
 			try {
 				hdfs = FileSystem.get(conf);
@@ -313,7 +313,7 @@ public class SpellPreprocess extends PerFile{
 			/*
 			 * Get troilkatt configuration and setup tables
 			 */			
-			hdfsRootDir = troilkattProperties.get("troilkatt.hdfs.root.dir");			
+			hdfsRootDir = troilkattProperties.get("troilkatt.tfs.root.dir");			
 			HBaseConfiguration hbConf = new HBaseConfiguration();
 			pipelineTable = new PipelineTable(conf, hbConf, troilkattProperties);
 			datasetTable = TableFactory.newTable(dataTableType, dataTableName, 

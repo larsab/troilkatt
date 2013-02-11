@@ -36,7 +36,7 @@
 	</property>
 	
 	<property>
-		<name>troilkatt.hdfs.rootdir</name>
+		<name>troilkatt.tfs.rootdir</name>
 		<value>/user/larsab/troilkatt</value>
 		<description>
 		
@@ -46,19 +46,7 @@
 	</property>
 
 	<property>
-		<name>troilkatt.hdfs.timestamp.file</name>
-		<value>timestamps.txt</value>
-		<description>
-
-			This file contains the timestamps for when the datasets are updated. It
-			also provides a mapping from the Hbase integer timestamps to human readable
-			date/time format.
-    	
-    </description>
-	</property>
-
-	<property>
-		<name>troilkatt.hdfs.status.file</name>
+		<name>troilkatt.tfs.status.file</name>
 		<value>status.txt</value>
 		<description>
 		
@@ -81,13 +69,35 @@
 	
 	<property>
 		<name>troilkatt.globalfs.global-meta.dir</name>
-		<value>/home/larsb/troilkatt2/test-tmp/global-meta</value>
+		<value>/home/larsab/troilkatt/global-meta</value>
 		<description>
 		
-			This directory contains various meta-data files used by the
-			troilkatt stage such as gold standards, gene names files, etc.
+			This directory contains various global meta-data files used by many
+			Troilkatt stage such as gold standards, gene names files, etc.
+			The TROILKATT.GLOBALMETA_DIR is mapped to this directory.
 			
 		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.globalfs.sge.dir</name>
+		<value>/home/larsab/troilkatt/sge</value>
+		<description>
+		
+			This directory contains globally shared files for SGE jobs.
+			
+		</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.global-meta.retain.days</name>
+		<value>-1</value>
+		<description>
+
+			Time in days for which global-meta data is retained before being deleted. If
+			-1 global-meta is never deleted.
+    	
+    </description>
 	</property>
 
 	<property>

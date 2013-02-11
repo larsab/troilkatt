@@ -162,7 +162,7 @@ public class UploadDataFiles extends Troilkatt {
 		for (String f: files) {
 			TroilkattFile2 tf = new TroilkattFile2(OsPath.basename(f), 
 					OsPath.dirname(f),
-					troilkattProperties.get("troilkatt.hdfs.root.dir"),
+					troilkattProperties.get("troilkatt.tfs.root.dir"),
 					tableName,
 					fileTable.getFiletype(f),
 					timestamp,

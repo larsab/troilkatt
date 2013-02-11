@@ -126,7 +126,7 @@
 	</property>
 	
 	<property>
-		<name>troilkatt.hdfs.root.dir</name>
+		<name>troilkatt.tfs.root.dir</name>
 		<value>/user/larsab/troilkatt</value>
 		<description>
 		
@@ -136,19 +136,7 @@
 	</property>
 
 	<property>
-		<name>troilkatt.hdfs.timestamp.file</name>
-		<value>/user/larsab/troilkatt/status/timestamps-test.txt</value>
-		<description>
-
-			This file contains the timestamps for when the datasets are updated. It
-			also provides a mapping from the integer timestamps to human readable
-			date/time format.
-    	
-    </description>
-	</property>
-
-	<property>
-		<name>troilkatt.hdfs.status.file</name>
+		<name>troilkatt.tfs.status.file</name>
 		<value>/user/larsab/troilkatt/status/status-test.txt</value>
 		<description>
 		

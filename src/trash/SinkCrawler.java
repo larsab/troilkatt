@@ -120,7 +120,7 @@ public class SinkCrawler extends Source {
 		for (String k: prevFPs.keySet()) {
 			if (! sinkFilenames.contains(k)) {
 				deletedFiles.add(new TroilkattFile(k, 
-						troilkattProperties.get("troilkatt.hdfs.root.dir"), 
+						troilkattProperties.get("troilkatt.tfs.root.dir"), 
 						this.outputDir, 
 						logger) );
 			}

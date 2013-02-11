@@ -18,14 +18,22 @@ import edu.princeton.function.troilkatt.fs.OsPath;
  * 
  * The subclass MapReduceStage can be used to execute a stage in parallel using MapReduce.
  */
-public class SGE extends Stage {
-	// The stage arguments
-	protected String stageArgs; 
+public class SGEStage extends Stage {
+	// Command used to start the SGE job
+	protected String sgeCmd;
+	// Script run by SGE for each file
+	public String scriptFilename;
 	// File with input arguments to SGE executed program
 	public String argsFilename;
-	// Command used to run MapReduce job
+	// File with filenames used when starting the SGE job 
+	public String inputFilesFilename;
+	
+	// Root directory for SGE files. This is used both for temporary output and log files
 	protected String sgeDir;
-	protected String sgeCmd;
+	// troilkatt jar file
+	protected String jarFile;
+	// SGE ExecuteStage class
+	protected String mainClass;
 	
 	/**
 	 * Constructor.
@@ -33,7 +41,7 @@ public class SGE extends Stage {
 	 * @param args stage arguments
 	 * @param see description for ExecutePerFile class
 	 */
-	public SGE(int stageNum, String name, String args, 
+	public SGEStage(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
 			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
@@ -42,10 +50,15 @@ public class SGE extends Stage {
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);		
 		
-		sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");			
-		argsFilename = OsPath.join(sgeDir, "input.args");
-				
-		sgeCmd = " " + argsFilename;
+		sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");		
+		scriptFilename = OsPath.join(stageTmpDir, "sge.sh");
+		inputFilesFilename = OsPath.join(stageTmpDir, "sge.files");
+		argsFilename = OsPath.join(sgeDir, "sge.args");
+		
+		jarFile = troilkattProperties.get("troilkatt.jar");
+		mainClass = "edu.princeton.function.troilkatt.sge.ExecuteStage";
+		
+		sgeCmd = "submit -s " + scriptFilename + " -f " + inputFilesFilename;
 	}
 	
 	/**
@@ -58,12 +71,74 @@ public class SGE extends Stage {
 	}
 	
 	/**
-	 * The save output files is overridden such that no files are saved. Instead the SGE tasks will do this.
+	 * Function called to save the output files created by this stage.
 	 * 
+	 * @param localFiles list of files on local FS to save
+	 * @return list of filenames in NFS
+	 * @throws StageException if one or more files could not be saved
 	 */
 	@Override
-	public ArrayList<String> saveOutputFiles(ArrayList<String> hdfsFiles, long timestamp) throws StageException {
-		return hdfsFiles;
+	 public ArrayList<String> saveOutputFiles(ArrayList<String> localFiles, long timestamp) throws StageException {
+		// Save files as normal
+		ArrayList<String> nfsFiles = super.saveOutputFiles(localFiles, timestamp);
+		// then delete the tmp files
+		for (String f: localFiles) {
+			if (OsPath.delete(f) == false) {
+				logger.warn("Could not delete tmp output file: " + f);
+			}
+		}
+		return nfsFiles;
+	 }
+	
+	/**
+	 * Helper function to write an SGE script
+	 * @throws StageException 
+	 */
+	public void writeSGEScript(ArrayList<String> inputFilenames) throws StageException {
+		/*
+		 * Script file
+		 */
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter(scriptFilename));
+			
+			out.write("#!/bin/sh\n\n");
+			
+			// SGE name
+			out.write("#$ -N troilkatt.ExecuteStage\n\n");
+			
+			/*
+			 * Command to execute
+			 */
+			// java command
+			out.write("java -jar " + jarFile + " " + mainClass + " ");
+			// 1st argument: arguments file location
+			out.write(argsFilename);
+			// 2nd argument: input filename
+			out.write(" ${SGE_TASK}");
+			// 3rd argument: SGE task ID
+			out.write(" ${JOB_ID}_${SGE_TASK_ID}\n\n");
+			
+			out.close();
+		} catch (IOException e1) {
+			logger.fatal("Could not create input SGE scripts file: " + e1.getMessage());
+			throw new StageException("Could not create SGE scripts file");
+		}
+		
+		/*
+		 * Input filenames file
+		 */
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter(inputFilesFilename));
+			
+			for (String f: inputFilenames) {
+				out.write(f + "\n");
+			}
+			
+			out.close();
+		} catch (IOException e1) {
+			logger.fatal("Could not create input SGE files file: " + e1.getMessage());
+			throw new StageException("Could not create SGE files file");
+		}
 	}
 	
 	/**
@@ -86,7 +161,7 @@ public class SGE extends Stage {
 			out.println("configuration.file = " + troilkattProperties.getConfigFile());
 			out.println("pipeline.name = " + pipelineName);			
 			out.println("stage.name = " + stageName);			
-			out.println("stage.args = " + stageArgs);
+			out.println("stage.args = " + args);
 			out.println("nfs.output.dir = " + nfsTmpOutputDir); // tmp storage for output files
 			out.println("compression.format = " + compressionFormat);
 			out.println("storage.time = " + storageTime);
@@ -209,16 +284,21 @@ public class SGE extends Stage {
 			long timestamp) throws StageException {						
 		
 		// Temporary SGE output directory on NFS
-		String nfsTmpOutputDir = OsPath.join(hdfsTmpDir, getStageID() + "-" + timestamp + "/output");
+		String nfsTmpOutputDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/output");
 		// Root for task log files
-		String nfsTmpLogDir = OsPath.join(hdfsTmpDir, getStageID() + "-" + timestamp + "/log");
+		String nfsTmpLogDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/log");
 		
 		// Create arguments file for MapReduce Job-task
 		writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, timestamp);
 		
+		// Create SGE scripts and filenames file
+		writeSGEScript(inputFiles);
+		
 		// Redirect output and execute MapReduce job
 		String outputLogfile = OsPath.join(stageLogDir, "sge.output");
 		String errorLogfile = OsPath.join(stageLogDir, "sge.error");
+		
+		// execute sge job
 		int rv = Stage.executeCmd(sgeCmd + " > " + outputLogfile + " 2> " + errorLogfile, logger);
 
 		// Always update log files even if job crashes
@@ -234,6 +314,7 @@ public class SGE extends Stage {
 		// Update list of meta and log files 
 		updateMetaFiles(metaFiles);		
 		
+		// Output filenames will be saved as normal
 		try {
 			return tfs.listdir(nfsTmpOutputDir);
 		} catch (IOException e) {

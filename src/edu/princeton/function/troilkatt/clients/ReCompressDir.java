@@ -299,7 +299,7 @@ public class ReCompressDir extends TroilkattClient {
 
 		    // Set input and output paths
 			FileInputFormat.setInputPaths(job, new Path(hdfsDir));		   
-			String hdfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "client-tmp");
+			String hdfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "client-tmp");
 			FileOutputFormat.setOutputPath(job, new Path(hdfsTmpDir));
 		} catch (IOException e1) {
 			System.err.println("Job setup failed due to IOException: " + e1.getMessage());

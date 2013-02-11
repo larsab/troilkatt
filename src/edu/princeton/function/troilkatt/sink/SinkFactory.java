@@ -41,10 +41,10 @@ public class SinkFactory {
 		
 		TroilkattProperties troilkattProperties = pipeline.troilkattProperties;
 		String localRootDir = troilkattProperties.get("troilkatt.localfs.dir");
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"),
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				OsPath.join("meta", pipeline.name));
 		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", stageNum, sinkName));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");
+		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
 		return newSink(type, stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, logger);	    
 	}

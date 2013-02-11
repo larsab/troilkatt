@@ -226,7 +226,7 @@ public class ExecuteMapReduceJob extends TroilkattClient {
 			System.exit(1);
 		}						
 		
-		String hdfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");		
+		String hdfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");		
 		long timestamp = Long.valueOf(args.get("timestamp"));
 		
 		// MapRed stage

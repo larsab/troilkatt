@@ -85,7 +85,7 @@ public class TroilkattPropertiesTest extends TestSuper {
 	public void testGet() throws SAXException, IOException, ParserConfigurationException, TroilkattPropertiesException {
 		TroilkattProperties p = new TroilkattProperties(OsPath.join(dataDir, configurationFile));
 		assertEquals("/home/larsab/troilkatt2/test-tmp/data", p.get("troilkatt.localfs.dir"));
-		assertEquals("/user/larsab/troilkatt", p.get("troilkatt.hdfs.root.dir"));
+		assertEquals("/user/larsab/troilkatt", p.get("troilkatt.tfs.root.dir"));
 		assertEquals("24", p.get("troilkatt.update.interval.hours"));
 	}
 	

@@ -134,7 +134,7 @@ public class GeoInfoCrawler extends Source {
 					String hdfsFilename = pclTable.getHDFSFilename(filename);
 					if (hdfsFilename != null) { // New or changed entry							
 						retrievedFiles.add(new TroilkattFile(hdfsFilename, 
-								troilkattProperties.get("troilkatt.hdfs.root.dir"),
+								troilkattProperties.get("troilkatt.tfs.root.dir"),
 								outputDir,
 								logger));
 						infoMap.put(id, dataLine);

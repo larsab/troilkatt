@@ -274,7 +274,7 @@ public class ExecuteStage {
 	 */
 	public static void main(String[] args) {		
 		if (args.length < 4) {
-			System.err.println("Usage: stageType sgeArgsFilename inputFilename taskID [args]");
+			System.err.println("Usage: sgeArgsFilename inputFilename taskID");
 			System.exit(-2);
 		}
 				

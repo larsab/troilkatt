@@ -54,10 +54,10 @@ public class StageTest extends TestSuper {
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 					
 		localRootDir = tmpDir;
-		hdfsRoot = troilkattProperties.get("troilkatt.hdfs.root.dir");
+		hdfsRoot = troilkattProperties.get("troilkatt.tfs.root.dir");
 		String hdfsPipelineMetaDir = OsPath.join(hdfsRoot, OsPath.join("meta", pipeline.name));
 		hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", stageNum, stageName));
-		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");			
+		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");			
 	}
 
 	@AfterClass

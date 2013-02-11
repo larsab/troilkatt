@@ -124,7 +124,7 @@ public class Stage {
 				this.hdfsOutputDir = outputDirectory;
 			}
 			else { // is relative to root
-				this.hdfsOutputDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"),
+				this.hdfsOutputDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 						OsPath.join("data", outputDirectory));
 			}
 			
@@ -186,7 +186,7 @@ public class Stage {
 				throw new StageInitException("Could not create global-meta directory: " + globalMetaDir);
 			}
 		}
-		hdfsGlobalMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "global-meta");		
+		hdfsGlobalMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "global-meta");		
 		
 		//this.pipelineStageDir = pipeline.localFSDir; 
 		setCreateLocalFSDirs(localRootDir);
@@ -343,7 +343,7 @@ public class Stage {
 		hdfsMetaDir = hdfsStageMetaDir;
 		tfs.mkdir(hdfsMetaDir);
 		
-		//hdfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");
+		//hdfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		hdfsTmpDir = hdfsStageTmpDir;
 		
 		if (hdfsTmpDir != null) {

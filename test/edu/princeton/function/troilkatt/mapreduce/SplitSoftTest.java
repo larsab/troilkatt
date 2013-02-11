@@ -57,13 +57,13 @@ public class SplitSoftTest extends TestSuper {
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		localRootDir = tmpDir;
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"),
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				OsPath.join("meta", pipeline.name));
 		hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 5, "mapreduce-splittest"));
-		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");		
+		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");		
 		
 		
-		hdfsOutput = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"),
+		hdfsOutput = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				"test/mapreduce/output");
 		
 		String[] testLines = {"!First meta line",

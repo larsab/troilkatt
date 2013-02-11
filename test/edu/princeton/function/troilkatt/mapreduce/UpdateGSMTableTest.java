@@ -77,10 +77,10 @@ public class UpdateGSMTableTest extends TestSuper {
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		localRootDir = tmpDir;
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"),
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				OsPath.join("meta", pipeline.name));
 		hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 5, "mapreduce-metatest"));
-		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");
+		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
 		Configuration hbConf = HBaseConfiguration.create();
 		geoMetaSchema = new GeoMetaTableSchema();
@@ -92,7 +92,7 @@ public class UpdateGSMTableTest extends TestSuper {
 		gsmTable = gsmSchema.openTable(hbConf, true);
 		
 		
-		hdfsOutput = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"),
+		hdfsOutput = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 		"test/mapreduce/output");
 		tfs.deleteDir(hdfsOutput);
 		tfs.mkdir(hdfsOutput);

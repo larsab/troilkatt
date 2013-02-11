@@ -39,9 +39,9 @@ public class SourceTest extends TestSuper {
 		TroilkattHDFS tfs = new TroilkattHDFS(hdfs);
 		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), OsPath.join("meta", pipeline.name));
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));
 		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 0, "unitSource"));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");	
+		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");	
 		source = new Source("unitSource", "foo bar baz",
 				"test/source", "gz", 10, tmpDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
 	}

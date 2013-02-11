@@ -119,7 +119,7 @@ public class TroilkattClient extends Troilkatt {
 		if (! hdfsDir.startsWith("/")) { // is relative to data dir
 			String hdfsDataDir;
 			try {
-				hdfsDataDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "data");
+				hdfsDataDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "data");
 			} catch (TroilkattPropertiesException e) {
 				logger.error("Invalid troilkatt properties", e);
 				return null;

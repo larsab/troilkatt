@@ -243,7 +243,7 @@ public class Troilkatt {
 				"troilkatt.localfs.utils.dir",
 				"troilkatt.localfs.scripts.dir"};
 		
-		String[] hdfsDirs = {"troilkatt.hdfs.root.dir"};
+		String[] hdfsDirs = {"troilkatt.tfs.root.dir"};
 		
 		for (String p: localDirs) {
 			String d = troilkattProperties.get(p);
@@ -281,7 +281,7 @@ public class Troilkatt {
 				"troilkatt.globalfs.global-meta.dir",
 				"troilkatt.localfs.mapreduce.dir"};
 		
-		String[] hdfsDirs = {"troilkatt.hdfs.root.dir"};
+		String[] hdfsDirs = {"troilkatt.tfs.root.dir"};
 		
 		for (String p: localDirs) {
 			String d = troilkattProperties.get(p);
@@ -472,7 +472,7 @@ public class Troilkatt {
 		/*
 		 * Setup temporary directories for the main thread
 		 */
-		String hdfsRootDir = troilkattProperties.get("troilkatt.hdfs.root.dir");
+		String hdfsRootDir = troilkattProperties.get("troilkatt.tfs.root.dir");
 		String hdfsGlobalMetaDir = OsPath.join(hdfsRootDir, "global-meta");
 		String localfsGlobalMetaDir = troilkattProperties.get("troilkatt.globalfs.global-meta.dir");
 		OsPath.mkdir(localfsGlobalMetaDir);

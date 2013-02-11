@@ -46,9 +46,9 @@ public class GeoRawMirrorTest extends TestSuper {
 		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		String localRootDir = tmpDir;
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), OsPath.join("meta", pipeline.name));
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));
 		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 0, "geoRawMirror"));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");
+		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
 		source = new GeoRawMirror("geoRawMirror", "'Homo sapiens'",
 				"test/geoRawMirror", "none", 3, 

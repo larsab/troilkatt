@@ -49,9 +49,9 @@ public class GlobalMetaTest extends TestSuper {
 		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		localRootDir = tmpDir;		
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), OsPath.join("meta", pipeline.name));
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));
 		hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 3, "unitSink"));
-		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");
+		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
 		globalMetaDir = troilkattProperties.get("troilkatt.globalfs.global-meta.dir");
 	}

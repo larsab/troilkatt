@@ -55,9 +55,9 @@ public class HDFSSourceTest extends TestSuper {
 		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		String localRootDir = tmpDir;
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), OsPath.join("meta", pipeline.name));
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));
 		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 0, "HDFSSourceUnit"));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");
+		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
 		HDFSSource source = new HDFSSource("unitSource", "foo bar baz",
 				"test/source", "gz", 10, 
@@ -74,9 +74,9 @@ public class HDFSSourceTest extends TestSuper {
 		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
 		
 		String localRootDir = tmpDir;
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), OsPath.join("meta", pipeline.name));
+		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));
 		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 0, "HDFSSourceUnit"));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.hdfs.root.dir"), "tmp");
+		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
 		HDFSSource source = new HDFSSource("HDFSSourceUnit", "foo bar baz",				
 				"test/source", "gz", 10, 
