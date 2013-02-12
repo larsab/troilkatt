@@ -17,7 +17,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	MapReduceTest.class, 	
 	SaveFilelistTest.class,
 	ScriptPerDirTest.class,	
-	ScriptPerFileTest.class})
+	ScriptPerFileTest.class,
+	SGEStageTest.class})
 public class PipelineTests {
 
 }

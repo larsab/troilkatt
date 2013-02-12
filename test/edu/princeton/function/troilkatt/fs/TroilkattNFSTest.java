@@ -984,9 +984,6 @@ public class TroilkattNFSTest extends TestSuper {
 	}
 	
 	/* Invalid destination directory
-	 *
-	 * Note! This test can fail when HDFS is run in pseudo mode since it may not support
-	 * file permissions.
 	 */
 	@Test(expected=IOException.class) 
 	public void testMoveFileI1() throws IOException {

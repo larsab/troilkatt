@@ -106,6 +106,13 @@ public class StageFactoryTest extends TestSuper {
 				pipeline, testLogger);
 		assertEquals(MapReduceStage.class, stage.getClass());
 		
+		stage = StageFactory.newStage("sge_stage", 
+				7, "factoryTest", 
+				"execute_per_file " + SGEStageTest.executeCmd,
+				"test/stage", "gz", 10, 
+				pipeline, testLogger);
+		assertEquals(SGEStage.class, stage.getClass());
+		
 		stage = StageFactory.newStage("null_stage", 
 				11, "factoryTest", "foo bar baz", 
 				"test/stage", "gz", 10, 

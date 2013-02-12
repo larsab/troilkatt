@@ -170,7 +170,12 @@ public class Pipeline {
 				logger.fatal("Could not create directory: " + localLogDir);
 				throw new PipelineException("mkdir " + localLogDir + " failed");
 			}
-			this.logTable = new LogTableTar(name, tfs, OsPath.join(sgeDir, "log"), localLogDir, localTmpDir);
+			String globalLogDir = OsPath.join(sgeDir, "logtar");
+			if (! OsPath.mkdir(globalLogDir)) {
+				logger.fatal("Could not create directory: " + globalLogDir);
+				throw new PipelineException("mkdir " + globalLogDir + " failed");
+			}
+			this.logTable = new LogTableTar(name, tfs, globalLogDir, localLogDir, localTmpDir);
 		}
 		else {
 			logger.fatal("Invalid valid for persistent storage");

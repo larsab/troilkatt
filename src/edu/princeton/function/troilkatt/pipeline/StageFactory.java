@@ -18,7 +18,7 @@ public class StageFactory {
 		"filter", 
 		"execute_per_dir",	"execute_per_file", "execute_per_file_mr",
 		"script_per_file", "script_per_file_mr", "script_per_dir", 
-		"mapreduce", "mapreduce_stage",
+		"mapreduce", "mapreduce_stage", "sge_stage",
 		"null_stage",
 		"find_gsm_overlap",
 		"save_filelist"};
@@ -109,6 +109,12 @@ public class StageFactory {
 	    }
 	    else if (type.equals("mapreduce_stage")) {	 
 	    	return new MapReduceStage(stageNum, name, args, 
+					outputDirectory, compressionFormat, storageTime, 
+					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					pipeline);					
+	    }
+	    else if (type.equals("sge_stage")) {	 
+	    	return new SGEStage(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
 					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 					pipeline);					

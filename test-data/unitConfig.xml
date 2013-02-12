@@ -60,8 +60,18 @@
 	</property>
 	
 	<property>
+		<name>troilkatt.localfs.sge.dir</name>
+		<value>/home/larsab/troilkatt2/test-tmp/sge-local</value>
+		<description>
+		
+			This directory contains local files for the SGE jobs
+			
+		</description>
+	</property>
+	
+	<property>
 		<name>troilkatt.globalfs.sge.dir</name>
-		<value>/home/larsab/troilkatt2/test-tmp/sge</value>
+		<value>/home/larsab/troilkatt2/test-tmp/sge-global</value>
 		<description>
 		
 			This directory contains globally shared files for SGE jobs.

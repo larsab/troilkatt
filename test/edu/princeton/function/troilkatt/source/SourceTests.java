@@ -19,7 +19,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	GeoGSEMirrorTest.class,
 	GeoRawMirrorTest.class,
 	GeoRawOrgTest.class, 
-	HbaseSourceTest.class, 	
+	HbaseSourceTest.class,
 	HREFSourceTest.class, 		
 	ScriptSourceTest.class,
 	OsCmdsSourceTest.class

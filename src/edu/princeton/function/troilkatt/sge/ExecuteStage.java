@@ -103,10 +103,7 @@ public class ExecuteStage {
 		}
 		
 		logger.info("Execute stage type: " + stageType);
-		logger.info("Execute stage args: " + stageArgs);
-		
-		// The stage name contains the task id		 
-		taskStageName = stageName + "-" + taskID;		
+		logger.info("Execute stage args: " + stageArgs);	
 
 		// Get stage number from stageName
 		String parts[] = stageName.split("-");
@@ -120,7 +117,9 @@ public class ExecuteStage {
 		} catch (NumberFormatException e) {
 			logger.fatal("Invalid number in stagename " + stageName + ": " + parts[0]);
 			throw new RuntimeException("Invalid number in stagename " + stageName + ": " + parts[0]);
-		}
+		}		
+		// The stage name contains the task id, but not the stage number 
+		taskStageName = parts[1] + "-" + taskID;	
 				
 		try {
 			troilkattProperties = new TroilkattProperties(configurationFile);
@@ -129,7 +128,7 @@ public class ExecuteStage {
 			throw new StageInitException("Failed to create troilkatt properties object from file: " + configurationFile);
 		}
 		
-		/* Setup TFS/ HDFS */		
+		/* Setup TFS/ NFS */		
 		tfs = new TroilkattNFS();
 					
 		try {
