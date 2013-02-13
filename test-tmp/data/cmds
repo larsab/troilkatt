@@ -1,4 +1,4 @@
-echo 'foo bar' > TROILKATT.TMP_DIR/OsCmds.tmp
+echo 'foo bar baz' > TROILKATT.TMP_DIR/OsCmds.tmp
 cp TROILKATT.TMP_DIR/OsCmds.tmp TROILKATT.TMP_DIR/OsCmds.tmp.copy
 # A comment
 
