@@ -74,7 +74,7 @@ public class SGEStageTest extends TestSuper {
 
 	@Before
 	public void setUp() throws Exception {
-		sges = new SGEStage(stageNum, stageName, " execute_per_file " + executeCmd,
+		sges = new SGEStage(stageNum, stageName, "execute_per_file 1 512 " + executeCmd,
 				nfsOutput, "gz", -1, 
 				localRootDir, nfsStageMetaDir, nfsTmpDir,
 				pipeline);
@@ -100,9 +100,9 @@ public class SGEStageTest extends TestSuper {
 	@Test
 	public void testSGEStage() throws TroilkattPropertiesException {		
 		assertTrue(sges.sgeCmd.startsWith("submit -s"));
-		assertTrue(sges.scriptFilename.endsWith("sge.sh"));
-		assertTrue(sges.argsFilename.endsWith("sge.args"));
-		assertTrue(sges.inputFilesFilename.startsWith("sge.files"));
+		assertEquals("sge.sh", OsPath.basename(sges.scriptFilename));
+		assertEquals("sge.args", OsPath.basename(sges.argsFilename));
+		assertEquals("sge.files", OsPath.basename(sges.inputFilesFilename));
 		assertEquals(troilkattProperties.get("troilkatt.globalfs.sge.dir"), sges.sgeDir);
 		assertEquals(troilkattProperties.get("troilkatt.jar"), sges.jarFile);
 		assertEquals(sges.mainClass, "edu.princeton.function.troilkatt.sge.ExecuteStage");
@@ -117,18 +117,17 @@ public class SGEStageTest extends TestSuper {
 		// Note! read order of lines must match write order in MapReduce.writeMapReduceArgsFile
 		assertEquals(troilkattProperties.getConfigFile(), TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "configuration.file"));
 		assertEquals(sges.pipelineName, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "pipeline.name"));		
-		assertEquals("008-mapreduce-unittest", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "stage.name"));		
-		assertEquals("atn1 vcsd1", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "stage.args"));		
-		assertEquals("execute_per_file " + executeCmd, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "hdfs.output.dir"));		
+		assertEquals("007-sgestage", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "stage.name"));		
+		assertEquals("execute_per_file " + executeCmd, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "stage.args"));					
 		assertEquals("/nfs/tmp/output", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "nfs.output.dir"));		
 		assertEquals("gz", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "compression.format"));
 		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "storage.time")) == -1);			
 		assertEquals("/nfs/tmp/log", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "nfs.log.dir"));		
-		assertEquals(sges.hdfsMetaDir, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "hdfs.meta.dir"));	
+		assertEquals(sges.hdfsMetaDir, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "nfs.meta.dir"));	
 		assertEquals(OsPath.join(troilkattProperties.get("troilkatt.localfs.sge.dir"), "pipeline"), TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.pipeline.dir"));
 		assertEquals(OsPath.join(troilkattProperties.get("troilkatt.localfs.sge.dir"), "tmp"), TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.tmp.dir"));
 		assertNotNull(TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "logging.level"));		
-		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "timestamp")) == 567);
+		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "timestamp")) == 3216);
 						
 		ib.close();		
 	}
@@ -169,15 +168,21 @@ public class SGEStageTest extends TestSuper {
 		ArrayList<String> logFiles = new ArrayList<String>();
 		// 3 in "tmp" log
 		String tmpLogDir = OsPath.join(tmpDir, "move");
+		OsPath.deleteAll(tmpLogDir);
+		OsPath.mkdir(tmpLogDir);
 		String dstFile1 = OsPath.join(tmpLogDir, "1.log");
 		OsPath.copy(OsPath.join(dataDir, "files/file1"), dstFile1);
-		String dstFile2 = OsPath.join(tmpLogDir, "2.out");
+		String dstFile2 = OsPath.join(tmpLogDir, "2.log");
 		OsPath.copy(OsPath.join(dataDir, "files/file2"), dstFile2);
-		String dstFile3 = OsPath.join(tmpLogDir, "3.unknown");
+		String dstFile3 = OsPath.join(tmpLogDir, "3.log");
 		OsPath.copy(OsPath.join(dataDir, "files/file2"), dstFile3);
 		
 		// 1 in log
-		String finalLogDir = OsPath.join(tmpDir, "dst");
+		String finalLogDir = sges.stageLogDir;
+		OsPath.deleteAll(finalLogDir);
+		OsPath.mkdir(finalLogDir);
+		
+		// Put one fiel into final log directory
 		String dstFile4 = OsPath.join(finalLogDir, "4.log");
 		OsPath.copy(OsPath.join(dataDir, "files/file2"), dstFile4);
 		logFiles.add(dstFile4);	
@@ -186,9 +191,11 @@ public class SGEStageTest extends TestSuper {
 		sges.moveSGELogFiles(tmpLogDir, logFiles);
 		assertEquals(0, OsPath.listdir(tmpLogDir).length);
 		assertEquals(4, logFiles.size());
-		assertTrue(OsPath.isfile(OsPath.join(finalLogDir, "1.log")));
-		assertTrue(OsPath.isfile(OsPath.join(finalLogDir, "2.log")));
 		assertTrue(logFiles.contains(OsPath.join(finalLogDir, "1.log")));
+		assertTrue(logFiles.contains(OsPath.join(finalLogDir, "2.log")));
+		
+		assertTrue(OsPath.isfile(OsPath.join(finalLogDir, "1.log")));
+		assertTrue(OsPath.isfile(OsPath.join(finalLogDir, "2.log")));		
 		assertTrue(OsPath.isfile(OsPath.join(finalLogDir, "3.log")));
 		assertTrue(OsPath.isfile(OsPath.join(finalLogDir, "4.log")));
 	}

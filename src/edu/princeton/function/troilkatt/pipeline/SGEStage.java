@@ -35,6 +35,13 @@ public class SGEStage extends Stage {
 	// SGE ExecuteStage class
 	protected String mainClass;
 	
+	// args with TROILKATT symbols intact
+	protected String stageArgs;
+	
+	// container bin arguments
+	protected int maxProcs;
+	protected long maxVMSize; // in MB
+	
 	/**
 	 * Constructor.
 	 * 
@@ -59,6 +66,35 @@ public class SGEStage extends Stage {
 		mainClass = "edu.princeton.function.troilkatt.sge.ExecuteStage";
 		
 		sgeCmd = "submit -s " + scriptFilename + " -f " + inputFilesFilename;
+	
+		/*
+		 * Do custom parsing of arguments
+		 */
+		String[] argsParts = args.split(" ");
+        if (argsParts.length < 3) {
+        	logger.fatal("Invalid arguments: " + args);
+        	logger.fatal("Usage: stageType maxProcs maxVirtualMem");
+        	throw new StageInitException("Too few arguments: " + args);
+        }		
+        
+		try {
+			maxProcs = Integer.valueOf(argsParts[1]);
+			maxVMSize = Long.valueOf(argsParts[2]);			
+		} catch (NumberFormatException e) {
+			logger.fatal("Invalid max memory size argument: ", e);
+			throw new StageInitException("Invalid number for maximum troilkatt or task vmem: " + argsParts[1] + " or " + argsParts[2]);
+		}
+		
+		stageArgs = argsParts[0];
+        for (int i = 3; i < argsParts.length; i++) {
+        	String p = argsParts[i];
+        	if (stageArgs == null) {
+        		stageArgs = p;
+        	}
+        	else {
+        		stageArgs = stageArgs + " " + p;
+        	}
+        }        
 	}
 	
 	/**
@@ -161,7 +197,7 @@ public class SGEStage extends Stage {
 			out.println("configuration.file = " + troilkattProperties.getConfigFile());
 			out.println("pipeline.name = " + pipelineName);			
 			out.println("stage.name = " + stageName);			
-			out.println("stage.args = " + args);
+			out.println("stage.args = " + stageArgs);
 			out.println("nfs.output.dir = " + nfsTmpOutputDir); // tmp storage for output files
 			out.println("compression.format = " + compressionFormat);
 			out.println("storage.time = " + storageTime);
@@ -251,18 +287,18 @@ public class SGEStage extends Stage {
 			String newName = OsPath.join(stageLogDir, relName);
 			String dirName = OsPath.dirname(newName);
 			
-			if (! OsPath.isdir(dirName)) {
-				if (! OsPath.mkdir(dirName)) {
-					logger.warn("Could not create directory: " + dirName);
+			try {
+				if (! tfs.isdir(dirName)) {
+					tfs.mkdir(dirName);
+				}
+
+				if (tfs.renameFile(f, newName) == false) {
+					logger.warn("Could not move log file to: " + newName);
 					logger.warn("Skipping log file: " + f);
 					continue;
 				}
-			}
-			
-			if (OsPath.rename(f, newName) == false) {
-				logger.warn("Could not move log file to: " + newName);
-				logger.warn("Skipping log file: " + f);
-				continue;
+			} catch (IOException e) {
+				logger.error("Could not move local log files to shared logfile directory");
 			}
 			
 			logFiles.add(newName);			
@@ -304,8 +340,8 @@ public class SGEStage extends Stage {
 		// Always update log files even if job crashes
 		updateLogFiles(logFiles);
 		if (rv != 0) {
-			logger.warn("Mapreduce job failed with error code: " + rv);
-			throw new StageException("Mapreduce job failed");
+			logger.warn("SGE job failed with error code: " + rv);
+			throw new StageException("SGE job failed");
 		}
 		
 		// Move all log files to a single directory on local fs

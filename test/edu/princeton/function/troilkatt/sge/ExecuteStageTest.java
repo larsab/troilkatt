@@ -21,7 +21,7 @@ import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattNFS;
-import edu.princeton.function.troilkatt.pipeline.ExecutePerFile;
+import edu.princeton.function.troilkatt.pipeline.ExecutePerFileSGE;
 import edu.princeton.function.troilkatt.pipeline.SGEStage;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
@@ -32,7 +32,7 @@ public class ExecuteStageTest extends TestSuper {
 	protected static TroilkattProperties troilkattProperties;
 	protected static String nfsOutput;
 	protected static Logger testLogger;
-	public static String executeCmd = "/usr/bin/python " + OsPath.join(dataDir, "bin/executePerFileTest.py") + " TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.out TROILKATT.META_DIR/filelist > TROILKATT.LOG_DIR/executePerFileTest.out 2> TROILKATT.LOG_DIR/executePerFileTest.log";
+	public static String executeCmd = "1 256 /usr/bin/python " + OsPath.join(dataDir, "bin/executePerFileTest.py") + " TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.out TROILKATT.META_DIR/filelist > TROILKATT.LOG_DIR/executePerFileTest.out 2> TROILKATT.LOG_DIR/executePerFileTest.log";
 
 	protected SGEStage sges;
 	protected ArrayList<String> inputFiles;
@@ -57,6 +57,9 @@ public class ExecuteStageTest extends TestSuper {
 		nfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		nfsTmpLogDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "log");
 		nfsTmpOutputDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "output");
+		OsPath.deleteAll(nfsTmpDir);
+		OsPath.deleteAll(nfsTmpLogDir);
+		OsPath.deleteAll(nfsTmpOutputDir);
 		OsPath.mkdir(nfsTmpDir);
 		OsPath.mkdir(nfsTmpLogDir);
 		OsPath.mkdir(nfsTmpOutputDir);
@@ -87,13 +90,12 @@ public class ExecuteStageTest extends TestSuper {
 				nfsOutput, "gz", -1, 
 				localRootDir, nfsStageMetaDir, nfsTmpDir,
 				pipeline);
-
-		String inputDir = "troilkatt/data/test/mapreduce/input";
+		
 		inputFiles = new ArrayList<String>();
-		inputFiles.add(OsPath.join(inputDir, "file1.1.gz"));
-		inputFiles.add(OsPath.join(inputDir, "file2.1.gz"));
-		inputFiles.add(OsPath.join(inputDir, "file3.1.gz"));
-		inputFiles.add(OsPath.join(inputDir, "file4.1.none"));
+		inputFiles.add(OsPath.join(dataDir, "files/file1.1.gz"));
+		inputFiles.add(OsPath.join(dataDir, "files/file2.1.gz"));
+		inputFiles.add(OsPath.join(dataDir, "files/file3.1.gz"));
+		inputFiles.add(OsPath.join(dataDir, "files/file4.1.none"));
 
 		inputBasenames = new ArrayList<String>();
 		for (String f: inputFiles) {
@@ -116,12 +118,12 @@ public class ExecuteStageTest extends TestSuper {
 	public void testExecuteStage() throws StageException, StageInitException, TroilkattPropertiesException {
 		sges.writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, 3217);
 		
-		ExecuteStage es = new ExecuteStage(sges.argsFilename, "task1");
+		ExecuteStage es = new ExecuteStage(sges.argsFilename, 1, 256, "job1", "task1");
 		
 		assertEquals(OsPath.join(dataDir, configurationFileNFS), es.configurationFile);
 		assertEquals(pipeline.name, es.pipelineName);				
 		assertEquals(sges.stageName, es.stageName);
-		assertEquals(sges.args, es.args);
+		//assertEquals(sges.args, es.args);
 		assertEquals("task1", es.taskID);
 		assertEquals("sgestage-task1", es.taskStageName);	
 		assertEquals(nfsTmpOutputDir, es.nfsOutputDir);		
@@ -142,7 +144,7 @@ public class ExecuteStageTest extends TestSuper {
 		 *  Stage initialization tests
 		 */
 		assertNotNull(es.stage);
-		assertTrue(es.stage instanceof ExecutePerFile);
+		assertTrue(es.stage instanceof ExecutePerFileSGE);
 		assertTrue(es.stage.args.startsWith("/usr/bin/python /home/larsab/troilkatt2/test-data/bin/executePerFileTest.py"));
 		assertEquals(OsPath.join(es.localFSPipelineDir, "007-sgestage-task1/input"), es.stage.stageInputDir);
 		assertEquals(nfsTmpOutputDir,  es.stage.hdfsOutputDir);
@@ -150,30 +152,34 @@ public class ExecuteStageTest extends TestSuper {
 
 	@Test
 	public void testRun() throws StageException, IOException, StageInitException {		
-		ExecuteStage es = new ExecuteStage(sges.argsFilename, "task1");
+		sges.writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, 3219);
+		
+		ExecuteStage es = new ExecuteStage(sges.argsFilename, 1, 256, "job1", "task1");
 		
 		// Push meta-file to log-tar
 		String metaFilename = OsPath.join(sges.stageMetaDir, "filelist");
-		FSUtils.writeTextFile(metaFilename, inputFiles);
+		ArrayList<String> basenames = new ArrayList<String>();
+		basenames.add(tfs.getFilenameName(inputFiles.get(0)));
+		FSUtils.writeTextFile(metaFilename, basenames);
 		ArrayList<String> metaFiles = new ArrayList<String>();
+		metaFiles.add(metaFilename);
 		sges.saveMetaFiles(metaFiles, 3218);
 		OsPath.delete(metaFilename);
-		
-		sges.writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, 3219);
-		
+				
 		// Run ExecuteStage for one file
-		es.run(inputFiles.get(0));
+		es.process2(inputFiles.get(0));
 		
 		// Check output files
 		String[] outputFiles = OsPath.listdir(nfsTmpOutputDir);
 		assertEquals(1, outputFiles.length);
-		assertTrue(outputFiles[0].equals("file1.out.3219.gz"));
+		assertTrue(OsPath.basename(outputFiles[0]).equals("file1.out.3219.gz"));
 		assertTrue(tfs.isfile(OsPath.join(nfsTmpOutputDir, "file1.out.3219.gz")));
 		
 		// Check log files
-		String[] logFiles = OsPath.listdir(nfsTmpLogDir);
-		assertEquals(1, logFiles.length);
+		String[] logFiles = OsPath.listdirR(nfsTmpLogDir);
+		assertEquals(2, logFiles.length);
 		Arrays.sort(logFiles);
-		assertTrue(logFiles[0].equals("executePerFileTest.log"));
+		assertTrue(logFiles[0].endsWith("executePerFileTest.log"));
+		assertTrue(logFiles[1].endsWith("executePerFileTest.out"));
 	}
 }

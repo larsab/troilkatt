@@ -15,6 +15,7 @@ import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 // for some statics functions that check and parse key-entry values
 import edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce;
+import edu.princeton.function.troilkatt.pipeline.ExecutePerFileSGE;
 import edu.princeton.function.troilkatt.pipeline.Stage;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageFactory;
@@ -65,12 +66,18 @@ public class ExecuteStage {
 	
 	/**
 	 * Constructor
+	 * 
+	 * @param argsFilename filename of arguments file written by SGEStage
+	 * @param maxProcs maximum number of troilkatt processes that can be run on a node simustaneously
+	 * @param maxVMSize maximum virtual mameory size in megabytes
+	 * @param jobID SGE job ID
+	 * @param taskID SGE task ID
+	 * 
 	 * @throws StageInitException 
-	 *  
 	 * @throws PipelineException 
 	 */		
-	public ExecuteStage(String argsFilename, String taskID) throws StageInitException {
-		logger = Logger.getLogger("troilkatt" + "-sge-" + taskID);
+	public ExecuteStage(String argsFilename, int maxProcs, long maxVMSize, String jobID, String taskID) throws StageInitException {
+		logger = Logger.getLogger("troilkatt" + "-sge-" + jobID + "-" + taskID);
 		
 		// initialize stage arguments
 		readSGEArgsFile(argsFilename);
@@ -89,12 +96,12 @@ public class ExecuteStage {
 		
 		// ExecutePerFile and Script per file are replaced with special stages
 		// that take into account the requirements of MapReduce tasks
-		//if (stageType.equals("execute_per_file")) {
-		//	stageType = "execute_per_file_mr";
-		//}
-		//else if (stageType.equals("script_per_file")) {
-		//	stageType = "script_per_file_mr";
-		//}
+		if (stageType.equals("execute_per_file")) {
+			stageType = "execute_per_file_sge";
+		}
+		else if (stageType.equals("script_per_file")) {
+			stageType = "script_per_file_sge";
+		}
 		// These stages should not be run as MapReduce jobs
 		if (stageType.equals("execute_dir") ||
 				stageType.equals("script_per_dir") ||
@@ -145,7 +152,12 @@ public class ExecuteStage {
 					nfsMetaDir,
 					null,
 					pipeline,
-					logger);				
+					logger);	
+			
+			if (stage instanceof ExecutePerFileSGE) {
+				ExecutePerFileSGE sgeStage = (ExecutePerFileSGE) stage;
+				sgeStage.registerSGE(maxProcs, maxVMSize * 1024 * 1024, jobID);
+			}
 		} catch (PipelineException e) {
 			logger.fatal("Setup failed for task: " + taskStageName, e);				
 			throw new StageInitException("Pipeline exception: " + e.getMessage());			
@@ -163,7 +175,7 @@ public class ExecuteStage {
 	 * @param value always null since the SOFT files can be very large	 
 	 * @throws StageException 
 	 */		
-	public void run(String filename) throws StageException {					
+	public void process2(String filename) throws StageException {					
 		// Download meta Files 
 		// Note! these are not saved
 		ArrayList<String> metaFiles = stage.downloadMetaFiles();			
@@ -200,11 +212,18 @@ public class ExecuteStage {
 		}
 
 		// Move all log files to task specific log directory, these are then saved in cleanup
-		for (String src: logFiles) {
-			String dst = OsPath.join(nfsLogDir, taskID + "/" + OsPath.basename(src));
-			if (OsPath.rename(src, dst) == false) {
-				logger.warn("Could not move log file to task specific output directory");
+		try {
+			String dstDir = OsPath.join(nfsLogDir, taskID);
+			tfs.mkdir(dstDir);
+			for (String src: logFiles) {
+				String dst =  OsPath.join(dstDir, OsPath.basename(src));
+				
+				if (tfs.renameFile(src, dst) == false) {
+					logger.warn("Could not move log file to task specific output directory");
+				}
 			}
+		} catch (IOException e) {
+			logger.error("IOException during log file save: " + e);
 		}
 
 		// Cleanup after each map
@@ -268,22 +287,28 @@ public class ExecuteStage {
 
 	/**
 	 * Arguments: [0] sgeArgsFilename
-	 *            [2] input filename
-	 *            [3] taskID         
+	 *            [1] input filename
+	 *            [2] maximum number of troilkatt workser processes per node
+	 *            [3] maximum virtual memory size per process in Megabytes
+	 *            [4] jobID
+	 *            [5] taskID 
 	 */
 	public static void main(String[] args) {		
 		if (args.length < 4) {
-			System.err.println("Usage: sgeArgsFilename inputFilename taskID");
+			System.err.println("Usage: sgeArgsFilename inputFilename maxProcs maxVMSize jobID taskID");
 			System.exit(-2);
 		}
 				
 		String argsFilename = args[0];
 		String inputFilename = args[1];
-		String taskID = args[2];
+		int maxProcs = Integer.valueOf(args[2]);
+		long maxVMSize = Long.valueOf(args[3]);
+		String jobID = args[4];
+		String taskID = args[5];
 						
 		try {
-			ExecuteStage o = new ExecuteStage(argsFilename, taskID);
-			o.run(inputFilename);
+			ExecuteStage o = new ExecuteStage(argsFilename, maxProcs, maxVMSize, jobID, taskID);
+			o.process2(inputFilename);
 		} catch (StageInitException e1) {
 			System.err.println("Could not initialize stage");
 			e1.printStackTrace();

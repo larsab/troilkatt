@@ -29,3 +29,5 @@ if __name__ == '__main__':
 
      # 2. Copy files
     shutil.copy(inputFile, outputFile)
+    
+    print 'Input file %s has been copied to %s' % (inputFile, outputFile)

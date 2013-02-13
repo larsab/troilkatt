@@ -16,7 +16,7 @@ public class StageFactory {
 	 */
 	public static final String[] stageNames = {
 		"filter", 
-		"execute_per_dir",	"execute_per_file", "execute_per_file_mr",
+		"execute_per_dir",	"execute_per_file", "execute_per_file_mr", "execute_per_file_sge",
 		"script_per_file", "script_per_file_mr", "script_per_dir", 
 		"mapreduce", "mapreduce_stage", "sge_stage",
 		"null_stage",
@@ -77,6 +77,12 @@ public class StageFactory {
 					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 					pipeline);				
 	    }
+	    else if (type.equals("execute_per_file_sge")) {	        
+	        return new ExecutePerFileSGE(stageNum, name, args, 
+					outputDirectory, compressionFormat, storageTime, 
+					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					pipeline);				
+	    }
 	    else if (type.equals("script_per_file")) {	        
 	        return new ScriptPerFile(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
@@ -89,6 +95,12 @@ public class StageFactory {
 					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 					pipeline);				
 	    }
+	    //else if (type.equals("script_per_file_sge")) {	        
+	    //    return new ScriptPerFileSGE(stageNum, name, args, 
+		//			outputDirectory, compressionFormat, storageTime, 
+		//			localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+		//			pipeline);				
+	    //}
 	    else if (type.equals("script_per_dir")) {	     
 	        return new ScriptPerDir(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
