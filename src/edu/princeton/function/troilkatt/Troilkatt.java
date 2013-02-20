@@ -279,7 +279,8 @@ public class Troilkatt {
 		String[] localDirs = {"troilkatt.localfs.dir",
 				"troilkatt.localfs.log.dir",			
 				"troilkatt.globalfs.global-meta.dir",
-				"troilkatt.localfs.mapreduce.dir"};
+				"troilkatt.localfs.mapreduce.dir",
+				"troilkatt.localfs.sge.dir"};
 		
 		String[] hdfsDirs = {"troilkatt.tfs.root.dir"};
 		

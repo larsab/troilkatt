@@ -150,18 +150,6 @@
 		
 		</description>
 	</property>	
-	
-	<property>
-		<name>troilkatt.tfs.timestamp.file</name>
-		<value>/user/larsab/troilkatt/status/timestamps.txt</value>
-		<description>
-
-			This file contains the timestamps for when the datasets are updated. It
-			also provides a mapping from the integer timestamps to human readable
-			date/time format.
-    	
-    </description>
-	</property>
 
 	<property>
 		<name>troilkatt.tfs.status.file</name>

@@ -473,7 +473,7 @@ public class TroilkattHDFS extends TroilkattFS {
 		}
 		if (localFiles.isEmpty()) {
 			logger.warn("No local files to add to directory");
-			return false;
+			return true;
 		}
 		
 		if (compression.equals("none")) {
