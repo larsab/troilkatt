@@ -14,7 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.princeton.function.troilkatt.Pipeline;
-import edu.princeton.function.troilkatt.TestSuper;
+import edu.princeton.function.troilkatt.TestSuperNFS;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
@@ -26,7 +26,7 @@ import edu.princeton.function.troilkatt.pipeline.SGEStage;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
-public class ExecuteStageTest extends TestSuper {
+public class ExecuteStageTest extends TestSuperNFS {
 	protected static TroilkattNFS tfs;
 	protected static Pipeline pipeline;	
 	protected static TroilkattProperties troilkattProperties;
@@ -50,7 +50,7 @@ public class ExecuteStageTest extends TestSuper {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		testLogger = Logger.getLogger("test");
-		TestSuper.initTestDir();
+		TestSuperNFS.initNFSTestDir();
 		
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFileNFS));	
 		
@@ -116,16 +116,16 @@ public class ExecuteStageTest extends TestSuper {
 
 	@Test
 	public void testExecuteStage() throws StageException, StageInitException, TroilkattPropertiesException {
-		sges.writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, 3217);
+		sges.writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, 3217, inputFiles);
 		
-		ExecuteStage es = new ExecuteStage(sges.argsFilename, 1, 256, "job1", "task1");
+		ExecuteStage es = new ExecuteStage(sges.argsFilename, 0, "job1");
 		
 		assertEquals(OsPath.join(dataDir, configurationFileNFS), es.configurationFile);
 		assertEquals(pipeline.name, es.pipelineName);				
 		assertEquals(sges.stageName, es.stageName);
 		//assertEquals(sges.args, es.args);
-		assertEquals("task1", es.taskID);
-		assertEquals("sgestage-task1", es.taskStageName);	
+		assertEquals("task_0", es.taskID);
+		assertEquals("sgestage-task_0", es.taskStageName);	
 		assertEquals(nfsTmpOutputDir, es.nfsOutputDir);		
 		assertEquals(sges.compressionFormat, es.compressionFormat);
 		assertEquals(sges.storageTime, es.storageTime);			
@@ -139,6 +139,8 @@ public class ExecuteStageTest extends TestSuper {
 		assertNotNull(es.logger);
 		assertNotNull(es.troilkattProperties);
 		assertNotNull(es.tfs);
+		assertEquals(1, es.maxProcs);
+		assertEquals(256, es.maxVMSize);
 		
 		/*
 		 *  Stage initialization tests
@@ -146,15 +148,15 @@ public class ExecuteStageTest extends TestSuper {
 		assertNotNull(es.stage);
 		assertTrue(es.stage instanceof ExecutePerFileSGE);
 		assertTrue(es.stage.args.startsWith("/usr/bin/python /home/larsab/troilkatt2/test-data/bin/executePerFileTest.py"));
-		assertEquals(OsPath.join(es.localFSPipelineDir, "007-sgestage-task1/input"), es.stage.stageInputDir);
+		assertEquals(OsPath.join(es.localFSPipelineDir, "007-sgestage-task_0/input"), es.stage.stageInputDir);
 		assertEquals(nfsTmpOutputDir,  es.stage.hdfsOutputDir);
 	}
 
 	@Test
 	public void testRun() throws StageException, IOException, StageInitException {		
-		sges.writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, 3219);
+		sges.writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, 3219, inputFiles);
 		
-		ExecuteStage es = new ExecuteStage(sges.argsFilename, 1, 256, "job1", "task1");
+		ExecuteStage es = new ExecuteStage(sges.argsFilename, 0, "task1");
 		
 		// Push meta-file to log-tar
 		String metaFilename = OsPath.join(sges.stageMetaDir, "filelist");

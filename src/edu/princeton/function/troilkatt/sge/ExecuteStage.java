@@ -40,22 +40,19 @@ public class ExecuteStage {
 	protected String taskID;
 	protected String taskStageName;	
 	protected String nfsOutputDir;
-	//protected String taskNFSOutputDir;
 	protected String compressionFormat;
 	protected int storageTime;			
 	protected String nfsMetaDir;	
 	protected String nfsLogDir;
 	protected String localFSPipelineDir;
-	//protected String localFSInputDir;
-	//protected String localFSOutputDir;
-	//protected String localFSMetaDir;
-	//protected String globalFSGlobalMetaDir;	
 	
 	protected String localFSTmpDir;								
 	protected String loggingLevel;
 	protected long timestamp;
 	//protected long softMaxMemoryMb;
 	//protected long hardMaxMemoryMb;
+	
+	protected ArrayList<String> inputFiles;
 		
 	// Initialized in constructor()
 	protected Stage stage;	
@@ -64,6 +61,9 @@ public class ExecuteStage {
 	protected TroilkattProperties troilkattProperties;
 	protected TroilkattNFS tfs;
 	
+	protected int maxProcs;
+	protected long maxVMSize;
+		
 	/**
 	 * Constructor
 	 * 
@@ -76,11 +76,11 @@ public class ExecuteStage {
 	 * @throws StageInitException 
 	 * @throws PipelineException 
 	 */		
-	public ExecuteStage(String argsFilename, int maxProcs, long maxVMSize, String jobID, String taskID) throws StageInitException {
+	public ExecuteStage(String argsFilename, int taskNumber, String jobID) throws StageInitException {
 		logger = Logger.getLogger("troilkatt" + "-sge-" + jobID + "-" + taskID);
 		
 		// initialize stage arguments
-		readSGEArgsFile(argsFilename);
+		inputFiles = readSGEArgsFile(argsFilename);
 		
 		String[] argsSplit = args.split(" ");
 		String stageType = argsSplit[0];
@@ -92,7 +92,7 @@ public class ExecuteStage {
 			}
 		}
 		
-		this.taskID = taskID;		
+		taskID = "task_" + taskNumber;		
 		
 		// ExecutePerFile and Script per file are replaced with special stages
 		// that take into account the requirements of MapReduce tasks
@@ -175,14 +175,15 @@ public class ExecuteStage {
 	 * @param value always null since the SOFT files can be very large	 
 	 * @throws StageException 
 	 */		
-	public void process2(String filename) throws StageException {					
+	public void process2(String nfsInputFile) throws StageException {					
 		// Download meta Files 
 		// Note! these are not saved
 		ArrayList<String> metaFiles = stage.downloadMetaFiles();			
 
-		// Prepare input filelist
-		ArrayList<String> inputNFSFiles = new ArrayList<String>();
-		inputNFSFiles.add(filename);
+		// Prepare input filelist for this task
+		ArrayList<String> myInputFiles = new ArrayList<String>();
+		myInputFiles.add(nfsInputFile);
+		
 
 		/*
 		 * This stage overrides the process2 function to better control which files are
@@ -193,7 +194,7 @@ public class ExecuteStage {
 		//StageException eThrown = null; // set to true in case of excpeption in process()
 
 		try {
-			ArrayList<String> inputFiles = stage.downloadInputFiles(inputNFSFiles);				
+			ArrayList<String> inputFiles = stage.downloadInputFiles(myInputFiles);				
 
 			// Meta-data files where downloaded in setup()
 
@@ -255,7 +256,9 @@ public class ExecuteStage {
 	 * @return none
 	 * @throws StageInitException if arguments file could not be read or parsed
 	 */
-	protected void readSGEArgsFile(String filename) throws StageInitException {		
+	protected ArrayList<String> readSGEArgsFile(String filename) throws StageInitException {
+		
+		ArrayList<String> inputFiles = new ArrayList<String>();
 		try {
 			BufferedReader ib = new BufferedReader(new FileReader(filename));
 			
@@ -278,37 +281,58 @@ public class ExecuteStage {
 			localFSTmpDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.tmp.dir");								
 			loggingLevel = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "logging.level");
 			timestamp = Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "timestamp"));
-			//softMaxMemoryMb = Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "soft.max.memory.mb"));
-			//hardMaxMemoryMb = Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "hard.max.memory.mb"));
+			maxProcs = Integer.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "max.num.procs"));
+			maxVMSize = Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "max.vm.size"));
+			
+			while (true) {
+				String str = ib.readLine();
+				if (str == null) {
+					throw new StageInitException("input.files.end not found in arguments file");
+				}
+				if (str.equals("input.files.end")) {
+					break;
+				}
+				inputFiles.add(str.trim());
+			}
+			ib.close();
 		} catch (IOException e1) {			
 			throw new StageInitException("Could not read arguments file: " + e1.getMessage());
 		}
+		return inputFiles;
 	}
 
 	/**
 	 * Arguments: [0] sgeArgsFilename
-	 *            [1] input filename
+	 *            [1] task number
 	 *            [2] maximum number of troilkatt workser processes per node
 	 *            [3] maximum virtual memory size per process in Megabytes
 	 *            [4] jobID
 	 *            [5] taskID 
 	 */
 	public static void main(String[] args) {		
-		if (args.length < 4) {
-			System.err.println("Usage: sgeArgsFilename inputFilename maxProcs maxVMSize jobID taskID");
+		if (args.length < 3) {
+			System.err.println("Usage: sgeArgsFilename taskNumber jobID");
 			System.exit(-2);
 		}
 				
 		String argsFilename = args[0];
-		String inputFilename = args[1];
-		int maxProcs = Integer.valueOf(args[2]);
-		long maxVMSize = Long.valueOf(args[3]);
-		String jobID = args[4];
-		String taskID = args[5];
+		int taskNumber = Integer.valueOf(args[1]);
+		String jobID = args[2];	
+		
+		System.out.println("task " + taskNumber + " in job " + jobID);
+		
+		if (taskNumber < 0) {
+			System.err.println("Invalid task number: " + taskNumber);
+			System.exit(-1);
+		}
 						
 		try {
-			ExecuteStage o = new ExecuteStage(argsFilename, maxProcs, maxVMSize, jobID, taskID);
-			o.process2(inputFilename);
+			ExecuteStage o = new ExecuteStage(argsFilename, taskNumber, jobID);			
+			if (o.inputFiles.size() < taskNumber) {
+				System.err.println("Invalid task number: " + taskNumber + ", but only " + o.inputFiles.size() + " input files");
+				System.exit(-1);
+			}
+			o.process2(o.inputFiles.get(taskNumber));
 		} catch (StageInitException e1) {
 			System.err.println("Could not initialize stage");
 			e1.printStackTrace();

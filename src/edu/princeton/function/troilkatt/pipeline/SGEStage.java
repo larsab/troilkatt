@@ -25,8 +25,6 @@ public class SGEStage extends Stage {
 	public String scriptFilename;
 	// File with input arguments to SGE executed program
 	public String argsFilename;
-	// File with filenames used when starting the SGE job 
-	public String inputFilesFilename;
 	
 	// Root directory for SGE files. This is used both for temporary output and log files
 	protected String sgeDir;
@@ -58,14 +56,14 @@ public class SGEStage extends Stage {
 				pipeline);		
 		
 		sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");		
-		scriptFilename = OsPath.join(stageTmpDir, "sge.sh");
-		inputFilesFilename = OsPath.join(stageTmpDir, "sge.files");
+		scriptFilename = OsPath.join(stageTmpDir, "sge.sh");		
 		argsFilename = OsPath.join(sgeDir, "sge.args");
 		
 		jarFile = troilkattProperties.get("troilkatt.jar");
 		mainClass = "edu.princeton.function.troilkatt.sge.ExecuteStage";
 		
-		sgeCmd = "submit -s " + scriptFilename + " -f " + inputFilesFilename;
+		// Submit and wait for completion
+		sgeCmd = "qsub -sync y " + scriptFilename;
 	
 		/*
 		 * Do custom parsing of arguments
@@ -130,7 +128,7 @@ public class SGEStage extends Stage {
 	 * Helper function to write an SGE script
 	 * @throws StageException 
 	 */
-	public void writeSGEScript(ArrayList<String> inputFilenames) throws StageException {
+	public void writeSGEScript() throws StageException {
 		/*
 		 * Script file
 		 */
@@ -149,31 +147,15 @@ public class SGEStage extends Stage {
 			out.write("java -jar " + jarFile + " " + mainClass + " ");
 			// 1st argument: arguments file location
 			out.write(argsFilename);
-			// 2nd argument: input filename
-			out.write(" ${SGE_TASK}");
-			// 3rd argument: SGE task ID
-			out.write(" ${JOB_ID}_${SGE_TASK_ID}\n\n");
+			// 2nd argument: task ID
+			out.write(" ${SGE_TASK_ID}");
+			// 3rd argument: SGE job ID
+			out.write(" ${JOB_ID}\n\n");
 			
 			out.close();
 		} catch (IOException e1) {
 			logger.fatal("Could not create input SGE scripts file: " + e1.getMessage());
 			throw new StageException("Could not create SGE scripts file");
-		}
-		
-		/*
-		 * Input filenames file
-		 */
-		try {
-			PrintWriter out = new PrintWriter(new FileWriter(inputFilesFilename));
-			
-			for (String f: inputFilenames) {
-				out.write(f + "\n");
-			}
-			
-			out.close();
-		} catch (IOException e1) {
-			logger.fatal("Could not create input SGE files file: " + e1.getMessage());
-			throw new StageException("Could not create SGE files file");
 		}
 	}
 	
@@ -190,7 +172,7 @@ public class SGEStage extends Stage {
 	 * @return none
 	 * @throws StageException if file could not be created
 	 */
-	public void writeSGEArgsFile(String nfsTmpOutputDir, String nfsTmpLogDir, long timestamp) throws StageException {
+	public void writeSGEArgsFile(String nfsTmpOutputDir, String nfsTmpLogDir, long timestamp, ArrayList<String> inputFilenames) throws StageException {
 		// Note! write order of lines must match read order in TroilkattMapReduce.readMapReduceArgsFile
 		try {
 			PrintWriter out = new PrintWriter(new FileWriter(argsFilename));
@@ -212,10 +194,7 @@ public class SGEStage extends Stage {
 			}
 			out.println("sge.pipeline.dir = " + OsPath.join(localSgeDir, "pipeline"));
 			out.println("sge.tmp.dir = " + OsPath.join(localSgeDir, "tmp"));
-			//out.println("mapred.output.dir = " + OsPath.join(mapreduceDir, "output"));
-			//out.println("mapred.meta.dir = " + OsPath.join(mapreduceDir, "meta"));
-			//out.println("mapred.global-meta.dir = " + OsPath.join(mapreduceDir, "global-meta"));
-			//out.println("mapred.tmp.dir = " + OsPath.join(mapreduceDir, "tmp"));			
+		
 			
 			//Logger lp = logger;
 			Level level = logger.getLevel(); //null;			
@@ -240,9 +219,15 @@ public class SGEStage extends Stage {
 			out.println("logging.level = " + logLevelName);			
 			out.println("timestamp = " + timestamp);
 			
-			//out.println("soft.max.memory.mb = " + troilkattMaxVMem);
-			//out.println("hard.max.memory.mb = " + taskMaxVMem);			
-			out.close();
+			out.println("max.num.procs = " + maxProcs);
+			out.println("max.vm.size = " + maxVMSize);
+			
+			out.println("input.files.start");
+			for (String f: inputFilenames) {
+				out.println(f);
+			}
+			out.println("input.files.end");
+			out.close();			
 		} catch (IOException e1) {
 			logger.fatal("Could not create input arguments file: " + e1.getMessage());
 			throw new StageException("Could not create input arguments file");
@@ -325,10 +310,10 @@ public class SGEStage extends Stage {
 		String nfsTmpLogDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/log");
 		
 		// Create arguments file for MapReduce Job-task
-		writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, timestamp);
+		writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, timestamp, inputFiles);
 		
 		// Create SGE scripts and filenames file
-		writeSGEScript(inputFiles);
+		writeSGEScript();
 		
 		// Redirect output and execute MapReduce job
 		String outputLogfile = OsPath.join(stageLogDir, "sge.output");

@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TestSuper;
+import edu.princeton.function.troilkatt.TestSuperNFS;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
@@ -49,7 +50,7 @@ public class SGEStageTest extends TestSuper {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		testLogger = Logger.getLogger("test");
-		TestSuper.initTestDir();
+		TestSuperNFS.initNFSTestDir();
 
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFileNFS));	
 
@@ -99,18 +100,19 @@ public class SGEStageTest extends TestSuper {
 
 	@Test
 	public void testSGEStage() throws TroilkattPropertiesException {		
-		assertTrue(sges.sgeCmd.startsWith("submit -s"));
+		assertTrue(sges.sgeCmd.startsWith("qsub -sync y -s"));
 		assertEquals("sge.sh", OsPath.basename(sges.scriptFilename));
-		assertEquals("sge.args", OsPath.basename(sges.argsFilename));
-		assertEquals("sge.files", OsPath.basename(sges.inputFilesFilename));
+		assertEquals("sge.args", OsPath.basename(sges.argsFilename));		
 		assertEquals(troilkattProperties.get("troilkatt.globalfs.sge.dir"), sges.sgeDir);
 		assertEquals(troilkattProperties.get("troilkatt.jar"), sges.jarFile);
 		assertEquals(sges.mainClass, "edu.princeton.function.troilkatt.sge.ExecuteStage");
+		assertEquals(1, sges.maxProcs);
+		assertEquals(512, sges.maxVMSize);
 	}
 
 	@Test
 	public void testWriteSGEArgsFile() throws StageException, StageInitException, IOException, TroilkattPropertiesException {
-		sges.writeSGEArgsFile("/nfs/tmp/output", "/nfs/tmp/log", 3216);
+		sges.writeSGEArgsFile("/nfs/tmp/output", "/nfs/tmp/log", 3216, inputFiles);
 		
 		BufferedReader ib = new BufferedReader(new FileReader(sges.argsFilename));
 		
@@ -128,31 +130,19 @@ public class SGEStageTest extends TestSuper {
 		assertEquals(OsPath.join(troilkattProperties.get("troilkatt.localfs.sge.dir"), "tmp"), TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.tmp.dir"));
 		assertNotNull(TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "logging.level"));		
 		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "timestamp")) == 3216);
-						
-		ib.close();		
-	}
-
-	@Test
-	public void testWriteSGEScript() throws StageException, IOException {
-		sges.writeSGEScript(inputFiles);
+		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "max.num.procs")) == 1);
+		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "max.vm.size")) == 512);
+		assertEquals("input.files.start", ib.readLine());
 		
-		/*
-		 * .sh
-		 */
-		BufferedReader ib = new BufferedReader(new FileReader(sges.scriptFilename));		
-		assertEquals("#!/bin/sh", ib.readLine());						
-		ib.close();	
-		
-		/*
-		 * .files
-		 */
-		ib = new BufferedReader(new FileReader(sges.inputFilesFilename));
 		ArrayList<String> inputFiles2 = new ArrayList<String>();
 		while (true) {
 			String str = ib.readLine();
 			if (str == null) {
+				fail("input.files.end was not found");
+			}
+			if (str.equals("input.files.end")) {
 				break;
-			}			
+			}
 			inputFiles2.add(str.trim());
 		}
 		ib.close();
@@ -161,6 +151,18 @@ public class SGEStageTest extends TestSuper {
 		for (String f: inputFiles) {
 			assertTrue(inputFiles2.contains(f));
 		}
+	}
+
+	@Test
+	public void testWriteSGEScript() throws StageException, IOException {
+		sges.writeSGEScript();
+		
+		/*
+		 * .sh
+		 */
+		BufferedReader ib = new BufferedReader(new FileReader(sges.scriptFilename));		
+		assertEquals("#!/bin/sh", ib.readLine());						
+		ib.close();	
 	}
 
 	@Test
