@@ -16,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.princeton.function.troilkatt.Pipeline;
-import edu.princeton.function.troilkatt.TestSuper;
 import edu.princeton.function.troilkatt.TestSuperNFS;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
@@ -26,7 +25,7 @@ import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 import edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce;
 
-public class SGEStageTest extends TestSuper {
+public class SGEStageTest extends TestSuperNFS {
 	protected static TroilkattNFS tfs;
 	protected static Pipeline pipeline;	
 	protected static TroilkattProperties troilkattProperties;
@@ -64,7 +63,7 @@ public class SGEStageTest extends TestSuper {
 		localRootDir = tmpDir;
 		String nfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));
 		nfsStageMetaDir = OsPath.join(nfsPipelineMetaDir, String.format("%03d-%s", stageNum, stageName));
-		nfsTmpDir = troilkattProperties.get("troilkatt.tfs.root.dir");
+		nfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		nfsTmpLogDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "log");
 		nfsTmpOutputDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "output");
 	}
@@ -80,7 +79,7 @@ public class SGEStageTest extends TestSuper {
 				localRootDir, nfsStageMetaDir, nfsTmpDir,
 				pipeline);
 
-		String inputDir = "troilkatt/data/test/mapreduce/input";
+		String inputDir = OsPath.join(nfsRoot, "test/sge/input");	
 		inputFiles = new ArrayList<String>();
 		inputFiles.add(OsPath.join(inputDir, "file1.1.gz"));
 		inputFiles.add(OsPath.join(inputDir, "file2.1.gz"));
@@ -99,13 +98,10 @@ public class SGEStageTest extends TestSuper {
 	}
 
 	@Test
-	public void testSGEStage() throws TroilkattPropertiesException {		
-		assertTrue(sges.sgeCmd.startsWith("qsub -sync y -s"));
+	public void testSGEStage() throws TroilkattPropertiesException {				
 		assertEquals("sge.sh", OsPath.basename(sges.scriptFilename));
 		assertEquals("sge.args", OsPath.basename(sges.argsFilename));		
-		assertEquals(troilkattProperties.get("troilkatt.globalfs.sge.dir"), sges.sgeDir);
-		assertEquals(troilkattProperties.get("troilkatt.jar"), sges.jarFile);
-		assertEquals(sges.mainClass, "edu.princeton.function.troilkatt.sge.ExecuteStage");
+		assertEquals(troilkattProperties.get("troilkatt.globalfs.sge.dir"), sges.sgeDir);		
 		assertEquals(1, sges.maxProcs);
 		assertEquals(512, sges.maxVMSize);
 	}
@@ -155,7 +151,7 @@ public class SGEStageTest extends TestSuper {
 
 	@Test
 	public void testWriteSGEScript() throws StageException, IOException {
-		sges.writeSGEScript();
+		sges.writeSGEScript("/nfs/tmp/log");
 		
 		/*
 		 * .sh
@@ -210,8 +206,11 @@ public class SGEStageTest extends TestSuper {
 	@Test
 	public void testProcess() throws IOException, StageException {
 		ArrayList<String> metaFiles = writeMetaFile(inputBasenames);
+		sges.saveMetaFiles(metaFiles, 3218);		
+		
 		ArrayList<String> logFiles = new ArrayList<String>();
-		ArrayList<String> outputFiles = sges.process(inputFiles, metaFiles, logFiles, 741);
+		
+		ArrayList<String> outputFiles = sges.process(inputFiles, metaFiles, logFiles, 3219);
 		
 		/*
 		 * Test output files
@@ -235,21 +234,12 @@ public class SGEStageTest extends TestSuper {
 		//assertTrue(OsPath.fileInList(mapperFiles, "syslog", false));		
 	}
 
-	private ArrayList<String> writeMetaFile(ArrayList<String> inputFiles) throws IOException, StageException {
+	private ArrayList<String> writeMetaFile(ArrayList<String> inputFiles) throws IOException, StageException {		
 		String metaFilename = OsPath.join(sges.stageMetaDir, "filelist");
 		FSUtils.writeTextFile(metaFilename, inputFiles);
 		
-		String[] succesLine = {"success\n"};
-		String mapFilename = OsPath.join(sges.stageMetaDir, "maptest");
-		FSUtils.writeTextFile(mapFilename, succesLine);
-		
-		String reduceFilename = OsPath.join(sges.stageMetaDir, "reducetest");
-		FSUtils.writeTextFile(reduceFilename, succesLine);
-		
 		ArrayList<String> metaFiles = new ArrayList<String>();
 		metaFiles.add(metaFilename);
-		metaFiles.add(mapFilename);
-		metaFiles.add(reduceFilename);
 		
 		return metaFiles;
 	}

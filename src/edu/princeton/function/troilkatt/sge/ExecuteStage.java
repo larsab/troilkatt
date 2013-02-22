@@ -283,6 +283,9 @@ public class ExecuteStage {
 			timestamp = Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "timestamp"));
 			maxProcs = Integer.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "max.num.procs"));
 			maxVMSize = Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "max.vm.size"));
+			if (! ib.readLine().equals("input.files.start")) {
+				throw new StageInitException("input.files.start not found in arguments file");
+			}
 			
 			while (true) {
 				String str = ib.readLine();
@@ -315,8 +318,8 @@ public class ExecuteStage {
 			System.exit(-2);
 		}
 				
-		String argsFilename = args[0];
-		int taskNumber = Integer.valueOf(args[1]);
+		String argsFilename = args[0];		
+		int taskNumber = Integer.valueOf(args[1]);		
 		String jobID = args[2];	
 		
 		System.out.println("task " + taskNumber + " in job " + jobID);
@@ -332,7 +335,8 @@ public class ExecuteStage {
 				System.err.println("Invalid task number: " + taskNumber + ", but only " + o.inputFiles.size() + " input files");
 				System.exit(-1);
 			}
-			o.process2(o.inputFiles.get(taskNumber));
+			// Note! SGE task IDs start from 1, so task N+1 process the N'th input file
+			o.process2(o.inputFiles.get(taskNumber - 1));
 		} catch (StageInitException e1) {
 			System.err.println("Could not initialize stage");
 			e1.printStackTrace();
@@ -342,5 +346,6 @@ public class ExecuteStage {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+		System.out.println("Done");
 	}
 }

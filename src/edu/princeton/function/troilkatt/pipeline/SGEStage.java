@@ -18,20 +18,16 @@ import edu.princeton.function.troilkatt.fs.OsPath;
  * 
  * The subclass MapReduceStage can be used to execute a stage in parallel using MapReduce.
  */
-public class SGEStage extends Stage {
-	// Command used to start the SGE job
-	protected String sgeCmd;
+public class SGEStage extends Stage {	
 	// Script run by SGE for each file
 	public String scriptFilename;
 	// File with input arguments to SGE executed program
 	public String argsFilename;
 	
 	// Root directory for SGE files. This is used both for temporary output and log files
-	protected String sgeDir;
-	// troilkatt jar file
-	protected String jarFile;
-	// SGE ExecuteStage class
-	protected String mainClass;
+	protected String sgeDir;	
+	// classpath
+	protected String classPath = "/home/larsab/troilkatt2/bin:/usr/share/java/log4j-1.2.jar:/usr/share/java/commons-compress.jar:/home/larsab/apps/hbase-ice/hbase.jar:/home/larsab/apps/hadoop-ice/hadoop-core.jar";
 	
 	// args with TROILKATT symbols intact
 	protected String stageArgs;
@@ -57,13 +53,7 @@ public class SGEStage extends Stage {
 		
 		sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");		
 		scriptFilename = OsPath.join(stageTmpDir, "sge.sh");		
-		argsFilename = OsPath.join(sgeDir, "sge.args");
-		
-		jarFile = troilkattProperties.get("troilkatt.jar");
-		mainClass = "edu.princeton.function.troilkatt.sge.ExecuteStage";
-		
-		// Submit and wait for completion
-		sgeCmd = "qsub -sync y " + scriptFilename;
+		argsFilename = OsPath.join(sgeDir, "sge.args");					
 	
 		/*
 		 * Do custom parsing of arguments
@@ -128,7 +118,7 @@ public class SGEStage extends Stage {
 	 * Helper function to write an SGE script
 	 * @throws StageException 
 	 */
-	public void writeSGEScript() throws StageException {
+	public void writeSGEScript(String nfsTmpLogDir) throws StageException {
 		/*
 		 * Script file
 		 */
@@ -143,14 +133,21 @@ public class SGEStage extends Stage {
 			/*
 			 * Command to execute
 			 */
-			// java command
-			out.write("java -jar " + jarFile + " " + mainClass + " ");
+			// java command			
+			// TODO: read classpath from config file
+			out.write("java -classpath " + classPath + " edu.princeton.function.troilkatt.sge.ExecuteStage ");
 			// 1st argument: arguments file location
 			out.write(argsFilename);
 			// 2nd argument: task ID
 			out.write(" ${SGE_TASK_ID}");
 			// 3rd argument: SGE job ID
-			out.write(" ${JOB_ID}\n\n");
+			out.write(" sge_job");
+			// Save log files in the tmp NFS log dir
+			out.write(" > ");
+			out.write(OsPath.join(nfsTmpLogDir, "sge.out"));
+			out.write(" 2> ");
+			out.write(OsPath.join(nfsTmpLogDir, "sge.err"));
+			out.write("\n\n");
 			
 			out.close();
 		} catch (IOException e1) {
@@ -313,14 +310,17 @@ public class SGEStage extends Stage {
 		writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, timestamp, inputFiles);
 		
 		// Create SGE scripts and filenames file
-		writeSGEScript();
+		writeSGEScript(nfsTmpLogDir);
 		
 		// Redirect output and execute MapReduce job
 		String outputLogfile = OsPath.join(stageLogDir, "sge.output");
 		String errorLogfile = OsPath.join(stageLogDir, "sge.error");
 		
 		// execute sge job
-		int rv = Stage.executeCmd(sgeCmd + " > " + outputLogfile + " 2> " + errorLogfile, logger);
+		// Note SGE task ID indexes starts from one (and not zero), and range includes last index
+		String sgeCmd = String.format("qsub -sync y -t %d-%d %s > %s 2> %s", 1, inputFiles.size(), scriptFilename, outputLogfile, errorLogfile);		
+		// Submit and wait for completion
+		int rv = Stage.executeCmd(sgeCmd , logger);
 
 		// Always update log files even if job crashes
 		updateLogFiles(logFiles);

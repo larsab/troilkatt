@@ -110,6 +110,29 @@ public class TestSuperNFS extends TestSuper {
 		// Invalid zip file
 		OsPath.copy(OsPath.join(dataDir, "dirs/5.zip"), 
 		OsPath.join(nfsRoot, "compressed-dirs/5.zip"));
+		
+		// SGE unit tests
+		String nr = OsPath.join(nfsRoot, "test/sge/input");		
+		OsPath.deleteAll(nr);
+		OsPath.mkdir(nr);		
+		String srcFile = OsPath.join(dataDir, "files/file3.1.gz");
+		// Set one consists of files file[1,2,3].1.gz and file4.1.none
+		OsPath.copy(srcFile, OsPath.join(nr, "file1.1.gz"));
+		OsPath.copy(srcFile, OsPath.join(nr, "file2.1.gz"));
+		OsPath.copy(srcFile, OsPath.join(nr, "file3.1.gz"));
+		OsPath.copy(OsPath.join(dataDir, "files/file1.4.none"), OsPath.join(nr, "file4.1.none"));
+		// Set two consists of files file5.bz2 and file6.zip
+		OsPath.copy(OsPath.join(dataDir, "files/file1.2.bz2"), OsPath.join(nr, "file5.2.bz2"));
+		OsPath.copy(OsPath.join(dataDir, "files/file1.3.zip"), OsPath.join(nr, "file6.2.zip"));
+		// Set three consist of the invalid file file7.3.gz
+		OsPath.copy(OsPath.join(dataDir, "files/invalid.5.gz"), OsPath.join(nr, "invalid.5.gz"));
+		// Set four consists of SOFT files
+		OsPath.copy(OsPath.join(dataDir, "files/GSE8070_family.soft.6.gz"), OsPath.join(nr, "GSE8070_family.soft.6.gz"));
+		OsPath.copy(OsPath.join(dataDir, "files/GSE8070_family.soft.6.bz2"), OsPath.join(nr, "GSE8070_family.soft.6.bz2"));
+		OsPath.copy(OsPath.join(dataDir, "files/GSE8070_family.soft.6.none"), OsPath.join(nr, "GSE8070_family.soft.6.none"));
+		OsPath.copy(OsPath.join(dataDir, "files/GDS2949_full.soft.6.bz2"), OsPath.join(nr, "GDS2949_full.soft.6.bz2"));
+		OsPath.copy(OsPath.join(dataDir, "files/GDS2949_full.soft.6.gz"), OsPath.join(nr, "GDS2949_full.soft.6.gz"));
+		OsPath.copy(OsPath.join(dataDir, "files/GDS2949_full.soft.6.none"), OsPath.join(nr, "GDS2949_full.soft.6.none"));
 	}
 
 }
