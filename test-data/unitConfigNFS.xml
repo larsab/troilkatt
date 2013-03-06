@@ -147,7 +147,7 @@
 
 	<property>
 		<name>troilkatt.tfs.status.file</name>
-		<value>/user/larsab/troilkatt/status/status-test.txt</value>
+		<value>/home/larsab/troilkatt/status/status-test.txt</value>
 		<description>
 		
 			This file contains the status of troilkatt iterations. It

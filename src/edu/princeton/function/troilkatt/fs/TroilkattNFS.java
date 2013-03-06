@@ -1,9 +1,12 @@
 package edu.princeton.function.troilkatt.fs;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import org.apache.log4j.Logger;
 
+import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.utils.Utils;
 
 /**
@@ -302,7 +305,7 @@ public class TroilkattNFS extends TroilkattFS {
 			String compression, String logDir, String tmpDir) {				
 		if (localFiles.isEmpty()) {
 			logger.warn("No files to put");
-			return false;
+			return true;
 		}
 		
 		try {
@@ -560,4 +563,76 @@ public class TroilkattNFS extends TroilkattFS {
 		
 		return OsPath.fileSize(filename);
 	}		
+	
+	/**
+	 * Copy a status file from HDFS to local FS
+	 * 
+	 * @param nfsFilename Source HDFS filename
+	 * @param localFilename Destination local FS filename
+	 * @throws IOException
+	 * @throws TroilkattPropertiesException if invalid hdfsFilename
+	 */	
+	public void getStatusFile(String nfsFilename, String localFilename) throws IOException, TroilkattPropertiesException {
+			
+		/*
+		 * Verify, download, or create status file
+		 */
+		if (! OsPath.isfile(localFilename)) {
+			System.out.println("Status file not found: " + localFilename);			
+						
+			if (isfile(nfsFilename)) {
+				if (Utils.getYesOrNo("Download from HDFS?", true)) {
+					logger.debug(String.format("Copy HDFS file %s to local file %s\n", nfsFilename, localFilename));
+					OsPath.copy(nfsFilename, localFilename);											
+				}
+			}
+			else {
+				logger.info("Status file not in local FS nor HDFS");
+				System.out.println("Creating new status file");
+				logger.info("Create new status file");
+				File nf = new File(localFilename);
+				try {
+					if (nf.createNewFile() == false) {
+						throw new RuntimeException("Status file already exists");						
+					}
+				} catch (IOException e) {
+					logger.fatal("Could not create new status file: " + e);
+					throw e;
+				}	
+				// Attempt to save new status file to verify that the HDFS path is valid
+				try {
+					saveStatusFile(localFilename, nfsFilename);
+				} catch (IOException e) {
+					throw new TroilkattPropertiesException("Invalid HDFS status filename: " + nfsFilename);
+				}
+			}
+		}
+		else { // file in local FS
+			//TODO: verify that the files on local and HDFS match
+			
+			// TODO: verify that the status file is not corrupt
+		}
+	}
+	
+	/**
+	 * Copy a status file from local FS to HDFS
+	 * 
+	 * @param localFilename Source local FS filename
+	 * @param hdfsFilename Destination HDFS filename
+	 * 
+	 * @throws IOException if file could not be copeid to HDFS
+	 * @throws TroilkattPropertiesException 
+	 */
+	public void saveStatusFile(String localFilename, String nfsFilename) throws IOException, TroilkattPropertiesException {	
+		
+		logger.info(String.format("Copy status file %s to HDFS file %s\n", localFilename, nfsFilename));
+		if (isfile(nfsFilename)) {
+			logger.debug("Deleting older version of status file");
+			deleteFile(nfsFilename);
+		}
+	
+		if (OsPath.copy(localFilename, nfsFilename) == false) {
+			throw new IOException("Could not copy local status file to persistent storage");
+		}		
+	}
 }

@@ -4,7 +4,7 @@
 #
 # Test and developement pipelines
 #
-#pipelines/null.xml
+pipelines/null.xml
 #pipelines/test.xml 
 #pipelines/dev.xml
 #
@@ -96,7 +96,7 @@
 #
 #pipelines/imp-geo-raw-human.xml
 #pipelines/imp-geo-raw-mouse.xml
-pipelines/imp-geo-raw-mouse-mas5.xml
+#pipelines/imp-geo-raw-mouse-mas5.xml
 #pipelines/imp-geo-raw-rat.xml
 #pipelines/imp-geo-raw-arabidopsis.xml
 #pipelines/imp-geo-raw-fly.xml

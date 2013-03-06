@@ -81,26 +81,8 @@ public class Pipeline {
 			}
 		}
 		
-		String tfsRootDir;
-		String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
-		if (persistentStorage.equals("hadoop")) {
-			this.logTable = new LogTableHbase(name);
-			tfsRootDir = troilkattProperties.get("troilkatt.tfs.root.dir");		
-		}
-		else if (persistentStorage.equals("nfs")) {
-			String sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");
-			String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "logtar");
-			if (! OsPath.mkdir(localLogDir)) {
-				logger.fatal("Could not create directory: " + localLogDir);
-				throw new PipelineException("mkdir " + localLogDir + " failed");
-			}
-			this.logTable = new LogTableTar(name, tfs, OsPath.join(sgeDir, "log"), localLogDir, localTmpDir);
-			tfsRootDir = troilkattProperties.get("troilkatt.nfs.root.dir");
-		}
-		else {
-			logger.fatal("Invalid valid for persistent storage");
-			throw new PipelineException("Invalid valid for persistent storage");
-		}
+		String tfsRootDir  = troilkattProperties.get("troilkatt.tfs.root.dir");
+		String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");		
 		
 		// Create directories on HDFS if needed
 		String hdfsDatadir = OsPath.join(tfsRootDir, "data/");		
@@ -117,6 +99,19 @@ public class Pipeline {
 		} catch (IOException e) {
 			logger.fatal("Could not create HDFS directories: " + e);
 			throw new PipelineException("Could not create HDFS directories");
+		}
+		
+		if (persistentStorage.equals("hadoop")) {
+			this.logTable = new LogTableHbase(name);
+		}
+		else if (persistentStorage.equals("nfs")) {						
+			String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "logtar");
+			//this.logTable = new LogTableTar(name, tfs, OsPath.join(sgeDir, "log"), localLogDir, localTmpDir);			
+			this.logTable = new LogTableTar(name, tfs,  OsPath.join(tfsRootDir, "log"), localLogDir, localTmpDir);
+		}
+		else {
+			logger.fatal("Invalid valid for persistent storage");
+			throw new PipelineException("Invalid valid for persistent storage");
 		}
 		
 		createPipeline(datasetFile);
