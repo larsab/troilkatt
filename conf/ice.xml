@@ -12,7 +12,8 @@
 		<value>larsab@cs.uit.no</value>
 		<description>
 
-			Administrator e-mail. It is used as password when logging to NCBI FTP servers.
+			Administrator e-mail. It is used as the password when logging to 
+			NCBI FTP servers.
 
     	</description>
 	</property>
@@ -22,7 +23,7 @@
 		<value>hadoop</value>
 		<description>
 
-			File system for persistent storage. Valid values: hadoop and nfs
+			File system to use for persistent storage. Valid values are: hadoop and nfs
 
     	</description>
 	</property>
@@ -45,9 +46,9 @@
 		<value>/home/larsab/troilkatt/log</value>
 		<description>
 			
-			Directory where the main logfiles are stored. Additional
+			Directory where the main logfile (troilkatt.log) is stored. Additional
 			logfiles are stored in the (intermediate) output directories for the
-			crawlers and pipeline stages.
+			crawlers and pipeline stages, and then saved into persistent storage.
 			
 		</description>
 	</property>
@@ -59,7 +60,8 @@
 		
 			This directory contains various global meta-data files used by many
 			Troilkatt stage such as gold standards, gene names files, etc.
-			The TROILKATT.GLOBALMETA_DIR is mapped to this directory.
+			
+			The TROILKATT.GLOBALMETA_DIR symbol is mapped to this directory.
 			
 		</description>
 	</property>
@@ -69,7 +71,9 @@
 		<value>/home/larsab/troilkatt2/test-tmp/sge-local</value>
 		<description>
 		
-			This directory contains local files for the SGE jobs
+			This directory contains local files for SGE jobs. 
+			
+			Note! _all_ data in this directory will be deleted after each iteration.
 			
 		</description>
 	</property>
@@ -80,6 +84,8 @@
 		<description>
 		
 			This directory contains globally shared files for SGE jobs.
+			
+			Note! _all_ data in this directory will be deleted after each iteration.
 			
 		</description>
 	</property>
@@ -113,6 +119,7 @@
 		<description>
 
 			This directory contains binaries for programs started by Troilkatt.
+			
 			The TROILKATT.BIN symbol is mapped to this directory.
     	
     </description>
@@ -150,18 +157,6 @@
 		
 		</description>
 	</property>	
-	
-	<property>
-		<name>troilkatt.tfs.timestamp.file</name>
-		<value>/user/larsab/troilkatt/status/timestamps.txt</value>
-		<description>
-
-			This file contains the timestamps for when the datasets are updated. It
-			also provides a mapping from the integer timestamps to human readable
-			date/time format.
-    	
-    </description>
-	</property>
 
 	<property>
 		<name>troilkatt.tfs.status.file</name>
@@ -171,6 +166,9 @@
 			This file contains the status of troilkatt iterations. It
 			is used to do recovery by checking the status of the last update
 			before initiating a new update.
+			
+			The file is in persitent storage. It can be either a HDFS or NFS
+			directory.
 			
 		</description>
 	</property>
@@ -191,7 +189,7 @@
 		<value>/home/larsab/troilkatt2/lib/troilkatt.jar</value>
 		<description>
 
-			Jar file with Troilkatt MapReduce classes.
+			Jar file with Troilkatt classes.
     	
     </description>
 	</property>
@@ -212,7 +210,8 @@
 		<value>/home/larsab/troilkatt2/bin/troilkatt_container</value>
 		<description>
 
-			Troilkatt container binary
+			Troilkatt container binary. The container is used to ensure that applications
+			started by troilkatt are limited with regards to memory usage and CPU time.
     	
     </description>
 	</property>
