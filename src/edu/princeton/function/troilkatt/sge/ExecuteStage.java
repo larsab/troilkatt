@@ -347,5 +347,6 @@ public class ExecuteStage {
 			System.exit(-1);
 		}
 		System.out.println("Done");
+		System.exit(0);
 	}
 }

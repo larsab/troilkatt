@@ -103,14 +103,33 @@ public class SGEStage extends Stage {
 	 */
 	@Override
 	 public ArrayList<String> saveOutputFiles(ArrayList<String> localFiles, long timestamp) throws StageException {
-		// Save files as normal
-		ArrayList<String> nfsFiles = super.saveOutputFiles(localFiles, timestamp);
-		// then delete the tmp files
-		for (String f: localFiles) {
-			if (OsPath.delete(f) == false) {
-				logger.warn("Could not delete tmp output file: " + f);
+		// Move files from tmp to permanent storage
+		ArrayList<String> nfsFiles = new ArrayList<String>();
+		
+		String nfsTmpOutputDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/output");
+		
+		for (String f: localFiles) {			
+			String relName = OsPath.absolute2relative(f, nfsTmpOutputDir);
+			String newName = OsPath.join(hdfsOutputDir, relName);
+			String dirName = OsPath.dirname(newName);
+			
+			try {
+				if (! tfs.isdir(dirName)) {
+					tfs.mkdir(dirName);
+				}
+
+				if (tfs.renameFile(f, newName) == false) {
+					logger.warn("Could not move output file to: " + newName);					
+					throw new StageException("Could not move output file to: " + newName);
+				}
+			} catch (IOException e) {
+				logger.error("Could not move tmp output files to persistent output directory");
+				throw new StageException("Could not move output file to: " + newName);
 			}
-		}
+			
+			nfsFiles.add(newName);			
+		}	
+		
 		return nfsFiles;
 	 }
 	
@@ -133,7 +152,7 @@ public class SGEStage extends Stage {
 			/*
 			 * Command to execute
 			 */
-			// java command			
+			// java command									
 			// TODO: read classpath from config file
 			out.write("java -classpath " + classPath + " edu.princeton.function.troilkatt.sge.ExecuteStage ");
 			// 1st argument: arguments file location
@@ -144,9 +163,10 @@ public class SGEStage extends Stage {
 			out.write(" sge_job");
 			// Save log files in the tmp NFS log dir
 			out.write(" > ");
-			out.write(OsPath.join(nfsTmpLogDir, "sge.out"));
-			out.write(" 2> ");
-			out.write(OsPath.join(nfsTmpLogDir, "sge.err"));
+			out.write(OsPath.join(nfsTmpLogDir, "sge_${SGE_TASK_ID}.out"));			
+			// Cannot redirect both stdout and stderr in SGE???
+			//out.write(" 2> ");
+			//out.write(OsPath.join(nfsTmpLogDir, "sge_${SGE_TASK_ID}.err"));			
 			out.write("\n\n");
 			
 			out.close();
@@ -254,7 +274,7 @@ public class SGEStage extends Stage {
 	protected void moveSGELogFiles(String nfsTmpLogDir, ArrayList<String> logFiles) throws StageException {	
 		ArrayList<String> tmpFiles;
 		try {
-			tmpFiles = tfs.listdir(nfsTmpLogDir);			
+			tmpFiles = tfs.listdirR(nfsTmpLogDir);			
 		} catch (IOException e) {
 			logger.fatal("Could not read list of outputfiles in NFS: " + e.toString());
 			throw new StageException("Could not read list of outputfiles in HDFS");
@@ -303,8 +323,10 @@ public class SGEStage extends Stage {
 		
 		// Temporary SGE output directory on NFS
 		String nfsTmpOutputDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/output");
+		OsPath.mkdir(nfsTmpOutputDir);
 		// Root for task log files
 		String nfsTmpLogDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/log");
+		OsPath.mkdir(nfsTmpLogDir);
 		
 		// Create arguments file for MapReduce Job-task
 		writeSGEArgsFile(nfsTmpOutputDir, nfsTmpLogDir, timestamp, inputFiles);
@@ -312,7 +334,7 @@ public class SGEStage extends Stage {
 		// Create SGE scripts and filenames file
 		writeSGEScript(nfsTmpLogDir);
 		
-		// Redirect output and execute MapReduce job
+		// Redirect output and execute SGE job
 		String outputLogfile = OsPath.join(stageLogDir, "sge.output");
 		String errorLogfile = OsPath.join(stageLogDir, "sge.error");
 		

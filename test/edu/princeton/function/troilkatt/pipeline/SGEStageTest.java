@@ -41,9 +41,6 @@ public class SGEStageTest extends TestSuperNFS {
 	protected static String stageName;
 	protected static String localRootDir;
 	protected static String nfsStageMetaDir;	
-	
-	protected static String nfsTmpOutputDir;
-	protected static String nfsTmpLogDir;
 	protected static String nfsTmpDir;
 
 	@BeforeClass
@@ -64,8 +61,6 @@ public class SGEStageTest extends TestSuperNFS {
 		String nfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));
 		nfsStageMetaDir = OsPath.join(nfsPipelineMetaDir, String.format("%03d-%s", stageNum, stageName));
 		nfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
-		nfsTmpLogDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "log");
-		nfsTmpOutputDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "output");
 	}
 
 	@AfterClass
@@ -205,33 +200,56 @@ public class SGEStageTest extends TestSuperNFS {
 
 	@Test
 	public void testProcess() throws IOException, StageException {
-		ArrayList<String> metaFiles = writeMetaFile(inputBasenames);
-		sges.saveMetaFiles(metaFiles, 3218);		
-		
+		ArrayList<String> metaFiles = writeMetaFile(inputBasenames);		
 		ArrayList<String> logFiles = new ArrayList<String>();
 		
-		ArrayList<String> outputFiles = sges.process(inputFiles, metaFiles, logFiles, 3219);
+		ArrayList<String> outputFiles = sges.process(inputFiles, metaFiles, logFiles, 3220);
 		
 		/*
 		 * Test output files
 		 */
 		assertEquals(4, outputFiles.size());
 		Collections.sort(outputFiles);
-		assertTrue(outputFiles.get(0).endsWith("file1.out.741.gz"));
-		assertTrue(outputFiles.get(1).endsWith("file2.out.741.gz"));
-		assertTrue(outputFiles.get(3).endsWith("file4.out.741.gz"));
-		assertTrue(tfs.isfile(OsPath.join(sges.hdfsOutputDir, "file1.out.741.gz")));
-		assertTrue(tfs.isfile(OsPath.join(sges.hdfsOutputDir, "file2.out.741.gz")));
-		assertTrue(tfs.isfile(OsPath.join(sges.hdfsOutputDir, "file4.out.741.gz")));
+		assertTrue(outputFiles.get(0).endsWith("file1.out.3220.gz"));
+		assertTrue(outputFiles.get(1).endsWith("file2.out.3220.gz"));
+		assertTrue(outputFiles.get(3).endsWith("file4.out.3220.gz"));
+		assertTrue(tfs.isfile(outputFiles.get(0)));
+		assertTrue(tfs.isfile(outputFiles.get(1)));
+		assertTrue(tfs.isfile(outputFiles.get(3)));
 		
 		/*
 		 * Test MapReduce logfiles
 		 */		
 		assertFalse(logFiles.isEmpty());
-		assertEquals(8, logFiles.size());
-		//assertTrue(OsPath.fileInList(mapperFiles, "stdout", false));
-		//assertTrue(OsPath.fileInList(mapperFiles, "stderr", false));
-		//assertTrue(OsPath.fileInList(mapperFiles, "syslog", false));		
+		// 4 x (sge_ID.out, task_ID/executePerFile.out task_ID/executePerFile.log)
+		// + sge.error  + sge.output
+		assertEquals(14, logFiles.size());	
+	}
+	
+	@Test
+	public void testProcess2() throws IOException, StageException {
+		ArrayList<String> metaFiles = writeMetaFile(inputBasenames);
+		sges.saveMetaFiles(metaFiles, 3221);		
+						
+		ArrayList<String> outputFiles = sges.process2(inputFiles, 3222);
+		
+		/*
+		 * Test output files
+		 */
+		assertEquals(4, outputFiles.size());
+		Collections.sort(outputFiles);
+		assertTrue(outputFiles.get(0).endsWith("file1.out.3222.gz"));
+		assertTrue(outputFiles.get(1).endsWith("file2.out.3222.gz"));
+		assertTrue(outputFiles.get(3).endsWith("file4.out.3222.gz"));
+		assertTrue(tfs.isfile(OsPath.join(nfsOutput, "file1.out.3222.gz")));
+		assertTrue(tfs.isfile(OsPath.join(nfsOutput, "file2.out.3222.gz")));
+		assertTrue(tfs.isfile(OsPath.join(nfsOutput, "file4.out.3222.gz")));		
+		
+		/*
+		 * Test meta and logfile
+		 */		
+		assertTrue(OsPath.isfile(OsPath.join(sges.hdfsMetaDir, "3222.tar.gz")));
+		assertTrue(sges.logTable.containsFile(sges.stageName, 3222, "sge_2.out"));		
 	}
 
 	private ArrayList<String> writeMetaFile(ArrayList<String> inputFiles) throws IOException, StageException {		
