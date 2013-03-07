@@ -1,0 +1,54 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Mirror all GSD files from the GEO FTP server and convert these to the PCL format -->
+<dataset>	
+	<!-- <source>
+		<name>geo_gds_mirror</name>
+		<type>geo_gds_mirror</type>
+	    <arguments></arguments>
+	    <output-directory>geo/gds/soft</output-directory>
+	    <compression-format>gz</compression-format>
+	    <storage-time>-1</storage-time>
+	    <description>Mirror all dataset files from GEO and keep them forever.</description>    
+	</source>
+	 -->
+	 
+	<source>
+		<name>geo_gds_soft_dir</name>
+		<type>list_dir</type>
+	    <arguments>/user/larsab/troilkatt/data/geo/gds/soft</arguments>	    
+	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Read in files from the GEO SOFT HDFS directory.</description>    
+	</source> 
+	 
+	<pipeline>		
+	    <stage>
+			<name>soft2pcl</name>
+			<type>sge</type>
+			<arguments>execute_per_file TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.pcl > TROILKATT.LOG_DIR/TROILKATT.FILE.soft2pcl.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2pcl.error</arguments>
+			<output-directory>geo/gds/pcl</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Convert all downloaded SOFT files to the PCL format and keep them forever.</description>						
+		</stage>
+		<stage>
+			<name>pcl2info</name>
+			<type>sge</type>
+			<arguments>execute_per_file TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.info 2> TROILKATT.LOG_DIR/TROILKATT.FILE.pcl2info.error</arguments>
+			<output-directory>geo/gds/info</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Calculate "info" information for PCL files.</description>						
+		</stage>
+	</pipeline>
+	
+	<sink>
+		<name>geo_gds_sink</name>
+		<type>null_sink</type>
+		<arguments></arguments>
+		<description>No sink necessary for GEO GDS mirror.</description>
+	</sink>
+				
+</dataset>

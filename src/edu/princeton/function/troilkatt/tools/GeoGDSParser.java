@@ -82,10 +82,26 @@ public class GeoGDSParser extends GeoSoftParser {
 	}
 
 	/**
+	 * Parse a file
+	 * 
+	 * @param filename file to parse
+	 * @return None, but the global singleKeys and multiKeys are initialized
+	 * @throws IOException 
+	 */
+	public void parseFile(String filename) throws IOException {
+		BufferedReader ins = new BufferedReader(new FileReader(filename));		
+		String line;
+		while ((line = ins.readLine()) != null) {
+			parseLine(line);
+		}			
+		ins.close();
+	}
+	
+	/**
 	 * Parse a GEO GDS soft file
 	 *  
 	 * @param argv command line arguments. 
-	 *  0: input filename (GSEXXX_family.soft)		 
+	 *  0: input filename (GSEXXX_family.soft or GDSXXX.soft)		 
 	 * @throws IOException 
 	 * @throws ParseException 
 	 */
@@ -96,13 +112,8 @@ public class GeoGDSParser extends GeoSoftParser {
 			System.exit(2);
 		}
 
-		BufferedReader ins = new BufferedReader(new FileReader(argv[0]));
 		GeoGDSParser parser = new GeoGDSParser();
-		String line;
-		while ((line = ins.readLine()) != null) {
-			parser.parseLine(line);
-		}			
-		ins.close();
+		parser.parseFile(argv[0]);		
 
 		for (String k: parser.singleKeys) {
 			String val = parser.getSingleValue(k);

@@ -217,7 +217,7 @@ public class Pcl2Info {
 	}
 	
 	/**
-	 * Convert a GEO series SOFT file to the PCL format. 
+	 * Extract meta data from a SOFT file and print these on stdout
 	 *  
 	 * @param argv command line arguments. 
 	 *  0: input filename (GSEXXX_family.soft)	 
