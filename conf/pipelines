@@ -21,6 +21,7 @@ pipelines/null.xml
 # GEO Datasets
 #
 #pipelines/geo-gds-mirror.xml
+#pipelines/geo-gds-mirror-sge.xml
 #pipelines/geo-gds-meta.xml
 #pipelines/hefalmp-geo-gds-human.xml
 #pipelines/hefalmp-geo-gds-mouse.xml
