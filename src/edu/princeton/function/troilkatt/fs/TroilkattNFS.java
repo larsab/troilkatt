@@ -630,7 +630,16 @@ public class TroilkattNFS extends TroilkattFS {
 			logger.debug("Deleting older version of status file");
 			deleteFile(nfsFilename);
 		}
-	
+
+		String dirName = OsPath.dirname(nfsFilename);
+		if (! OsPath.isdir(dirName)) {			
+			logger.info("Creating directory for status file: " + dirName);
+			if (OsPath.mkdir(dirName)) {
+				logger.fatal("Could not create directory for status file: " + dirName);
+				throw new IOException("Could not create directory for status file: " + dirName);
+			}
+		}
+		
 		if (OsPath.copy(localFilename, nfsFilename) == false) {
 			throw new IOException("Could not copy local status file to persistent storage");
 		}		

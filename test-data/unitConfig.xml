@@ -185,7 +185,20 @@
 			Jar files passed to the hadoop MapReduce startup script (-libjars). 
 			These should include: hbase.jar, commons-cli.jar, zookeeper.jar, commons-logging.jar
     	
-    </description>
+    	</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.classpath</name>
+		<value>/home/larsab/troilkatt2/bin:/usr/share/java/log4j-1.2.jar:/usr/share/java/commons-compress.jar:/home/larsab/apps/hbase-ice/hbase.jar:/home/larsab/apps/hadoop-ice/hadoop-core.jar</value>
+		<description>
+
+			Classpath used by SGEStage for executing sge.ExecuteStage
+			
+			The classpath should include log4j-1.2.jar, commons-compress.jar, hbase.jar, and hadoop-core.jar. 
+			In addition the root directory for the troilkatt class files should be included (typically troilkatt2/bin). 
+    	
+    	</description>
 	</property>
 	
 	<property>

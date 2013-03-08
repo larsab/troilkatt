@@ -4,21 +4,40 @@
 	<!-- One additional property (foo.bar.baz) -->
 
 <configuration>
-
-	<property>
-		<name>troilkatt.localfs.dir</name>
-		<value>/home/larsb/troilkatt2/test-tmp/data</value>
+    <property>
+		<name>troilkatt.admin.email</name>
+		<value>larsab@cs.uit.no</value>
 		<description>
 
-			Directory where crawlers store their files, and where temporary files are
-			stored.
+			Administrator e-mail. It is used as password when logging to NCBI FTP servers.
+
+    	</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.persistent.storage</name>
+		<value>hadoop</value>
+		<description>
+
+			File system for persistent storage. Valid values: hadoop and nfs
 
     	</description>
 	</property>
 
 	<property>
-		<name>troilkatt.localfs.logdir</name>
-		<value>/home/larsb/troilkatt2/test-tmp/log</value>
+		<name>troilkatt.localfs.dir</name>
+		<value>/home/larsab/troilkatt2/test-tmp/data</value>
+		<description>
+
+			Directory on local filesystem used by Troilkatt server and clients for intermediate files.
+			The TROILKATT.DIR symbol is mapped to this directory.
+
+    	</description>
+	</property>
+
+	<property>
+		<name>troilkatt.localfs.log.dir</name>
+		<value>/home/larsab/troilkatt2/test-tmp/log</value>
 		<description>
 		
 			Directory where the main logfiles are stored. Additional
@@ -39,42 +58,10 @@
 			
 		</description>
 	</property>
-		
-	<property>
-		<name>troilkatt.tfs.rootdir</name>
-		<value>/user/larsab/troilkatt</value>
-		<description>
-		
-			Root directory for Troilkatt files in HDFS.
-		
-		</description>
-	</property>
-
-	<property>
-		<name>troilkatt.tfs.status.file</name>
-		<value>status.txt</value>
-		<description>
-		
-			This file contains the status of troilkatt iterations. It
-			is used to do recovery by checking the status of the last update
-			before initiating a new update.
-			
-		</description>
-	</property>
-
-	<property>
-		<name>troilkatt.update.interval</name>
-		<value>24</value>
-		<description>
-
-			Time in hours between each time the crawlers are called.
-    	
-    </description>
-	</property>
 	
 	<property>
 		<name>troilkatt.globalfs.global-meta.dir</name>
-		<value>/home/larsab/troilkatt/global-meta</value>
+		<value>/home/larsab/troilkatt2/test-tmp/global-meta</value>
 		<description>
 		
 			This directory contains various global meta-data files used by many
@@ -96,7 +83,7 @@
 	
 	<property>
 		<name>troilkatt.globalfs.sge.dir</name>
-		<value>/home/larsab/troilkatt/sge</value>
+		<value>/home/larsab/troilkatt2/test-tmp/sge-global</value>
 		<description>
 		
 			This directory contains globally shared files for SGE jobs.
@@ -114,13 +101,25 @@
     	
     </description>
 	</property>
+	
+	<property>
+		<name>troilkatt.localfs.mapreduce.dir</name>
+		<value>/home/larsab/troilkatt2/test-tmp/mapreduce</value>
+		<description>
+		
+			This directory is used by MapReduce jobs to save temporal data on the local FS.
+			
+		</description>
+	</property>
 
+	
 	<property>
 		<name>troilkatt.localfs.binary.dir</name>
 		<value>/home/larsab/troilkatt/apps/bin</value>
 		<description>
 
-			This directory contains binaeries tools.
+			This directory contains binaries for progeams started by Troilkatt.
+			The TROILKATT.BIN symbol is mapped to this directory.
     	
     </description>
 	</property>
@@ -131,40 +130,97 @@
 		<description>
 		
 			This directory contains various scripts and tools used by
-			the stages (excluding the Sleipnir tools.
+			the stages. The TROILKATT.UTILS symbol is mapped to this directory.
 			
 		</description>
 	</property>
 	
 	<property>
-		<name>troilkatt.localfs.script.dir</name>
+		<name>troilkatt.localfs.scripts.dir</name>
 		<value>/home/larsab/troilkatt2/scripts</value>
 		<description>
 		
 			This directory contains various scripts for processing a
-			troilkatt stage.
+			Troilkatt stage. The TROILKATT.SCRIPTS symbol is mapped to this
+			directory.
 			
 		</description>
 	</property>
 	
 	<property>
-		<name>troilkatt.mapreduce.cmd</name>
-		<value>/home/larsab/apps/hadoop-0.20.1/bin/hadoop jar /home/larsab/workspace/skarntyde/output/troilkatt.jar	edu.princeton.function.troilkatt.mapreduce.ExecuteStage</value>
+		<name>troilkatt.tfs.root.dir</name>
+		<value>/user/larsab/troilkatt</value>
 		<description>
-			
-			Command used to run MapReduce scripts.
+		
+			Root directory for Troilkatt files in HDFS.
 		
 		</description>
 	</property>
-	
+
 	<property>
-		<name>troilkatt.mapreduce.jar</name>
-		<value>/home/larsab/apps/hadoop-0.20.1/bin/hadoop jar /home/larsab/workspace/skarntyde/output/troilkatt.jar</value>
+		<name>troilkatt.tfs.status.file</name>
+		<value>/user/larsab/troilkatt/status/status-test.txt</value>
 		<description>
 		
-			Hadoop jar command.
+			This file contains the status of troilkatt iterations. It
+			is used to do recovery by checking the status of the last update
+			before initiating a new update.
 			
 		</description>
 	</property>
 
+	<property>
+		<name>troilkatt.update.interval.hours</name>
+		<value>24</value>
+		<description>
+
+			Time in hours between each time the crawlers are called.
+    	
+    </description>
+	</property>
+	
+	<property>
+		<name>troilkatt.jar</name>
+		<value>/home/larsab/troilkatt2/lib/troilkatt.jar</value>
+		<description>
+
+			Jar file with Troilkatt MapReduce classes
+    	
+    </description>
+	</property>
+	
+	<property>
+		<name>troilkatt.libjars</name>
+		<value>/home/larsab/apps/hbase-ice/hbase.jar,/usr/share/java/commons-cli.jar,/home/larsab/apps/zookeeper-ice/zookeeper.jar,/usr/share/java/commons-logging.jar</value>
+		<description>
+
+			Jar files passed to the hadoop MapReduce startup script (-libjars). 
+			These should include: hbase.jar, commons-cli.jar, zookeeper.jar, commons-logging.jar
+    	
+    	</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.classpath</name>
+		<value>/home/larsab/troilkatt2/bin:/usr/share/java/log4j-1.2.jar:/usr/share/java/commons-compress.jar:/home/larsab/apps/hbase-ice/hbase.jar:/home/larsab/apps/hadoop-ice/hadoop-core.jar</value>
+		<description>
+
+			Classpath used by SGEStage for executing sge.ExecuteStage
+			
+			The classpath should include log4j-1.2.jar, commons-compress.jar, hbase.jar, and hadoop-core.jar. 
+			In addition the root directory for the troilkatt class files should be included (typically troilkatt2/bin). 
+    	
+    	</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.container.bin</name>
+		<value>/home/larsab/troilkatt2/bin/troilkatt_container</value>
+		<description>
+
+			Troilkatt container binary
+    	
+    </description>
+	</property>
+	
 </configuration>

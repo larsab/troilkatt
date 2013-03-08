@@ -1,10 +1,10 @@
 <?xml-stylesheet type="text/xsl"?>
 
-	<!-- 
-	
-	Troilkatt configuration file for the ice cluster
-	
-	-->
+<!-- 
+
+Troilkatt configuration file for the ice cluster
+
+-->
 
 <configuration>
     <property>
@@ -12,8 +12,7 @@
 		<value>larsab@cs.uit.no</value>
 		<description>
 
-			Administrator e-mail. It is used as the password when logging to 
-			NCBI FTP servers.
+			Administrator e-mail. It is used as the password when logging to NCBI FTP servers.
 
     	</description>
 	</property>

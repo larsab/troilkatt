@@ -27,7 +27,7 @@ public class SGEStage extends Stage {
 	// Root directory for SGE files. This is used both for temporary output and log files
 	protected String sgeDir;	
 	// classpath
-	protected String classPath = "/home/larsab/troilkatt2/bin:/usr/share/java/log4j-1.2.jar:/usr/share/java/commons-compress.jar:/home/larsab/apps/hbase-ice/hbase.jar:/home/larsab/apps/hadoop-ice/hadoop-core.jar";
+	protected String classPath;
 	
 	// args with TROILKATT symbols intact
 	protected String stageArgs;
@@ -52,6 +52,7 @@ public class SGEStage extends Stage {
 				pipeline);		
 		
 		sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");		
+		classPath = troilkattProperties.get("troilkatt.classpath");
 		scriptFilename = OsPath.join(stageTmpDir, "sge.sh");		
 		argsFilename = OsPath.join(sgeDir, "sge.args");					
 	

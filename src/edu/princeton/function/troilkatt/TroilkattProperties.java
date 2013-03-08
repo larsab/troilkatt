@@ -37,6 +37,7 @@ public class TroilkattProperties {
 			"troilkatt.update.interval.hours",
 			"troilkatt.jar",
 			"troilkatt.libjars",
+			"troilkatt.classpath",
 			"troilkatt.container.bin"};
 	
 	/**
