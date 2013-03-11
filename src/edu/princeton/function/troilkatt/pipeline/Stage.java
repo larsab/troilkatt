@@ -193,7 +193,7 @@ public class Stage {
 		try {
 			setCreateHDFSDirs(hdfsStageMetaDir, hdfsStageTmpDir);
 		} catch (IOException e) {
-			logger.fatal("Could not set (or create) HDFS directories: " + e.getMessage());
+			logger.fatal("Could not set (or create) HDFS directories: " + e);
 			throw new StageInitException("Could not set or create HDFS directories for stage");
 		}
 		

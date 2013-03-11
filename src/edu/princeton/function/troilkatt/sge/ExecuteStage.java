@@ -308,13 +308,13 @@ public class ExecuteStage {
 	 * Arguments: [0] sgeArgsFilename
 	 *            [1] task number
 	 *            [2] maximum number of troilkatt workser processes per node
-	 *            [3]Â maximum virtual memory size per process in Megabytes
-	 *            [4]Â jobID
+	 *            [3] maximum virtual memory size per process in Megabytes
+	 *            [4] jobID
 	 *            [5] taskID 
 	 */
 	public static void main(String[] args) {		
 		if (args.length < 3) {
-			System.err.println("Usage: sgeArgsFilename taskNumber jobID");
+			System.out.println("Usage: sgeArgsFilename taskNumber jobID");
 			System.exit(-2);
 		}
 				
@@ -325,24 +325,24 @@ public class ExecuteStage {
 		System.out.println("task " + taskNumber + " in job " + jobID);
 		
 		if (taskNumber < 0) {
-			System.err.println("Invalid task number: " + taskNumber);
+			System.out.println("Invalid task number: " + taskNumber);
 			System.exit(-1);
 		}
 						
 		try {
 			ExecuteStage o = new ExecuteStage(argsFilename, taskNumber, jobID);			
 			if (o.inputFiles.size() < taskNumber) {
-				System.err.println("Invalid task number: " + taskNumber + ", but only " + o.inputFiles.size() + " input files");
+				System.out.println("Invalid task number: " + taskNumber + ", but only " + o.inputFiles.size() + " input files");
 				System.exit(-1);
 			}
 			// Note! SGE task IDs start from 1, so task N+1 process the N'th input file
 			o.process2(o.inputFiles.get(taskNumber - 1));
 		} catch (StageInitException e1) {
-			System.err.println("Could not initialize stage");
+			System.out.println("Could not initialize stage: " + e1);
 			e1.printStackTrace();
 			System.exit(-1);
 		} catch (StageException e) {
-			System.err.println("Could not execute stage");
+			System.out.println("Could not execute stage: " + e);
 			e.printStackTrace();
 			System.exit(-1);
 		}

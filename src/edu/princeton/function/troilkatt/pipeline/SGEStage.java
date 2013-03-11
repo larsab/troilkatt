@@ -145,10 +145,11 @@ public class SGEStage extends Stage {
 		try {
 			PrintWriter out = new PrintWriter(new FileWriter(scriptFilename));
 			
-			out.write("#!/bin/sh\n\n");
+			out.write("#!/bin/bash\n\n");
 			
 			// SGE name
-			out.write("#$ -N troilkatt.ExecuteStage\n\n");
+			out.write("#$ -N troilkatt.ExecuteStage\n");
+			out.write("#$ -S /bin/bash\n\n");
 			
 			/*
 			 * Command to execute
@@ -166,8 +167,8 @@ public class SGEStage extends Stage {
 			out.write(" > ");
 			out.write(OsPath.join(nfsTmpLogDir, "sge_${SGE_TASK_ID}.out"));			
 			// Cannot redirect both stdout and stderr in SGE???
-			//out.write(" 2> ");
-			//out.write(OsPath.join(nfsTmpLogDir, "sge_${SGE_TASK_ID}.err"));			
+			out.write(" 2> ");
+			out.write(OsPath.join(nfsTmpLogDir, "sge_${SGE_TASK_ID}.err"));			
 			out.write("\n\n");
 			
 			out.close();
@@ -342,7 +343,7 @@ public class SGEStage extends Stage {
 		// execute sge job
 				
 		// Submit and wait for completion
-		String sgeCmd = getCmd(inputFiles.size(), outputLogfile, errorLogfile);
+		String sgeCmd = getCmd(inputFiles.size(), outputLogfile, errorLogfile, nfsTmpLogDir);
 		int rv = Stage.executeCmd(sgeCmd , logger);
 
 		// Always update log files even if job crashes
@@ -372,9 +373,9 @@ public class SGEStage extends Stage {
 	/**
 	 * Return SGE command to execute
 	 */
-	protected String getCmd(int nInputFiles, String outputLogfile, String errorLogfile) {
+	protected String getCmd(int nInputFiles, String outputLogfile, String errorLogfile, String tmpLogdir) {
 		// Note SGE task ID indexes starts from one (and not zero), and range includes last index
-		return String.format("qsub -sync y -t %d-%d %s > %s 2> %s", 1, nInputFiles, scriptFilename, outputLogfile, errorLogfile);
+		return String.format("qsub -sync y -wd %s -t %d-%d %s > %s 2> %s", tmpLogdir, 1, nInputFiles, scriptFilename, outputLogfile, errorLogfile);
 	}
 	
 }

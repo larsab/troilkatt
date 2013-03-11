@@ -150,9 +150,12 @@
 	
 	<property>
 		<name>troilkatt.tfs.root.dir</name>
-		<value>/mnt/nas2/data/larsab/troilkatt</value>
+		<value>/home/larsab/troilkatt/tfs-root</value>
 		<description>
 		
+		    Old: /mnt/nas2/data/larsab/troilkatt
+		    (not avaialble from compute nodes)
+		    
 			Root directory for Troilkatt files in NFS.
 		
 		</description>
