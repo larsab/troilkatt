@@ -340,20 +340,22 @@ public class SGEStage extends Stage {
 		String errorLogfile = OsPath.join(stageLogDir, "sge.error");
 		
 		// execute sge job
-		// Note SGE task ID indexes starts from one (and not zero), and range includes last index
-		String sgeCmd = String.format("qsub -sync y -t %d-%d %s > %s 2> %s", 1, inputFiles.size(), scriptFilename, outputLogfile, errorLogfile);		
+				
 		// Submit and wait for completion
+		String sgeCmd = getCmd(inputFiles.size(), outputLogfile, errorLogfile);
 		int rv = Stage.executeCmd(sgeCmd , logger);
 
 		// Always update log files even if job crashes
 		updateLogFiles(logFiles);
+		// Also, move all log files to a single directory on local fs
+		moveSGELogFiles(nfsTmpLogDir, logFiles);
+				
 		if (rv != 0) {
 			logger.warn("SGE job failed with error code: " + rv);
 			throw new StageException("SGE job failed");
 		}
 		
-		// Move all log files to a single directory on local fs
-		moveSGELogFiles(nfsTmpLogDir, logFiles);
+		// These are not executed in case the job fails
 		
 		// Update list of meta and log files 
 		updateMetaFiles(metaFiles);		
@@ -366,6 +368,15 @@ public class SGEStage extends Stage {
 			throw new StageException("Could not list output dir");
 		}
 	}
+	
+	/**
+	 * Return SGE command to execute
+	 */
+	protected String getCmd(int nInputFiles, String outputLogfile, String errorLogfile) {
+		// Note SGE task ID indexes starts from one (and not zero), and range includes last index
+		return String.format("qsub -sync y -t %d-%d %s > %s 2> %s", 1, nInputFiles, scriptFilename, outputLogfile, errorLogfile);
+	}
+	
 }
         
         

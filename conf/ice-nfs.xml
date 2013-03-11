@@ -68,7 +68,7 @@
 	
 	<property>
 		<name>troilkatt.localfs.sge.dir</name>
-		<value>/home/larsab/troilkatt2/test-tmp/sge-local</value>
+		<value>/state/partition2/larsab/troilkatt/sge</value>
 		<description>
 		
 			This directory contains local files for SGE jobs. 

@@ -43,7 +43,7 @@ public class Stage {
 		"TROILKATT.BIN", "TROILKATT.UTILS", "TROILKATT.GLOBALMETA_DIR",
 		"TROILKATT.SCRIPTS", "TROILKATT.REDIRECT_OUTPUT", "TROILKATT.REDIRECT_ERROR",
 		"TROILKATT.REDIRECT_INPUT", "TROILKATT.SEPERATE_COMMAND",
-		"TROILKATT.FILE_NOEXT", "TROILKATT.FILE", "TROILKATT.JAR"};
+		"TROILKATT.FILE_NOEXT", "TROILKATT.FILE", "TROILKATT.JAR", "TROILKATT.CLASSPATH"};
 	
 	/* Each stage has three logfiles: filelist.log, output.log, and error.log.
 	 * The filelist.log automically created and contains a list of output files
@@ -663,6 +663,7 @@ public class Stage {
 		newStr = newStr.replace("TROILKATT.SCRIPTS", 
 				OsPath.normPath(prop.get("troilkatt.localfs.scripts.dir"), log));
 		newStr = newStr.replace("TROILKATT.JAR", prop.get("troilkatt.jar"));
+		newStr = newStr.replace("TROILKATT.CLASSPATH", prop.get("troilkatt.classpath"));
 
 		// Command line argument helpers
 		newStr = newStr.replace("TROILKATT.REDIRECT_OUTPUT", ">");
