@@ -7,7 +7,7 @@ import edu.princeton.function.troilkatt.tools.GeoGDSParser;
 import edu.princeton.function.troilkatt.tools.ParseException;
 
 /**
- * Update GEO meta data
+ * Update GEO meta data stored in MongoDB
  *
  */
 public class UpdateGEOMeta {
@@ -30,7 +30,7 @@ public class UpdateGEOMeta {
 		GeoGDSParser parser = new GeoGDSParser();
 		parser.parseFile(argv[0]);		
 
-		// TODO: Instead of printing values, store these in MongoDB
+		// TODO: Instead of printing values, store these in MongoDB, but also output these to a meta-file (stdout)
 		for (String k: parser.singleKeys) {
 			String val = parser.getSingleValue(k);
 			if (val != null) {

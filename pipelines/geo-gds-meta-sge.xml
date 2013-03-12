@@ -25,8 +25,8 @@
 		</stage>
 	    <stage>
 			<name>soft2meta</name>
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.UpdateGEOMetaTable</arguments>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.UpdateGEOMeta TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.meta 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2meta.error</arguments>
 			<output-directory>geo/gds/meta</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>7</storage-time>
@@ -35,8 +35,8 @@
 		</stage>
 		<stage>
 			<name>meta2gsm</name>
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.UpdateGSMTable</arguments>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.UpdateGEOGSM TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.LOG_DIR/TROILKATT.FILE.meta2gsm.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.meta2gsm.error</arguments>
 			<output-directory>geo/gds/gsm</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>7</storage-time>
