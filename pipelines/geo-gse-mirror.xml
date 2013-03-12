@@ -33,14 +33,12 @@
         <compression-format></compression-format>
         <storage-time>-1</storage-time>
         <description>Read in files from the GEO GSE SOFT HDFS directory.</description>
-     </source>
-	 
-	 
+     </source>	 	 
 	 
 	<pipeline>	
 	
 	    <stage>
-			<name>soft2pcl</name>
+			<name>split</name>
 			<type>mapreduce</type>
 			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSESplit</arguments>
 			<output-directory>geo/gse/soft-gpl</output-directory>

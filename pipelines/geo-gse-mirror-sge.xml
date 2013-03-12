@@ -1,0 +1,64 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Mirror all GSE files from the GEO FTP server and convert these to the PCL format -->
+<dataset>	
+<!-- 
+	<source>
+		<name>geo_gse_mirror</name>
+		<type>geo_gse_mirror</type>
+	    <arguments></arguments>
+	    <output-directory>geo/gse/soft</output-directory>
+	    <compression-format>gz</compression-format>
+	    <storage-time>-1</storage-time>
+	    <description>Mirror all series (GSEXXX) files from GEO and keep them forever.</description>    
+	</source>
+-->
+	
+	 <source>
+     	<name>geo_gse_soft_dir</name>
+       	<type>list_dir</type>
+        <arguments>/user/larsab/troilkatt/data/geo/gse/soft</arguments>
+        <output-directory></output-directory>
+        <compression-format></compression-format>
+        <storage-time>-1</storage-time>
+        <description>Read in files from the GEO GSE SOFT HDFS directory.</description>
+     </source>
+	 	 
+	<pipeline>	
+        <stage>
+			<name>soft2pcl</name>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 5096 java -Xmx4096m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.tools.GeoGSE2Pcl TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR log4j.properties > TROILKATT.LOG_DIR/TROILKATT.FILE.soft2pcl.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2pcl.error</arguments>
+			<output-directory>geo/gse/pcl</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Convert all downloaded SOFT files to the PCL format and keep them forever.</description>						
+		</stage> 
+		<stage>                                                                                                                                                                 
+            <name>pcl_filter</name>                                                                                                                    
+            <type>filter</type>                                                                                                                             
+            <arguments>.*\.pcl</arguments>                                                                                                                 
+            <output-directory></output-directory>                                                                                                           
+            <compression-format></compression-format>                                                                                                       
+            <storage-time>-1</storage-time>                                                                                                                 
+            <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
+        </stage>
+		<stage>
+			<name>pcl2info</name>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.tools.Pcl2Info TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.info 2> TROILKATT.LOG_DIR/TROILKATT.FILE.pcl2info.error</arguments>
+			<output-directory>geo/gse/info</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Calculate "info" information for PCL files.</description>						
+		</stage>
+	</pipeline>
+	
+	<sink>
+		<name>geo_gse_sink_sge</name>
+		<type>null_sink</type>
+		<arguments></arguments>
+		<description>No sink necessary for GEO GDS mirror.</description>
+	</sink>
+				
+</dataset>
