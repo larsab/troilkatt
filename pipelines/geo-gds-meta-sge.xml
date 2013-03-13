@@ -35,8 +35,8 @@
 		</stage>
 		<stage>
 			<name>meta2gsm</name>
-			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.UpdateGEOGSM TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.LOG_DIR/TROILKATT.FILE.meta2gsm.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.meta2gsm.error</arguments>
+			<type>execute_per_file</type>
+			<arguments>16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.UpdateGEOGSM TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.LOG_DIR/TROILKATT.FILE.meta2gsm.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.meta2gsm.error</arguments>
 			<output-directory>geo/gds/gsm</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>7</storage-time>
@@ -45,8 +45,8 @@
 		</stage>
 		<stage>
 			<name>gsm_overlap</name>
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.GSMOverlap</arguments>
+			<type>execute_per_file</type>
+			<arguments>16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.GSMOverlap TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.LOG_DIR/TROILKATT.FILE.gsmoverlap.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.gsmoverlap.error</arguments>
 			<output-directory>geo/gds/gsm-overlap</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>
