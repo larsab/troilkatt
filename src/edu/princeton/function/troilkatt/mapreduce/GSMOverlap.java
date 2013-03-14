@@ -251,7 +251,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 		 *  Do the reduce
 		 *  
 		 *  @param key GSE or GDS id
-		 *  @param values GSE or GDS id
+		 *  @param values
 		 *  @param context MapReduce context supplied by the runtime system
 		 */
 		@Override
@@ -311,9 +311,9 @@ public class GSMOverlap extends TroilkattMapReduce {
 				sb.append("\t");
 				sb.append(meta1);
 				sb.append("\t");
-				sb.append(gid2meta.get(gid));
-				
+				sb.append(gid2meta.get(gid));				
 				String outputValue = sb.toString();
+				
 				context.write(key, new Text(outputValue));
 				overlapsWritten.increment(1);
 			}		

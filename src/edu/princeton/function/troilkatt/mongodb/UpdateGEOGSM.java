@@ -1,9 +1,8 @@
 package edu.princeton.function.troilkatt.mongodb;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.apache.hadoop.io.Text;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -12,7 +11,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
-import edu.princeton.function.troilkatt.tools.GeoGDSParser;
 
 /**
  * Update GEO GSM to GDS/GSE mappings stored in MongoDB
@@ -27,8 +25,9 @@ public class UpdateGEOGSM {
 	 * 
 	 * @param argv command line arguments
 	 *  0: mongodb hostname
+	 * @throws UnknownHostException 
 	 */
-	public static void main(String[] argv) {
+	public static void main(String[] argv) throws UnknownHostException {
 		if (argv.length < 1) {
 			System.err.println("Usage: java UpdateGEOGSM mongo.server.address");
 			System.exit(2);
@@ -80,40 +79,26 @@ public class UpdateGEOGSM {
 		}
 		
 		// Save sampleID -> GDS/GSE mappings
-		DBCollection collGSM = db.getCollection("gsm2gid");
-		
+		DBCollection collGSM = db.getCollection("gsm2gid");		
 		for (String gsm: gsm2gids.keySet()) {
 			BasicDBObject entry = new BasicDBObject("id", gsm);
-			// Store meta values in MongoDB, but also output these to a meta-file (stdout)
-			for (String k: parser.singleKeys) {
-				String val = parser.getSingleValue(k);
-				if (val != null) {
-					entry.append(k, val);				
-					System.out.println(k + ": " + val);
+			ArrayList<String> gids = gsm2gids.get(gsm);
+			String val = null;
+			for (String g: gids) {
+				if (val == null) {
+					val = g;
+				}
+				else {
+					val = val + "\n" + g;
 				}
 			}
-			for (String k: parser.multiKeys) {
-				ArrayList<String> vals = parser.getValues(k);					
-				if (vals != null) {
-					String valStr = k + ":";				
-					for (String v: vals) {
-						valStr = valStr + "\t" + v;
-					}
-					// Newlines are used to seperate entries in mongodb fields (similar to Hbase fields)
-					entry.append(k, valStr.replace("\t", "\n"));
-					System.out.println(valStr);				
-				}
-			}
-			coll.insert(entry);
+			entry.append("in", val);
+			collGSM.insert(entry);
+		}
+		
+		mongoClient.close();
 	}
-		
-		
-		
-		
-
-		// output file with sampleID -> GDS/GSE mappings
-	}
-
-mongoClient.close();
+			
+	
 
 }
