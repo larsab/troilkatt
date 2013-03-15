@@ -1,5 +1,6 @@
 package edu.princeton.function.troilkatt.pipeline;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,7 +10,6 @@ import org.apache.log4j.Level;
 
 import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
-
 import edu.princeton.function.troilkatt.fs.OsPath;
 
 /** 
@@ -155,7 +155,6 @@ public class SGEStage extends Stage {
 			 * Command to execute
 			 */
 			// java command									
-			// TODO: read classpath from config file
 			out.write("java -classpath " + classPath + " edu.princeton.function.troilkatt.sge.ExecuteStage ");
 			// 1st argument: arguments file location
 			out.write(argsFilename);
@@ -170,6 +169,11 @@ public class SGEStage extends Stage {
 			out.write(" 2> ");
 			out.write(OsPath.join(nfsTmpLogDir, "sge_${SGE_TASK_ID}.err"));			
 			out.write("\n\n");
+			
+			//File must be executable otherwise sge job won't run it
+			File file = new File(scriptFilename);
+			file.setExecutable(true);
+
 			
 			out.close();
 		} catch (IOException e1) {
@@ -353,7 +357,8 @@ public class SGEStage extends Stage {
 				
 		if (rv != 0) {
 			logger.warn("SGE job failed with error code: " + rv);
-			throw new StageException("SGE job failed");
+			logger.warn("Suppressing job failure: job to be continued.");
+			//throw new StageException("SGE job failed");
 		}
 		
 		// These are not executed in case the job fails

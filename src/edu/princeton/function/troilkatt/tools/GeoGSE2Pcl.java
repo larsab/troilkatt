@@ -862,7 +862,7 @@ public class GeoGSE2Pcl {
 				}
 
 				int idIndex = platformIDColumns.get(currentPlatformID);
-				if (idIndex < parts.length) {
+				if (idIndex>-1 && idIndex < parts.length) {
 					String geneID = parts[idIndex];
 					geneID2Name.put(geneID, name);				
 					HashMap<String, float[]> g2v = geneID2ValsSoftReference.get();
@@ -894,7 +894,7 @@ public class GeoGSE2Pcl {
 					throw new ParseException(currentSampleID + " not in sampleGeneIDColumns");
 				}
 				int idCol = sampleGeneIDColumns.get(currentSampleID);
-				if (idCol >= parts.length) {
+				if (idCol < 0 || idCol >= parts.length) {
 					logger.debug("could not find sample ID column in row: " + line);		
 					geneNameNotFound++;
 					return;
