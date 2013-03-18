@@ -39,13 +39,19 @@ public class GSMOverlap {
 		// key: gid1\tgid2, where gid1 < gid2
 		// value: list of overlapping gsm IDs
 		HashMap<String, ArrayList<String>> overlappingSamples = new HashMap<String, ArrayList<String>>();
-	
+		// Keep track of timestamps for each field
+		HashMap<String, Long> gsm2timestamp = new HashMap<String, Long>();
+				
 		MongoClient mongoClient = new MongoClient(args[0]);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection collGSM = db.getCollection("gsm2gid");	
 		
 		// Count overlapping samples
 		DBCursor cursor = collGSM.find();
+		// no limit, since the number of entries should be relatively low
+		cursor.limit(0); 
+		// sort in descending order according to timestamp
+		cursor.sort(new BasicDBObject("timestamp", -1));
 		try {
 		   while(cursor.hasNext()) {
 			   DBObject entry = cursor.next();
@@ -55,6 +61,24 @@ public class GSMOverlap {
 			   if (gsm == null) {
 				   throw new RuntimeException("Invalid mongoDB entry: no meta:id field: " + entry);
 			   }
+			   
+			   // Make sure only the newest entry is used (the entries should be sorted by timestamp)
+				String timestampStr = (String) entry.get("timestamp");
+				if (timestampStr == null) {
+					throw new RuntimeException("Invalid mongoDB entry: no timestamp field: " + entry);
+				}
+				long entryTimestamp = Long.valueOf(timestampStr);
+				if (gsm2timestamp.containsKey(gsm)) {
+					if (entryTimestamp > gsm2timestamp.get(gsm)) {
+						throw new RuntimeException("Invalid mongoDB sort");
+					}
+					else {
+						continue;
+					}
+				}
+				else {
+					gsm2timestamp.put(gsm, entryTimestamp);
+				}
 			   
 			   // Get overlapping GSE IDs
 			   String inStr = (String) entry.get("in");
