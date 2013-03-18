@@ -2,7 +2,6 @@ package edu.princeton.function.troilkatt.mongodb;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -58,7 +57,7 @@ public class UpdateGEOMeta {
 		
 		// sort in descending order according to timestamp
 		cursor.sort(new BasicDBObject("timestamp", -1));
-		DBObject newestEntry = cursor.next();
+		DBObject newestEntry = cursor.next();		
 		
 		BasicDBObject entry = new BasicDBObject("key", dsetID);		
 		// Store meta values in MongoDB, but also output these to a meta-file (stdout)
@@ -87,7 +86,9 @@ public class UpdateGEOMeta {
 			}
 		}
 		
-		coll.update(newestEntry, entry);
+		entry.putAll(newestEntry.toMap());
+		
+		coll.update(new BasicDBObject("key", dsetID), entry);
 		// Note! no check on error value. If something goes wrong an exception seems to be thrown
 		// The javadoc does not specify the return value, including how to check for errors 
 		

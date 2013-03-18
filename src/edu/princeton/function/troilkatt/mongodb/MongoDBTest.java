@@ -74,15 +74,17 @@ public class MongoDBTest {
 			BasicDBObject entry3 = new BasicDBObject("id", "baz");
 			entry3.append("CAPS", "BAZ");
 			entry3.append("seqNumber", 2);
-			entry3.append("type", "basic");
+			entry3.append("type", "special");
 			coll.insert(entry3);
 			
-			// Update entry
-			BasicDBObject query = new BasicDBObject("id", "baz");
-			BasicDBObject entry3u = new BasicDBObject("id", "baz");
-			entry3u.append("CAPS", "BAZ");
+			// Update entry				
+			BasicDBObject entry3u = new BasicDBObject("id", "baz");						
+			// Note! Update all fields on "old" entry must be added to new entry
+			DBCursor cursor = coll.find(new BasicDBObject("id", "baz"));
+			DBObject firstEntry = cursor.next();
+			entry3u.putAll(firstEntry.toMap());			
+			BasicDBObject query = new BasicDBObject("id", "baz");	
 			entry3u.append("seqNumber", 3);
-			entry3u.append("type", "speical");
 			coll.update(query, entry3u);
 			
 			// Overwrite entry
