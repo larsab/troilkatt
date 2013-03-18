@@ -39,7 +39,7 @@ public class GSMOverlap {
 		// key: gid1\tgid2, where gid1 < gid2
 		// value: list of overlapping gsm IDs
 		HashMap<String, ArrayList<String>> overlappingSamples = new HashMap<String, ArrayList<String>>();
-		// Keep track of timestamps for each field
+		// Keep track of timestamps for each entry
 		HashMap<String, Long> gsm2timestamp = new HashMap<String, Long>();
 				
 		MongoClient mongoClient = new MongoClient(args[0]);
