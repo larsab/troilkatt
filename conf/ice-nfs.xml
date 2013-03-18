@@ -210,7 +210,7 @@
 	
 	<property>
 		<name>troilkatt.classpath</name>
-		<value>/home/larsab/troilkatt2/bin:/home/larsab/lib/java/log4j-1.2.jar:/home/larsab/lib/java/commons-compress.jar:/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar:/usr/lib/hbase/lib/hadoop-core.jar</value>
+		<value>/home/larsab/troilkatt2/bin:/home/larsab/lib/java/log4j-1.2.jar:/home/larsab/lib/java/commons-compress.jar:/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar:/usr/lib/hbase/lib/hadoop-core.jar:/home/larsab/lib/java/mongo-2.10.1.jar</value>
 		<description>
 
 			Classpath used by SGEStage for executing sge.ExecuteStage

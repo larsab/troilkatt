@@ -5,7 +5,7 @@
     <source>
 	<name>geo_gds_soft_dir</name>
 	<type>list_dir</type>
-    <arguments>/user/larsab/troilkatt/data/geo/gds/soft</arguments>	    
+    <arguments>/mnt/nas2/data/larsab/troilkatt/data/geo/gds/soft</arguments>	    
     <output-directory></output-directory>
 	    <compression-format></compression-format>
 	    <storage-time>-1</storage-time>	    
@@ -16,7 +16,7 @@
 		<stage>
 			<name>save_filelist</name>
 			<type>save_filelist</type>
-			<arguments>TROILKATT.GLOBALMETA_DIR/geo/gds.all</arguments>
+			<arguments>TROILKATT.GLOBALMETA_DIR/geo/gds-sge.all</arguments>
 			<output-directory></output-directory>
 			<compression-format></compression-format>
 			<storage-time>0</storage-time>
@@ -26,7 +26,7 @@
 	    <stage>
 			<name>soft2meta</name>
 			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.UpdateGEOMeta TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.meta 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2meta.error</arguments>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.UpdateGEOMeta TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.TIMESTAMP 10.1.1.1 > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.meta 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2meta.error</arguments>
 			<output-directory>geo/gds/meta</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>7</storage-time>
@@ -64,8 +64,8 @@
 	</pipeline>
 	
 	<sink>
-		<name>geo_gds_meta_sink</name>
-		<type>global_meta</type>
+		<name>geo_gds_meta_sink_sge</name>
+		<type>global_meta_sink</type>
 		<arguments></arguments>
 		<description>Copy overlap file to global-meta dir.</description>
 	</sink>
