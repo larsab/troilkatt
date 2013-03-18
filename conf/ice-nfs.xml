@@ -150,7 +150,7 @@
 	
 	<property>
 		<name>troilkatt.tfs.root.dir</name>
-		<value>/home/larsab/troilkatt/tfs-root</value>
+		<value>/mnt/nas2/data/larsab/troilkatt/tfs-root</value>
 		<description>
 		
 		    Old: /mnt/nas2/data/larsab/troilkatt
