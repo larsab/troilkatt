@@ -26,7 +26,7 @@
 	    <stage>
 			<name>soft2meta</name>
 			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.UpdateGEOMeta TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.TIMESTAMP 10.1.1.1 > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.meta 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2meta.error</arguments>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.UpdateGEOMeta TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.TIMESTAMP 10.1.1.1 > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.meta 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2meta.error</arguments>
 			<output-directory>geo/gds/meta</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>7</storage-time>

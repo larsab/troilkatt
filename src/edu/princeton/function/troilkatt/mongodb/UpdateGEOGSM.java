@@ -42,7 +42,7 @@ public class UpdateGEOGSM {
 
 		// sampleID to GDS/GSE mapping
 		HashMap<String, ArrayList<String>> gsm2gids = new HashMap<String, ArrayList<String>>();
-		// Keep track of timestamps for each field
+		// Keep track of timestamps for each entry
 		HashMap<String, Long> gid2timestamp = new HashMap<String, Long>();
 		
 		// Use a cursor to loop over all meta entries
