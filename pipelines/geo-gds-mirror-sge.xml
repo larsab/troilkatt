@@ -17,7 +17,7 @@
 	<source>
 		<name>geo_gds_soft_dir</name>
 		<type>list_dir</type>
-	    <arguments>/user/larsab/troilkatt/data/geo/gds/soft</arguments>	    
+	    <arguments>/mnt/nas2/data/larsab/troilkatt/data/geo/gds/soft</arguments>	    
 	    <output-directory></output-directory>
 	    <compression-format></compression-format>
 	    <storage-time>-1</storage-time>	    

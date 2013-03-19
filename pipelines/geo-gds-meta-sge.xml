@@ -12,8 +12,7 @@
 	    <description>Read in files from the GEO SOFT HDFS directory.</description>    
 	</source>
 	
-	<pipeline>	
-	<!-- 	
+	<pipeline>		
 		<stage>
 			<name>save_filelist</name>
 			<type>save_filelist</type>
@@ -24,7 +23,6 @@
 			<description>Save a list of input files in the global-meta dir. This list
 			is later used by the find_gsm_overlap stage</description>						
 		</stage>
-		 -->
 	    <stage>
 			<name>soft2meta</name>
 			<type>sge_stage</type>
