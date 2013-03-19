@@ -1,4 +1,4 @@
-package edu.princeton.function.troilkatt.mongodb;
+package edu.princeton.function.troilkatt.pipeline;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -6,30 +6,29 @@ import java.util.ArrayList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
 import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
-import edu.princeton.function.troilkatt.pipeline.Stage;
-import edu.princeton.function.troilkatt.pipeline.StageException;
-import edu.princeton.function.troilkatt.pipeline.StageInitException;
+import edu.princeton.function.troilkatt.mongodb.GeoMetaCollection;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 
 /**
 * Save the list of input files retrieved by this stage. Also output the input files
 * without any changes.
 */
-public class SaveFilelist extends Stage {
+public class SaveFilelistMongoDB extends Stage {
 	protected String serverAdr;
+	protected String filenameField;
 	
 	/**
 	 * The argument specifies the file in where the input file list is written. 
-	 *    
+	 *  
+	 * @param args mongodb.server field.key. Where mongodb.server is the IP address of the machine running the 
+	 * MongoDB server, and field.key is the field where the filenames are stored.
 	 * @param see description for super-class
 	 */
-	public SaveFilelist(int stageNum, String name, String args, 
+	public SaveFilelistMongoDB(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
 			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
@@ -38,7 +37,12 @@ public class SaveFilelist extends Stage {
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
 		
-		serverAdr = this.args;
+		String[] argsParts = this.args.split(" ");
+		if (argsParts.length != 2) {
+			throw new StageInitException("Invalid stage arguments: " + args);
+		}
+		serverAdr = argsParts[0];
+		filenameField = argsParts[1];
 	}
 	
 	/**
@@ -64,36 +68,19 @@ public class SaveFilelist extends Stage {
 		for (String f: inputHDFSFiles) {
 			String dsetID = FilenameUtils.getDsetID(f, true);
 			
-			DBCursor cursor = coll.find(new BasicDBObject("key", dsetID));
-			cursor.limit(0);
-			
-			if (cursor.count() == 0) {
-				System.err.println("No MongoDB entry for: " + dsetID);
-				System.exit(-1);
+			BasicDBObject entry = GeoMetaCollection.getNewestEntry(coll, dsetID);
+			if (entry == null) {
+				throw new StageException("Could not find MongoDB entry for: " + dsetID);
+			}
+			long entryTimestamp = GeoMetaCollection.getTimestamp(coll, entry);
+			if (entryTimestamp == -1) {
+				throw new StageException("Could not find timestamp for MongoDB entry: " + dsetID);
 			}
 			
-			// sort in descending order according to timestamp
-			cursor.sort(new BasicDBObject("timestamp", -1));
-			DBObject newestEntry = cursor.next();	
+			// Add filename
+			entry.append(filenameField, f);
 			
-			// extract timestamp from newest entry
-			String timestampStr = (String) newestEntry.get("timestamp");
-			if (timestampStr == null) {
-				throw new StageException("Invalid mongoDB entry: no timestamp field: " + newestEntry);
-			}
-			long entryTimestamp = Long.valueOf(timestampStr);
-			
-			BasicDBObject entry = new BasicDBObject("key", dsetID);
-			// Put existing fields to new entry
-			entry.putAll(newestEntry.toMap());
-			entry.append("files:pclFilename", f);
-			
-			BasicDBObject query = new BasicDBObject("key", dsetID);
-			// Add timestamp to make sure correct entry is updated
-			query.append("timestamp", entryTimestamp);
-			coll.update(query, entry);
-			// Note! no check on error value. If something goes wrong an exception seems to be thrown
-			// The javadoc does not specify the return value, including how to check for errors 
+			GeoMetaCollection.updateEntry(coll, dsetID, entryTimestamp, entry);			
 		}
 		
 		mongoClient.close();

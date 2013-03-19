@@ -2,6 +2,7 @@
 
 <!-- Mirror all GSD files from the GEO FTP server and convert these to the PCL format -->
 <dataset>	
+<!-- 	 
 	<source>
 		<name>geo_gds_mirror</name>
 		<type>geo_gds_mirror</type>
@@ -11,8 +12,8 @@
 	    <storage-time>-1</storage-time>
 	    <description>Mirror all dataset files from GEO and keep them forever.</description>    
 	</source>
+-->	 	 
 	 
-<!-- 	 	 
 	<source>
 		<name>geo_gds_soft_dir</name>
 		<type>list_dir</type>
@@ -22,7 +23,7 @@
 	    <storage-time>-1</storage-time>	    
 	    <description>Read in files from the GEO SOFT HDFS directory.</description>    
 	</source> 
--->	 
+
 	<pipeline>		
 	    <stage>
 			<name>soft2pcl</name>
@@ -32,6 +33,15 @@
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>
 			<description>Convert all downloaded SOFT files to the PCL format and keep them forever.</description>						
+		</stage>
+		<stage>
+			<name>save_filenames</name>
+			<type>save_filelist_mongodb</type>
+			<arguments>10.1.1.1 files:pclFilename</arguments>
+			<output-directory></output-directory>
+			<compression-format></compression-format>
+			<storage-time>-1</storage-time>
+			<description>Save PCL filenames in MongoDB.</description>						
 		</stage>
 		<stage>
 			<name>pcl2info</name>

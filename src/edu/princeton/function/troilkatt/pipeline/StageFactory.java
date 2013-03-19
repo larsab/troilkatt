@@ -21,7 +21,7 @@ public class StageFactory {
 		"mapreduce", "mapreduce_stage", "sge_stage",
 		"null_stage",
 		"find_gsm_overlap",
-		"save_filelist"};
+		"save_filelist", "save_filelist_mongodb"};
 	
 	/**
 	 * This function is called to create a new pipeline stage instance. 
@@ -145,6 +145,12 @@ public class StageFactory {
 	    }
 	    else if (type.equals("save_filelist")) {	     
 	    	return new SaveFilelist(stageNum, name, args, 
+	    			outputDirectory, compressionFormat, storageTime, 
+	    			localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+	    			pipeline);
+	    }
+	    else if (type.equals("save_filelist_mongodb")) {	     
+	    	return new SaveFilelistMongoDB(stageNum, name, args, 
 	    			outputDirectory, compressionFormat, storageTime, 
 	    			localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 	    			pipeline);
