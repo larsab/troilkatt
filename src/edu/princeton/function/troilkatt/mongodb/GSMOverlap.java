@@ -23,7 +23,7 @@ public class GSMOverlap {
 	
 	
 	/**
-	 * Update GEO GSM to GDS/GSE mappings
+	 * Find overlapping samples
 	 * 
 	 * @param args command line arguments
 	 *  0: mongodb hostname

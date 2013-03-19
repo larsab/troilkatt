@@ -33,7 +33,7 @@ public class AddGEOInfo {
 	 */
 	public static void main(String[] argv) throws ParseException, IOException {
 		if (argv.length < 3) {
-			System.err.println("Usage: java UpdateGEOMeta inputFilename.soft timestamp mongo.server.address");
+			System.err.println("Usage: java UpdateGEOMeta inputFilename.pcl timestamp mongo.server.address");
 			System.exit(2);
 		}
 		String inputFilename = argv[0];
@@ -65,8 +65,7 @@ public class AddGEOInfo {
 		
 		String dsetID = FilenameUtils.getDsetID(inputFilename, true);
 		BasicDBObject entry = new BasicDBObject("key", dsetID);
-		
-		entry.append("files:pclFilename", inputFilename);
+				
 		for (String k: results.keySet()) {
 			entry.append("calculated:" + k, results.get(k));			
 		}

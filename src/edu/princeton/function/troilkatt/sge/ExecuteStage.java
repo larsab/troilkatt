@@ -68,10 +68,8 @@ public class ExecuteStage {
 	 * Constructor
 	 * 
 	 * @param argsFilename filename of arguments file written by SGEStage
-	 * @param maxProcs maximum number of troilkatt processes that can be run on a node simustaneously
-	 * @param maxVMSize maximum virtual mameory size in megabytes
+	 * @param taskNumber SGE task number (1 to number-of-files)
 	 * @param jobID SGE job ID
-	 * @param taskID SGE task ID
 	 * 
 	 * @throws StageInitException 
 	 * @throws PipelineException 
@@ -182,8 +180,7 @@ public class ExecuteStage {
 
 		// Prepare input filelist for this task
 		ArrayList<String> myInputFiles = new ArrayList<String>();
-		myInputFiles.add(nfsInputFile);
-		
+		myInputFiles.add(nfsInputFile);		
 
 		/*
 		 * This stage overrides the process2 function to better control which files are
@@ -307,10 +304,7 @@ public class ExecuteStage {
 	/**
 	 * Arguments: [0] sgeArgsFilename
 	 *            [1] task number
-	 *            [2] maximum number of troilkatt workser processes per node
-	 *            [3] maximum virtual memory size per process in Megabytes
-	 *            [4] jobID
-	 *            [5] taskID 
+	 *            [2] jobID
 	 */
 	public static void main(String[] args) {		
 		if (args.length < 3) {
@@ -332,21 +326,20 @@ public class ExecuteStage {
 		try {
 			ExecuteStage o = new ExecuteStage(argsFilename, taskNumber, jobID);			
 			if (o.inputFiles.size() < taskNumber) {
-				System.out.println("Invalid task number: " + taskNumber + ", but only " + o.inputFiles.size() + " input files");
+				System.err.println("Invalid task number: " + taskNumber + ", but only " + o.inputFiles.size() + " input files");
 				System.exit(-1);
 			}
 			// Note! SGE task IDs start from 1, so task N+1 process the N'th input file
 			o.process2(o.inputFiles.get(taskNumber - 1));
 		} catch (StageInitException e1) {
-			System.out.println("Could not initialize stage: " + e1);
+			System.err.println("Could not initialize stage: " + e1);
 			e1.printStackTrace();
 			System.exit(-1);
 		} catch (StageException e) {
-			System.out.println("Could not execute stage: " + e);
+			System.err.println("Could not execute stage: " + e);
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		System.out.println("Done");
-		System.exit(0);
+		System.out.println("Done");		
 	}
 }

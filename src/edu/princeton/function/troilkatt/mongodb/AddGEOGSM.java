@@ -18,10 +18,10 @@ import com.mongodb.MongoClient;
  * Note! This should be run as a single process and not in parallel
  *
  */
-public class UpdateGEOGSM {
+public class AddGEOGSM {
 		
 	/**
-	 * Update GEO GSM to GDS/GSE mappings
+	 * Add GEO GSM to GDS/GSE mappings
 	 * 
 	 * @param argv command line arguments
 	 *  0: mongodb hostname

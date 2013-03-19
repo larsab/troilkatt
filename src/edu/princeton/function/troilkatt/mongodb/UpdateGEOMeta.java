@@ -25,14 +25,13 @@ public class UpdateGEOMeta {
 	 *  
 	 * @param argv command line arguments. 
 	 *  0: input filename (GSEXXX_family.soft or GDSXXX.soft)
-	 *  1: MongoDB server hostname 
-	 *  2: timestamp to add to MongoDB entries
+	 *  1: MongoDB server hostname 	 
 	 * @throws IOException 
 	 * @throws ParseException 
 	 */
 	public static void main(String[] argv) throws ParseException, IOException {
-		if (argv.length < 3) {
-			System.err.println("Usage: java UpdateGEOMeta inputFilename.soft timestamp mongo.server.address");
+		if (argv.length < 2) {
+			System.err.println("Usage: java UpdateGEOMeta inputFilename.soft mongo.server.address");
 			System.exit(2);
 		}
 
@@ -40,7 +39,7 @@ public class UpdateGEOMeta {
 		String inputFilename = argv[0];
 		parser.parseFile(inputFilename);		
 		
-		MongoClient mongoClient = new MongoClient(argv[2]);
+		MongoClient mongoClient = new MongoClient(argv[1]);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection coll = db.getCollection("geoMeta");
 		// Note! no check on getCollection return value, since these are not specified 
@@ -59,7 +58,10 @@ public class UpdateGEOMeta {
 		cursor.sort(new BasicDBObject("timestamp", -1));
 		DBObject newestEntry = cursor.next();		
 		
-		BasicDBObject entry = new BasicDBObject("key", dsetID);		
+		BasicDBObject entry = new BasicDBObject("key", dsetID);
+		// Put existing fields to new entry
+		entry.putAll(newestEntry.toMap());
+		
 		// Store meta values in MongoDB, but also output these to a meta-file (stdout)
 		for (String k: parser.singleKeys) {
 			String val = parser.getSingleValue(k);
@@ -84,9 +86,7 @@ public class UpdateGEOMeta {
 				entry.append("meta:" + k, valStr.replace("\t", "\n"));
 				System.out.println(k + ":" + valStr);				
 			}
-		}
-		
-		entry.putAll(newestEntry.toMap());
+		}		
 		
 		coll.update(new BasicDBObject("key", dsetID), entry);
 		// Note! no check on error value. If something goes wrong an exception seems to be thrown
