@@ -54,7 +54,7 @@
 		</stage>		 
 		<stage>
 			<name>find_gsm_overlap</name>
-			<type>find_gsm_overlap</type>
+			<type>find_gsm_overlap_mongodb</type>
 			<arguments>gds.excluded 3 3 TROILKATT.GLOBALMETA_DIR/geo/gds.all 10.1.1.1</arguments>
 			<output-directory>geo/gds/find-overlap</output-directory>
 			<compression-format>bz2</compression-format>
