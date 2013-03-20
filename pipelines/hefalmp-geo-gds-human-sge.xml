@@ -16,7 +16,7 @@
 	    <stage>
 			<name>remove_overlapping</name>
 			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclRemoveOverlap TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT TROILKATT.GLOBALMETA_DIR/geo-gds.excluded > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.error</arguments>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.PclRemoveOverlap TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT TROILKATT.GLOBALMETA_DIR/geo-gds.excluded > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.error</arguments>
 			<output-directory>hefalmp/gds/human/rmo</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>
@@ -24,8 +24,8 @@
 		</stage>
 		<stage>
 			<name>missing_values</name>			
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMissingValues 50 3 50</arguments>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclMissingValues 50 3 50 TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.map > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>hefalmp/gds/human/mv</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
@@ -33,8 +33,8 @@
 		</stage>
 		<stage>
 			<name>log_transform</name>			
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclLogTransform</arguments>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclLogTransform TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.log > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>hefalmp/gds/human/log</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
@@ -42,7 +42,7 @@
 		</stage>
 		<stage>
 			<name>knnimpute</name>
-			<type>mapreduce_stage</type>
+			<type>sge_stage</type>
 			<arguments>execute_per_file TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
 			<output-directory>hefalmp/gds/human/knn</output-directory>
 			<compression-format>bz2</compression-format>
@@ -52,8 +52,8 @@
 		
 		<stage>
 			<name>map_genes</name>
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMapGeneNames TROILKATT.GLOBALMETA_DIR/genes/hefalmp/hsa.map</arguments>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.tools.PclMapGeneNames TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.GLOBALMETA_DIR/genes/hefalmp/hsa.map TROILKATT.OUTPUT_DIR/TROILKATT.FILE.map > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>hefalmp/gds/human/map</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
@@ -62,8 +62,8 @@
 				
 		<stage>
 			<name>average_duplicates</name>
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMeanGenesThatAgree 0</arguments>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.tools.PclMeanGenesThatAgree TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.avg > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>hefalmp/gds/human/avg</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>					
@@ -72,8 +72,8 @@
 		
 		<stage>
 			<name>cleanup_consolidation</name>
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclCleanupConsolidation</arguments>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclCleanupConsolidation TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.final.pcl > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>hefalmp/gds/human/final</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>									
@@ -82,7 +82,7 @@
 	</pipeline>
 	
 	<sink>
-		<name>geo_gds_pcl_sink</name>
+		<name>geo_gds_pcl_sink_sge</name>
 		<type>null_sink</type>
 		<arguments></arguments>
 		<description>There is no sink for the final PCL files.</description>

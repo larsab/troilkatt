@@ -65,6 +65,8 @@ public class GeoMetaCollection {
 	 * @return none
 	 */
 	public static void updateEntry(DBCollection coll, String dsetID, long timestamp, BasicDBObject entry) {
+		System.out.println("Update entry: " + dsetID + "with timestamp: " + timestamp);
+		
 		BasicDBObject query = new BasicDBObject("key", dsetID);
 		// Add timestamp to make sure correct entry is updated
 		query.append("timestamp", timestamp);
