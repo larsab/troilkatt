@@ -20,7 +20,7 @@ public class StageFactory {
 		"script_per_file", "script_per_file_mr", "script_per_dir", 
 		"mapreduce", "mapreduce_stage", "sge_stage",
 		"null_stage",
-		"find_gsm_overlap",
+		"find_gsm_overlap", "find_gsm_overlap_mongodb",
 		"save_filelist", "save_filelist_mongodb"};
 	
 	/**
@@ -139,6 +139,12 @@ public class StageFactory {
 	    }
 	    else if (type.equals("find_gsm_overlap")) {	     
 		     return new FindGSMOverlap(stageNum, name, args, 
+						outputDirectory, compressionFormat, storageTime, 
+						localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+						pipeline);
+	    }
+	    else if (type.equals("find_gsm_overlap_mongodb")) {	     
+		     return new FindGSMOverlapMongoDB(stageNum, name, args, 
 						outputDirectory, compressionFormat, storageTime, 
 						localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 						pipeline);

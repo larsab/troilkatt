@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
@@ -46,21 +44,16 @@ public class UpdateGEOMeta {
 		// in the documentation
 		
 		String dsetID = FilenameUtils.getDsetID(inputFilename, true);
-		DBCursor cursor = coll.find(new BasicDBObject("key", dsetID));
-		cursor.limit(0);
-		
-		if (cursor.count() == 0) {
+		BasicDBObject entry = GeoMetaCollection.getNewestEntry(coll, dsetID);
+		if (entry == null) {
 			System.err.println("No MongoDB entry for: " + dsetID);
 			System.exit(-1);
 		}
-		
-		// sort in descending order according to timestamp
-		cursor.sort(new BasicDBObject("timestamp", -1));
-		DBObject newestEntry = cursor.next();		
-		
-		BasicDBObject entry = new BasicDBObject("key", dsetID);
-		// Put existing fields to new entry
-		entry.putAll(newestEntry.toMap());
+		long entryTimestamp = GeoMetaCollection.getTimestamp(entry);
+		if (entryTimestamp == -1) {
+			System.err.println("Could not find timestamp for MongoDB entry: " + dsetID);
+			System.exit(-1);
+		}
 		
 		// Store meta values in MongoDB, but also output these to a meta-file (stdout)
 		for (String k: parser.singleKeys) {
@@ -89,6 +82,7 @@ public class UpdateGEOMeta {
 		}		
 		
 		coll.update(new BasicDBObject("key", dsetID), entry);
+		GeoMetaCollection.updateEntry(coll, dsetID, entryTimestamp, entry);	
 		// Note! no check on error value. If something goes wrong an exception seems to be thrown
 		// The javadoc does not specify the return value, including how to check for errors 
 		

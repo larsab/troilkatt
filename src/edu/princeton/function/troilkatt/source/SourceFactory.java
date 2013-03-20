@@ -77,6 +77,9 @@ public class SourceFactory {
 	    else if (type.equals("hbase_source")) {
 		    return new HbaseSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
 		}
+	    else if (type.equals("mongodb_source")) {
+		    return new MongoDBSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		}
 	    else if (type.equals("href_source")) {
 		    return new HREFSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
 		}

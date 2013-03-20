@@ -31,14 +31,7 @@ public class GeoMetaCollection {
 		
 		// sort in descending order according to timestamp
 		cursor.sort(new BasicDBObject("timestamp", -1));
-		DBObject newestEntry = cursor.next();	
-		
-		// extract timestamp from newest entry
-		String timestampStr = (String) newestEntry.get("timestamp");
-		if (timestampStr == null) {
-			System.err.println("Invalid mongoDB entry: no timestamp field: " + newestEntry);
-			return null;
-		}
+		DBObject newestEntry = cursor.next();			
 		
 		BasicDBObject entry = new BasicDBObject("key", dsetID);
 		// Put existing fields to new entry
@@ -49,17 +42,16 @@ public class GeoMetaCollection {
 	/**
 	 * Return the timestamp of an entry
 	 * 
-	 * @param coll initialized geoMeta collection handle
 	 * @param entry 
 	 * @return timestamp on success or -1 if an entry could not be found for the given key
 	 */
-	public static long getTimestamp(DBCollection coll, DBObject entry) {
-		String timestampStr = (String) entry.get("timestamp");
-		if (timestampStr == null) {
+	public static long getTimestamp(DBObject entry) {
+		Object timestampObject = (Object) entry.get("timestamp");
+		if (timestampObject == null) {
 			System.err.println("Invalid mongoDB entry: no timestamp field: " + entry);
 			return -1;
 		}
-		return Long.valueOf(timestampStr);
+		return (Long) timestampObject;
 	}
 	
 	/**
@@ -79,5 +71,22 @@ public class GeoMetaCollection {
 		coll.update(query, entry);
 		// Note! no check on error value. If something goes wrong an exception seems to be thrown
 		// The javadoc does not specify the return value, including how to check for errors 
+	}
+	
+	/**
+	 * Return a field in the newest entry for a dataset
+	 * 
+	 * @param coll initialized geoMeta collection handle
+	 * @param dsetID key used to find entries
+	 * @param key field key
+	 * @param value for key. It is returned as an object. If an error occured null is returned.
+	 */
+	public static Object getField(DBCollection coll, String dsetID, String key) {
+		BasicDBObject entry = getNewestEntry(coll, dsetID);
+		if (entry == null) {
+			return null;
+		}
+		
+		return entry.get(key);
 	}
 }

@@ -40,6 +40,7 @@ public class GSMOverlap {
 		// value: list of overlapping gsm IDs
 		HashMap<String, ArrayList<String>> overlappingSamples = new HashMap<String, ArrayList<String>>();
 		// Keep track of timestamps for each entry
+		// DEBUG
 		HashMap<String, Long> gsm2timestamp = new HashMap<String, Long>();
 				
 		MongoClient mongoClient = new MongoClient(args[0]);
@@ -51,59 +52,55 @@ public class GSMOverlap {
 		// no limit, since the number of entries should be relatively low
 		cursor.limit(0); 
 		// sort in descending order according to timestamp
-		cursor.sort(new BasicDBObject("timestamp", -1));
-		try {
-		   while(cursor.hasNext()) {
-			   DBObject entry = cursor.next();
-			   			
-			   // Get GSM ID
-			   String gsm = (String) entry.get("id");
-			   if (gsm == null) {
-				   throw new RuntimeException("Invalid mongoDB entry: no meta:id field: " + entry);
-			   }
-			   
-			   // Make sure only the newest entry is used (the entries should be sorted by timestamp)
-				String timestampStr = (String) entry.get("timestamp");
-				if (timestampStr == null) {
-					throw new RuntimeException("Invalid mongoDB entry: no timestamp field: " + entry);
-				}
-				long entryTimestamp = Long.valueOf(timestampStr);
-				if (gsm2timestamp.containsKey(gsm)) {
-					if (entryTimestamp > gsm2timestamp.get(gsm)) {
-						throw new RuntimeException("Invalid mongoDB sort");
-					}
-					else {
-						continue;
-					}
+		cursor.sort(new BasicDBObject("timestamp", -1));		
+		while(cursor.hasNext()) {
+			DBObject entry = cursor.next();
+
+			// Get GSM ID
+			String gsm = (String) entry.get("id");
+			if (gsm == null) {
+				throw new RuntimeException("Invalid mongoDB entry: no meta:id field: " + entry);
+			}
+
+			// Make sure only the newest entry is used (the entries should be sorted by timestamp)
+			long entryTimestamp = GeoMetaCollection.getTimestamp(entry);
+			if (entryTimestamp == -1) {
+				throw new RuntimeException("Could not find timestamp for MongoDB entry: " + gsm);
+			}
+			if (gsm2timestamp.containsKey(gsm)) {
+				if (entryTimestamp > gsm2timestamp.get(gsm)) {
+					throw new RuntimeException("Invalid mongoDB sort");
 				}
 				else {
-					gsm2timestamp.put(gsm, entryTimestamp);
+					continue;
 				}
-			   
-			   // Get overlapping GSE IDs
-			   String inStr = (String) entry.get("in");
-			   String[] gids = inStr.split("\n");
-			   
-			   // Find pairwise overlapping samples
-			   Arrays.sort(gids);
-			   for (int i = 0; i < gids.length; i++) {
-				   for (int j = i + 1; j < gids.length; j++) {
-					   String key = gids[i] + "\t" + gids[j];
-					   ArrayList<String> gsms = overlappingSamples.get(key);
-					   if (gsms == null) { // key not found
-						   gsms = new ArrayList<String>();				
-						   overlappingSamples.put(key, gsms);
-					   }
-					   if (! gsms.contains(gsm)) {
-						   gsms.add(gsm);
-					   }
-				   }
-			   }
-		   }
-		} finally {
-		   cursor.close();
-		}
-		
+			}
+			else {
+				gsm2timestamp.put(gsm, entryTimestamp);
+			}
+
+			// Get overlapping GSE IDs
+			String inStr = (String) entry.get("in");
+			String[] gids = inStr.split("\n");
+
+			// Find pairwise overlapping samples
+			Arrays.sort(gids);
+			for (int i = 0; i < gids.length; i++) {
+				for (int j = i + 1; j < gids.length; j++) {
+					String key = gids[i] + "\t" + gids[j];
+					ArrayList<String> gsms = overlappingSamples.get(key);
+					if (gsms == null) { // key not found
+						gsms = new ArrayList<String>();				
+						overlappingSamples.put(key, gsms);
+					}
+					if (! gsms.contains(gsm)) {
+						gsms.add(gsm);
+					}
+				}
+			}
+		}		
+		cursor.close();		
+
 		// Write output file
 		DBCollection collMeta = db.getCollection("geoMeta");
 		for (String gidPair: overlappingSamples.keySet()) {

@@ -43,6 +43,7 @@ public class AddGEOGSM {
 		// sampleID to GDS/GSE mapping
 		HashMap<String, ArrayList<String>> gsm2gids = new HashMap<String, ArrayList<String>>();
 		// Keep track of timestamps for each entry
+		// DEBUG:
 		HashMap<String, Long> gid2timestamp = new HashMap<String, Long>();
 		
 		// Use a cursor to loop over all meta entries
@@ -61,11 +62,11 @@ public class AddGEOGSM {
 			}
 			
 			// Make sure only the newest entry is used (the entries should be sorted by timestamp)
-			String timestampStr = (String) entry.get("timestamp");
-			if (timestampStr == null) {
-				throw new RuntimeException("Invalid mongoDB entry: no timestamp field: " + entry);
-			}
-			long entryTimestamp = Long.valueOf(timestampStr);
+			long entryTimestamp = GeoMetaCollection.getTimestamp(entry);
+			if (entryTimestamp == -1) {
+				System.err.println("Could not find timestamp for MongoDB entry: " + gid);
+				System.exit(-1);
+			}			
 			if (gid2timestamp.containsKey(gid)) {
 				if (entryTimestamp > gid2timestamp.get(gid)) {
 					throw new RuntimeException("Invalid mongoDB sort");

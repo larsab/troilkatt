@@ -72,7 +72,7 @@ public class SaveFilelistMongoDB extends Stage {
 			if (entry == null) {
 				throw new StageException("Could not find MongoDB entry for: " + dsetID);
 			}
-			long entryTimestamp = GeoMetaCollection.getTimestamp(coll, entry);
+			long entryTimestamp = GeoMetaCollection.getTimestamp(entry);
 			if (entryTimestamp == -1) {
 				throw new StageException("Could not find timestamp for MongoDB entry: " + dsetID);
 			}
@@ -80,7 +80,7 @@ public class SaveFilelistMongoDB extends Stage {
 			// Add filename
 			entry.append(filenameField, f);
 			
-			GeoMetaCollection.updateEntry(coll, dsetID, entryTimestamp, entry);			
+			GeoMetaCollection.updateEntry(coll, dsetID, entryTimestamp, entry);		
 		}
 		
 		mongoClient.close();
