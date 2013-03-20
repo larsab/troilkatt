@@ -36,6 +36,9 @@ public class GSMOverlap {
 			System.exit(2);
 		}
 		
+		gid2meta = new HashMap<String, String>();
+		gid2nSamples = new HashMap<String, Integer>();
+		
 		// key: gid1\tgid2, where gid1 < gid2
 		// value: list of overlapping gsm IDs
 		HashMap<String, ArrayList<String>> overlappingSamples = new HashMap<String, ArrayList<String>>();
@@ -150,23 +153,19 @@ public class GSMOverlap {
 			return gid2meta.get(gid); 
 		}
 		
-		BasicDBObject query = new BasicDBObject("id", gid);
-		DBCursor cursor = collMeta.find(query);
-		if (cursor.size() != 1) {
-			System.err.println("None or multiple entries for: " + gid + "(" + cursor.size() + ")");
-			return null;
+		BasicDBObject result = GeoMetaCollection.getNewestEntry(collMeta, gid);
+		if (result == null) {
+			System.err.println("No MongoDB entry found for: " + gid);
 		}
-		DBObject result = cursor.next();		       
-		cursor.close();
 		
-		String orgString = (String)result.get("meta:organisms");
+		String orgString = (String) result.get("meta:organisms");
 		if (orgString == null) {
 			System.err.println("Null value for meta:organisms column in row: " + gid);
 			return null;
 		}
 		String[] orgs = orgString.split("\n");
 		
-		String date = (String)result.get("meta:date");
+		String date = (String) result.get("meta:date");
 		if (date == null) {
 			System.err.println("Could not read date from meta data");
 			return null;

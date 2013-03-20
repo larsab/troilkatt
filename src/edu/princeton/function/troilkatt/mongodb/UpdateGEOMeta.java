@@ -80,8 +80,7 @@ public class UpdateGEOMeta {
 				System.out.println(k + ":" + valStr);				
 			}
 		}		
-		
-		coll.update(new BasicDBObject("key", dsetID), entry);
+				
 		GeoMetaCollection.updateEntry(coll, dsetID, entryTimestamp, entry);	
 		// Note! no check on error value. If something goes wrong an exception seems to be thrown
 		// The javadoc does not specify the return value, including how to check for errors 

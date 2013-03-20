@@ -56,9 +56,9 @@ public class AddGEOGSM {
 			DBObject entry = cursor.next();
 
 			// Get GDS or GSE ID
-			String gid = (String) entry.get("meta:id");
+			String gid = (String) entry.get("key");
 			if (gid == null) {
-				throw new RuntimeException("Invalid mongoDB entry: no meta:id field: " + entry);
+				throw new RuntimeException("Invalid mongoDB entry: no key field: " + entry);
 			}
 			
 			// Make sure only the newest entry is used (the entries should be sorted by timestamp)
