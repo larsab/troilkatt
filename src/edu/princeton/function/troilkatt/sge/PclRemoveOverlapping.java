@@ -1,4 +1,4 @@
-package edu.princeton.function.troilkatt.mongodb;
+package edu.princeton.function.troilkatt.sge;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.GeoGSMOverlap;
 
-public class SGEPclRemoveOverlapping {
+public class PclRemoveOverlapping {
 
 	public static void process(String inputFilename, String outputFilename, String overlapFilename) throws IOException {
 		// Datasets and samples to be deleted
