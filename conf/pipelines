@@ -23,8 +23,9 @@
 #pipelines/geo-gds-mirror.xml
 #pipelines/geo-gds-mirror-sge.xml
 #pipelines/geo-gds-meta.xml
-pipelines/geo-gds-meta-sge.xml
+#pipelines/geo-gds-meta-sge.xml
 #pipelines/hefalmp-geo-gds-human.xml
+pipelines/hefalmp-geo-gds-human-sge.xml
 #pipelines/hefalmp-geo-gds-mouse.xml
 #pipelines/hefalmp-geo-gds-rat.xml
 #pipelines/hefalmp-geo-gds-yeast.xml

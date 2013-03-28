@@ -5,7 +5,7 @@
 	<source>
 		<name>geo_meta</name>
 		<type>mongodb_source</type>
-	    <arguments>troilkatt-geo-meta meta:organisms 'Homo sapiens' meta:pclFilename</arguments>	    
+	    <arguments>10.1.1.1 geoMeta meta:organisms 'Homo sapiens' meta:pclFilename</arguments>	    
 	    <output-directory></output-directory>
 	    <compression-format></compression-format>
 	    <storage-time>-1</storage-time>	    
@@ -25,7 +25,7 @@
 		<stage>
 			<name>missing_values</name>			
 			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclMissingValues 50 3 50 TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.map > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclMissingValues 50 3 50 TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.map 10.1.1.1 > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>hefalmp/gds/human/mv</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
@@ -34,7 +34,7 @@
 		<stage>
 			<name>log_transform</name>			
 			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclLogTransform TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.log > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclLogTransform TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.log 10.1.1.1 > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>hefalmp/gds/human/log</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
@@ -43,7 +43,7 @@
 		<stage>
 			<name>knnimpute</name>
 			<type>sge_stage</type>
-			<arguments>execute_per_file TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
+			<arguments>execute_per_file 16 4096 TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
 			<output-directory>hefalmp/gds/human/knn</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>		
@@ -73,7 +73,7 @@
 		<stage>
 			<name>cleanup_consolidation</name>
 			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclCleanupConsolidation TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.final.pcl > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclCleanupConsolidation TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.final.pcl 10.1.1.1 > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>hefalmp/gds/human/final</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>									
