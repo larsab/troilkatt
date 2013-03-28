@@ -59,7 +59,7 @@ public class MongoDBSource extends Source {
 		whereKey = argsParts[2];
 		
 		try {
-			wherePattern = Pattern.compile(argsParts[4]);
+			wherePattern = Pattern.compile(argsParts[3]);
 		} catch (PatternSyntaxException e) {
 			logger.fatal("Invalid filter pattern: " + args);
 			throw new StageInitException("Invalid filter pattern: " + args);

@@ -19,7 +19,7 @@ import edu.princeton.function.troilkatt.tools.Pcl2Info;
  * 
  * Note that this will create a new entry in MongoDB
  */
-public class AddGEOInfo {
+public class UpdateGEOInfo {
 	
 	/**
 	 * Update GEO meta data by parsing a GEO GDS or GSE soft file.
@@ -32,22 +32,21 @@ public class AddGEOInfo {
 	 * @throws ParseException 
 	 */
 	public static void main(String[] argv) throws ParseException, IOException {
-		if (argv.length < 3) {
-			System.err.println("Usage: java UpdateGEOMeta inputFilename.pcl timestamp mongo.server.address");
+		if (argv.length < 2) {
+			System.err.println("Usage: java UpdateGEOMeta inputFilename.pcl mongo.server.address");
 			System.exit(2);
 		}
-		String inputFilename = argv[0];
-		long timestamp = Long.valueOf(argv[1]);
-		String serverAdr = argv[2];
+		String inputFilename = argv[0];		
+		String serverAdr = argv[1];
 		
 		/*
 		 * Do calculation
 		 */
-		BufferedReader ins = new BufferedReader(new FileReader(argv[0]));
+		BufferedReader ins = new BufferedReader(new FileReader(inputFilename));
 		Pcl2Info converter = new Pcl2Info();
 		HashMap<String, String> results = converter.calculate(ins);
 		ins.close();
-		converter.printInfoFile(argv[0]);
+		converter.printInfoFile(inputFilename);
 		
 		/*
 		 * Print calculated results to stdout
@@ -55,7 +54,7 @@ public class AddGEOInfo {
 		converter.printInfoFile(inputFilename);
 		
 		/*
-		 * Save calculated meta-data in a new MongoDB entry
+		 * Update MongoDB entry with calculated meta-data
 		 */	
 		MongoClient mongoClient = new MongoClient(serverAdr);
 		DB db = mongoClient.getDB( "troilkatt" );
@@ -64,14 +63,23 @@ public class AddGEOInfo {
 		// in the documentation
 		
 		String dsetID = FilenameUtils.getDsetID(inputFilename, true);
-		BasicDBObject entry = new BasicDBObject("key", dsetID);
+		BasicDBObject entry = GeoMetaCollection.getNewestEntry(coll, dsetID);			
+		if (entry == null) {
+			System.err.println("Could not find MongoDB entry for: " + dsetID);
+			System.exit(-1);
+		}		
 				
 		for (String k: results.keySet()) {
 			entry.append("calculated:" + k, results.get(k));			
 		}
-		entry.append("timestamp", timestamp);
 		
-		coll.insert(entry);
+		long entryTimestamp = GeoMetaCollection.getTimestamp(entry);
+		if (entryTimestamp == -1) {
+			System.err.println("Could not find timestamp for MongoDB entry: " + dsetID);
+			System.exit(-1);
+		}		
+						
+		GeoMetaCollection.updateEntry(coll, dsetID, entryTimestamp, entry);
 		// Note! no check on error value. If something goes wrong an exception seems to be thrown
 		// The javadoc does not specify the return value, including how to check for errors 
 		

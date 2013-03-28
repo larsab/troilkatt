@@ -29,6 +29,7 @@ import edu.princeton.function.troilkatt.sink.Sink;
 import edu.princeton.function.troilkatt.sink.SinkFactory;
 import edu.princeton.function.troilkatt.source.Source;
 import edu.princeton.function.troilkatt.source.SourceFactory;
+import edu.princeton.function.troilkatt.utils.Utils;
 
 /**
  * Place holder for a Troilkatt pipeline.
@@ -218,6 +219,7 @@ public class Pipeline {
 				status.setStatus(s.stageName, timestamp, "done");
 				
 				logger.info("Processed: " + inputFiles.size());
+				Utils.getYesOrNo("Enter to continue", true);
 			}
 	
 			// Execute sink

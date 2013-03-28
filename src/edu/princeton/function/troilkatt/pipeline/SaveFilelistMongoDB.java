@@ -68,19 +68,27 @@ public class SaveFilelistMongoDB extends Stage {
 		for (String f: inputHDFSFiles) {
 			String dsetID = FilenameUtils.getDsetID(f, true);
 			
-			BasicDBObject entry = GeoMetaCollection.getNewestEntry(coll, dsetID);
+			BasicDBObject entry = GeoMetaCollection.getNewestEntry(coll, dsetID);			
 			if (entry == null) {
-				throw new StageException("Could not find MongoDB entry for: " + dsetID);
+				logger.warn("Could not find MongoDB entry for: " + dsetID);				
+				entry =  new BasicDBObject("key", dsetID);
+				entry.append("timestamp", timestamp);
+				// Add filename
+				entry.append(filenameField, f);
+				// add entry to update
+				logger.info("Creating MongoDB entry for: " + dsetID);
+				coll.insert(entry);				
 			}
-			long entryTimestamp = GeoMetaCollection.getTimestamp(entry);
-			if (entryTimestamp == -1) {
-				throw new StageException("Could not find timestamp for MongoDB entry: " + dsetID);
+			else {
+				long entryTimestamp = GeoMetaCollection.getTimestamp(entry);
+				if (entryTimestamp == -1) {
+					throw new StageException("Could not find timestamp for MongoDB entry: " + dsetID);
+				}
+				// Add filename
+				entry.append(filenameField, f);
+				// and update entry
+				GeoMetaCollection.updateEntry(coll, dsetID, entryTimestamp, entry);
 			}
-			
-			// Add filename
-			entry.append(filenameField, f);
-			
-			GeoMetaCollection.updateEntry(coll, dsetID, entryTimestamp, entry);		
 		}
 		
 		mongoClient.close();
