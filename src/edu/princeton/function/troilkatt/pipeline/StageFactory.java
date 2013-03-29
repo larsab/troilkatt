@@ -17,7 +17,7 @@ public class StageFactory {
 	public static final String[] stageNames = {
 		"filter", 
 		"execute_per_dir",	"execute_per_file", "execute_per_file_mr", "execute_per_file_sge",
-		"script_per_file", "script_per_file_mr", "script_per_dir", 
+		"script_per_file", "script_per_file_mr", "script_per_file_sge", "script_per_dir", 
 		"mapreduce", "mapreduce_stage", "sge_stage",
 		"null_stage",
 		"find_gsm_overlap", "find_gsm_overlap_mongodb",
@@ -91,6 +91,12 @@ public class StageFactory {
 	    }
 	    else if (type.equals("script_per_file_mr")) {	        
 	        return new ScriptPerFileMR(stageNum, name, args, 
+					outputDirectory, compressionFormat, storageTime, 
+					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					pipeline);				
+	    }
+	    else if (type.equals("script_per_file_sge")) {	        
+	        return new ScriptPerFileSGE(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
 					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 					pipeline);				

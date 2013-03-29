@@ -39,8 +39,8 @@
 		</stage>
 		<stage>
 			<name>cel2pcl</name>
-			<type>mapreduce_stage</type>
-			<arguments>script_per_file /usr/bin/python TROILKATT.SCRIPTS/cel2pcl.py TROILKATT.BIN/R TROILKATT.SCRIPTS/R/ProcessCEL_MAS.R Mm</arguments>
+			<type>sge_stage</type>
+			<arguments>script_per_file 8 6000 /usr/bin/python TROILKATT.SCRIPTS/cel2pcl.py TROILKATT.BIN/R TROILKATT.SCRIPTS/R/ProcessCEL_MAS.R Mm</arguments>
 			<output-directory>imp/raw/mouse/pcl</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>
@@ -48,8 +48,8 @@
 		</stage>
 		<stage>
 			<name>missing_values</name>			
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMissingValues 50 3 50 0 0</arguments>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclMissingValues TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.map 50 3 50 10.1.1.1 > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
 			<output-directory>imp/raw/mouse/mv</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			

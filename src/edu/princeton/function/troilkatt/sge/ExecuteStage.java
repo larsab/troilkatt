@@ -16,6 +16,7 @@ import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 // for some statics functions that check and parse key-entry values
 import edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce;
 import edu.princeton.function.troilkatt.pipeline.ExecutePerFileSGE;
+import edu.princeton.function.troilkatt.pipeline.ScriptPerFileSGE;
 import edu.princeton.function.troilkatt.pipeline.Stage;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageFactory;
@@ -154,6 +155,10 @@ public class ExecuteStage {
 			
 			if (stage instanceof ExecutePerFileSGE) {
 				ExecutePerFileSGE sgeStage = (ExecutePerFileSGE) stage;
+				sgeStage.registerSGE(maxProcs, maxVMSize * 1024 * 1024, jobID);
+			}
+			else if (stage instanceof ScriptPerFileSGE) {
+				ScriptPerFileSGE sgeStage = (ScriptPerFileSGE) stage;
 				sgeStage.registerSGE(maxProcs, maxVMSize * 1024 * 1024, jobID);
 			}
 		} catch (PipelineException e) {
