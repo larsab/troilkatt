@@ -47,7 +47,7 @@ public class SGEPclMissingValues {
 		// Note! no check on getCollection return value, since these are not specified 
 		// in the documentation
 		
-		String zeroAreMVsStr = (String) GeoMetaCollection.getField(coll, gid, "meta:zerosAreMVs");
+		String zeroAreMVsStr = (String) GeoMetaCollection.getField(coll, gid, "calculated:zerosAreMVs");
 		if (zeroAreMVsStr == null) {
 			System.err.println("Could not read meta data for: " + gid);				
 			return;
@@ -55,7 +55,7 @@ public class SGEPclMissingValues {
 		boolean zerosAsMVs = zeroAreMVsStr.equals("1");
 		
 		
-		String mvCutoffStr = (String) GeoMetaCollection.getField(coll, gid, "meta:cutoff");
+		String mvCutoffStr = (String) GeoMetaCollection.getField(coll, gid, "calculated:cutoff");
 		if (mvCutoffStr == null) {
 			System.err.println("Could not read meta data for: " + gid);		
 			return;

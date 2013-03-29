@@ -54,7 +54,7 @@ public class SGEPclCleanupConsolidation {
 		// Note! no check on getCollection return value, since these are not specified 
 		// in the documentation
 		
-		String loggedStr = (String) GeoMetaCollection.getField(coll, gid, "meta:logged");
+		String loggedStr = (String) GeoMetaCollection.getField(coll, gid, "calculated:logged");
 		if (loggedStr == null) {
 			System.err.println("Could not read meta data for: " + gid);				
 			return;
