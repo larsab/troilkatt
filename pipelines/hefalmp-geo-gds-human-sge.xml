@@ -5,7 +5,7 @@
 	<source>
 		<name>geo_meta</name>
 		<type>mongodb_source</type>
-	    <arguments>10.1.1.1 geoMeta meta:organisms 'Homo sapiens' meta:pclFilename</arguments>	    
+	    <arguments>10.1.1.1 geoMeta meta:organisms 'Homo sapiens' files:pclFilename</arguments>
 	    <output-directory></output-directory>
 	    <compression-format></compression-format>
 	    <storage-time>-1</storage-time>	    
@@ -16,7 +16,7 @@
 	    <stage>
 			<name>remove_overlapping</name>
 			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.PclRemoveOverlap TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT TROILKATT.GLOBALMETA_DIR/geo-gds.excluded > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.error</arguments>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclRemoveOverlapping TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT 10.1.1.1 > TROILKATT.LOG_DIR/TROILKATT.FILE_NOEXT.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.error</arguments>
 			<output-directory>hefalmp/gds/human/rmo</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>
