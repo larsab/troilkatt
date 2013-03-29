@@ -1,0 +1,82 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Extract and analyze meta-data from GEO GSE files -->
+<dataset>	
+	<source>
+		<name>geo_gse_soft2_dir</name>
+		<type>list_dir</type>
+	    <arguments>/mnt/nas2/data/larsab/troilkatt/tfs-root/data/geo/gse/soft-gpl</arguments>	    
+	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Read in files from the platform specific GEO GSE SOFT HDFS directory.</description>    
+	</source>
+	
+	<pipeline>	
+	    <stage>                                                                                                                                                                 
+            <name>soft_filter</name>                                                                                                                    
+            <type>filter</type>                                                                                                                             
+            <arguments>.*\.soft</arguments>                                                                                                                 
+            <output-directory></output-directory>                                                                                                           
+            <compression-format></compression-format>                                                                                                       
+            <storage-time>-1</storage-time>                                                                                                                 
+            <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
+        </stage>
+		<stage>
+			<name>save_filelist</name>
+			<type>save_filelist</type>
+			<arguments>TROILKATT.GLOBALMETA_DIR/geo/gse-sge.all</arguments>
+			<output-directory></output-directory>
+			<compression-format></compression-format>
+			<storage-time>0</storage-time>
+			<description>Save a list of input files in the global-meta dir. This list
+			is later used by the find_gsm_overlap stage</description>						
+		</stage>
+	    <stage>
+			<name>soft2meta</name>
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.UpdateGEOMeta TROILKATT.INPUT_DIR/TROILKATT.FILE 10.1.1.1 > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.meta 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2meta.error</arguments>
+			<output-directory>geo/gse/meta</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>7</storage-time>
+			<description>Save output files (if any) for a couple of days. The actual output data is
+			saved in the Hbase meta table.</description>						
+		</stage>
+		<stage>
+			<name>meta2gsm</name>
+			<type>execute_per_dir</type>
+			<arguments>java -Xmx4096m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.AddGEOGSM TROILKATT.TIMESTAMP 10.1.1.1 > TROILKATT.LOG_DIR/meta2gsm.out 2> TROILKATT.LOG_DIR/meta2gsm.error</arguments>
+			<output-directory>geo/gse/gsm</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>7</storage-time>
+			<description>Save output files (if any) for a couple of days. The actual output data is
+			saved in the Meta table.</description>						
+		</stage>
+		<stage>
+			<name>gsm_overlap</name>
+			<type>execute_per_dir</type>
+			<arguments>java -Xmx4096m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.GSMOverlap 10.1.1.1 > TROILKATT.OUTPUT_DIR/gsm_overlap.out 2> TROILKATT.LOG_DIR/gsm_overlap.error</arguments>
+			<output-directory>geo/gse/gsm-overlap</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Save output files forever.</description>						
+		</stage>
+		<stage>
+			<name>find_gsm_overlap</name>
+			<type>find_gsm_overlap_mongodb</type>
+			<arguments>gse.excluded 3 3 TROILKATT.GLOBALMETA_DIR/geo/gse-sge.all 10.1.1.1</arguments>
+			<output-directory>geo/gse/find-overlap</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Save output files forever.</description>						
+		</stage>
+	</pipeline>
+	
+	<sink>
+		<name>geo_gse_meta_sink_sge</name>
+		<type>global_meta_sink</type>
+		<arguments></arguments>
+		<description>Copy overlap file to global-meta dir.</description>
+	</sink>
+				
+</dataset>

@@ -144,6 +144,8 @@ public class BatchPcl2Info extends PerFile {
 
 				update = new Put(Bytes.toBytes(dsetID));
 				update.add(Bytes.toBytes("files"), Bytes.toBytes("pclFilename"), Bytes.toBytes(inputFilename));
+				String dsetIDNoPlatform = FilenameUtils.getDsetID(inputFilename, false);
+				update.add(Bytes.toBytes("calculated"), Bytes.toBytes("id-noPlatform"), Bytes.toBytes(dsetIDNoPlatform));
 				for (String k: results.keySet()) {
 					update.add(colFam, Bytes.toBytes(k), Bytes.toBytes(results.get(k)));
 				}

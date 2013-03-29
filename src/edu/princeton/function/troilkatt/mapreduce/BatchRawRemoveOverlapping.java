@@ -23,7 +23,6 @@ import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.hbase.GeoMetaTableSchema;
 import edu.princeton.function.troilkatt.hbase.HbaseException;
@@ -64,7 +63,7 @@ public class BatchRawRemoveOverlapping extends PerFile {
 		protected Counter writeErrors;
 
 		// The file that contains the dataset/series and samples to delete
-		protected String filename;
+		//protected String filename;
 		
 		// Table handle	
 		protected HTable metaTable;
@@ -88,14 +87,14 @@ public class BatchRawRemoveOverlapping extends PerFile {
 			readErrors = context.getCounter(BatchCounters.READ_ERRORS);
 			writeErrors = context.getCounter(BatchCounters.WRITE_ERRORS);	
 
-			String stageArgs = TroilkattMapReduce.confEget(conf, "troilkatt.stage.args");
-			try {
-				filename = TroilkattMapReduce.setTroilkattSymbols(stageArgs, 
-						conf, jobID, taskAttemptID, troilkattProperties, mapLogger);
-			} catch (TroilkattPropertiesException e) {
-				mapLogger.fatal("Invalid properties file", e);				
-				throw new IOException("Could not read the properties file");
-			}	
+			//String stageArgs = TroilkattMapReduce.confEget(conf, "troilkatt.stage.args");
+			//try {
+			//	filename = TroilkattMapReduce.setTroilkattSymbols(stageArgs, 
+			//			conf, jobID, taskAttemptID, troilkattProperties, mapLogger);
+			//} catch (TroilkattPropertiesException e) {
+			//	mapLogger.fatal("Invalid properties file", e);				
+			//	throw new IOException("Could not read the properties file");
+			//}	
 			
 			/* Setup Htable */
 			Configuration hbConf = HBaseConfiguration.create();

@@ -5,7 +5,7 @@
     <source>
 	<name>geo_gds_soft_dir</name>
 	<type>list_dir</type>
-    <arguments>/mnt/nas2/data/larsab/troilkatt/data/geo/gds/soft</arguments>	    
+    <arguments>/mnt/nas2/data/larsab/troilkatt/tfs-root/data/geo/gds/soft</arguments>	    
     <output-directory></output-directory>
 	    <compression-format></compression-format>
 	    <storage-time>-1</storage-time>	    
@@ -55,7 +55,7 @@
 		<stage>
 			<name>find_gsm_overlap</name>
 			<type>find_gsm_overlap_mongodb</type>
-			<arguments>gds.excluded 3 3 TROILKATT.GLOBALMETA_DIR/geo/gds.all 10.1.1.1</arguments>
+			<arguments>gds.excluded 3 3 TROILKATT.GLOBALMETA_DIR/geo/gds-sge.all 10.1.1.1</arguments>
 			<output-directory>geo/gds/find-overlap</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>
