@@ -11,32 +11,59 @@ import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
-import edu.princeton.function.troilkatt.tools.PclLogTransform;
+import edu.princeton.function.troilkatt.tools.PclExponentiate;
 
-public class SGEPclLogTransform {
+/**
+ * Expoentiate a PCL file
+ */
+public class SGEPclExponentiate {
 	/**
-	 * Helper function to copy a file line by line
-	 * 
-	 * @param br source file
-	 * @param bw destination file
-	 * @return 
+	 * Do the log transform
 	 * @throws IOException 
 	 */
-	public static void copy(BufferedReader br, BufferedWriter bw) throws IOException {
+	static public void process(BufferedReader br, BufferedWriter bw) throws IOException {
+		int lineCnt = 0;
 		String line;
 		while ((line = br.readLine()) != null) {
-			bw.write(line + "\n");
+			lineCnt++;
+			line = line + "\n";
+			
+			if (lineCnt < 3) {
+				// Header or weight line
+				bw.write(line);
+				continue;
+			}
+			
+			String[] cols = line.split("\t");
+			if (cols.length < 3) {
+				System.err.println("Too few columns in row: " + line);
+				continue;
+			}
+			
+			cols[cols.length - 1] = cols[cols.length - 1].trim(); 
+			bw.write(cols[0] + "\t" + cols[1] + "\t" + cols[2]);
+			for (int i = 3; i < cols.length; i++) {
+				bw.write("\t");
+				try {
+					float val = Float.valueOf(cols[i]);
+					bw.write(String.valueOf(Math.exp(val)));
+				} catch (NumberFormatException e) {
+					// Blanks are missing values
+				}
+			}
+			bw.write("\n");			
 		}
 	}
-
+	
 	/**
-	 * @param args [0] inputFilename
-	 *             [1] outputFilename
-	 *             [2] MongoDB server address
+	 * @param args command line arguments
+	 * [0] input pcl file
+	 * [1] output pcl file
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws Exception {	
+	public static void main(String[] args) throws IOException {
 		if (args.length < 3) {
-			System.err.println("Usage: java SGEPclLogTransform inputFilename outputFilename mongoServerAddress");
+			System.err.println("Usage: java SGEPclExponentiate inputFilename outputFilename mongoServerAddress");
 			System.exit(2);
 		}
 		
@@ -72,15 +99,16 @@ public class SGEPclLogTransform {
 		 */
 		if (logged) { // already log transformed 
 			// nothing to do just copy the file
-			copy(br, bw);
+			SGEPclLogTransform.copy(br, bw);
 		}
 		else {
-			PclLogTransform.process(br, bw);
+			PclExponentiate.process(br, bw);
 		}
 		
 		bw.close();
 		br.close();
 		
-		mongoClient.close(); 				
+		mongoClient.close(); 		
 	}
+
 }

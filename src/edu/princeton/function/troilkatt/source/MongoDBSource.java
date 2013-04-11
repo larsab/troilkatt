@@ -8,6 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.log4j.Logger;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -69,6 +71,67 @@ public class MongoDBSource extends Source {
 	}
 	
 	/**
+	 * Helper function to scan a MongoDB collection using a regular expression. The code executes:
+	 * 
+	 * SELECT <selectKey>
+	 * WHERE  <whereKey> = whereRegExp
+	 * 
+	 * @param sk selectKey: field to return
+	 * @param wk whereKey: field to check
+	 * @param wre whereRegExp: regexp to use for the check
+	 * @param l optional Logger. null if no logger should be used
+	 * return value list with strings for the select field
+	 */
+	public static ArrayList<String> scanMongoDB(DBCursor cursor, String sk, String wk, Pattern wre, Logger l) {
+		ArrayList<String> returnVals = new ArrayList<String>();
+		
+		// Already checked entries
+		HashSet<String> keys = new HashSet<String>();
+		
+		while(cursor.hasNext()) {
+			DBObject entry = cursor.next();
+		
+			String whereVal = (String) entry.get(wk);
+			if (whereVal == null) {
+				if (l != null) {
+					l.warn("Ignoring row that does not include where field: " + wk);
+				}				
+				continue;
+			}
+			
+			Matcher matcher = wre.matcher(whereVal);
+			if (matcher.find() == false) { // no match		
+				continue;
+			}
+							
+			String selectVal = (String)entry.get(sk);
+			if (selectVal == null) {
+				if (l != null) {
+					l.warn("Ignoring row that does not include select field: " + sk);
+				}
+				continue;
+			}
+
+			String keyVal = (String) entry.get("key");
+			if (keyVal == null) {
+				if (l != null) {
+					l.error("Ignoring row that does not include key: " + entry);
+				}
+				continue;
+			}
+			
+			if (keys.contains(keyVal)) { // already checked this entry
+				continue;
+			}
+			
+			returnVals.add(selectVal);
+			keys.add(keyVal);
+		}
+		
+		return returnVals;
+	}
+	
+	/**
 	 * Retrieve a set of files to be processed by a pipeline. This function is periodically 
 	 * called from the main loop.
 	 * 
@@ -92,50 +155,13 @@ public class MongoDBSource extends Source {
 		DB db = mongoClient.getDB("troilkatt");
 		DBCollection coll = db.getCollection(collectionName);
 		
-		ArrayList<String> outputFiles = new ArrayList<String>();
-
 		DBCursor cursor = coll.find();
 		// no limit, since the number of entries should be relatively low
 		cursor.limit(0); 
 		// sort in descending order according to timestamp
 		cursor.sort(new BasicDBObject("timestamp", -1));
 		
-		// Already checked entries
-		HashSet<String> keys = new HashSet<String>();
-		
-		while(cursor.hasNext()) {
-			DBObject entry = cursor.next();
-		
-			String whereVal = (String) entry.get(whereKey);
-			if (whereVal == null) {
-				logger.warn("Ignoring row that does not include where field: " + whereKey);
-				continue;
-			}
-			
-			Matcher matcher = wherePattern.matcher(whereVal);
-			if (matcher.find() == false) { // no match		
-				continue;
-			}
-							
-			String selectVal = (String)entry.get(selectKey);
-			if (selectVal == null) {
-				logger.warn("Ignoring row that does not include select field: " + selectKey);
-				continue;
-			}
-
-			String keyVal = (String) entry.get("key");
-			if (keyVal == null) {
-				logger.error("Ignoring row that does not include key: " + entry);
-				continue;
-			}
-			
-			if (keys.contains(keyVal)) { // already checked this entry
-				continue;
-			}
-			
-			outputFiles.add(selectVal);
-			keys.add(keyVal);
-		}
+		ArrayList<String> outputFiles = scanMongoDB(cursor, selectKey, whereKey, wherePattern, logger);
 		
 		cursor.close();
 		mongoClient.close();
