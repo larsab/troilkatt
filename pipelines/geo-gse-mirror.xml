@@ -4,8 +4,8 @@
 <dataset>	
 <!-- 	
 	<source>
-		<name>geo_gse_mirror</name>
-		<type>geo_gse_mirror</type>
+            <name>geo_gse_mirror</name>
+	    <type>geo_gse_mirror</type>
 	    <arguments></arguments>
 	    <output-directory>geo/gse/soft</output-directory>
 	    <compression-format>gz</compression-format>
@@ -13,9 +13,9 @@
 	    <description>Mirror all series (GSEXXX) files from GEO and keep them forever.</description>    
 	</source>
 
-<source>
-		<name>geo_meta_source</name>
-		<type>hbase_source</type>
+        <source>
+	    <name>geo_meta_source</name>
+	    <type>hbase_source</type>
 	    <arguments>troilkatt-geo-meta meta:organisms 'Homo sapiens' files:softFilename</arguments>	    
 	    <output-directory></output-directory>
 	    <compression-format></compression-format>
@@ -33,36 +33,34 @@
         <compression-format></compression-format>
         <storage-time>-1</storage-time>
         <description>Read in files from the GEO GSE SOFT HDFS directory.</description>
-     </source>	 	 
-	 
-	<pipeline>	
-	
+     </source>
+	<pipeline>
 	    <stage>
-			<name>split</name>
-			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSESplit</arguments>
-			<output-directory>geo/gse/soft-gpl</output-directory>
-			<compression-format>bz2</compression-format>
-			<storage-time>0</storage-time>
-			<description>Do first stage of SOFT to PCL conversion.</description>						
-		</stage>
-		<stage>                                                                                                                                                                 
-            <name>soft_filter</name>                                                                                                                    
-            <type>filter</type>                                                                                                                             
-            <arguments>.*\.soft</arguments>                                                                                                                 
-            <output-directory></output-directory>                                                                                                           
-            <compression-format></compression-format>                                                                                                       
-            <storage-time>-1</storage-time>                                                                                                                 
-            <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
+		<name>split</name>
+		<type>mapreduce</type>
+		<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSESplit</arguments>
+		<output-directory>geo/gse/soft-gpl</output-directory>
+		<compression-format>bz2</compression-format>
+		<storage-time>0</storage-time>
+		<description>Do first stage of SOFT to PCL conversion.</description>
+	    </stage>
+	    <stage>
+                <name>soft_filter</name>
+                <type>filter</type>
+                <arguments>.*\.soft</arguments>
+                <output-directory></output-directory>
+                <compression-format></compression-format>
+                <storage-time>-1</storage-time>
+                <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
         </stage>
 <!-- 
          <stage>                                                                                                                                                                 
-            <name>null</name>                                                                                                                    
-            <type>null_stage</type>                                                                                                                             
-            <arguments></arguments>                                                                                                                 
-            <output-directory></output-directory>                                                                                                           
-            <compression-format></compression-format>                                                                                                       
-            <storage-time>0</storage-time>                                                                                                                 
+            <name>null</name>
+            <type>null_stage</type>
+            <arguments></arguments>
+            <output-directory></output-directory>
+            <compression-format></compression-format>
+            <storage-time>0</storage-time>
             <description>Null stage to keep stage numbering consistent.</description>                                                             
         </stage>
         <stage>                                                                                                                                                                 

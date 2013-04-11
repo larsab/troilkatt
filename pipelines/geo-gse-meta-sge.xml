@@ -3,7 +3,7 @@
 <!-- Extract and analyze meta-data from GEO GSE files -->
 <dataset>	
 	<source>
-		<name>geo_gse_soft2_dir</name>
+		<name>geo_gse_soft_dir</name>
 		<type>list_dir</type>
 	    <arguments>/mnt/nas2/data/larsab/troilkatt/tfs-root/data/geo/gse/soft-gpl</arguments>	    
 	    <output-directory></output-directory>
@@ -13,15 +13,6 @@
 	</source>
 	
 	<pipeline>	
-	    <stage>                                                                                                                                                                 
-            <name>soft_filter</name>                                                                                                                    
-            <type>filter</type>                                                                                                                             
-            <arguments>.*\.soft</arguments>                                                                                                                 
-            <output-directory></output-directory>                                                                                                           
-            <compression-format></compression-format>                                                                                                       
-            <storage-time>-1</storage-time>                                                                                                                 
-            <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
-        </stage>
 		<stage>
 			<name>save_filelist</name>
 			<type>save_filelist</type>

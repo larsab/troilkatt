@@ -49,7 +49,15 @@
 			<storage-time>14</storage-time>		
 			<description>Fill in missing values with their most likely values.</description>
 		</stage>
-		
+                <stage>
+			<name>exponentiate</name>			
+			<type>sge_stage</type>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclExponentiate TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.log 10.1.1.1 > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+			<output-directory>hefalmp/gds/human/log</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>			
+			<description>Log transform datasets that have not already been log transformed.</description>						
+		</stage>		
 		<stage>
 			<name>map_genes</name>
 			<type>sge_stage</type>
@@ -58,8 +66,7 @@
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
 			<description>Translate all gene names to a common standard</description>
-		</stage>
-				
+		</stage>				
 		<stage>
 			<name>average_duplicates</name>
 			<type>sge_stage</type>
@@ -78,7 +85,7 @@
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>									
 			<description>Final numeric cleanup and consolidation</description>
-		</stage>    
+		</stage>
 	</pipeline>
 	
 	<sink>
