@@ -1194,27 +1194,28 @@ public class GeoGSE2Pcl {
 			return false;
 		}		
 	}
-	
+		
 	/**
 	 * Convert a Series SOFT file to the PCL format
 	 * 
 	 * @param inputFilename input file
-	 * @param outputDir output directory
+	 * @param outputDir output directory	
 	 * @return none
 	 * @throws IOException
 	 * @throws ParseException 
 	 */	
 	public void convert(String inputFilename, String outputDir) throws IOException, ParseException {
-		BufferedReader ins = new BufferedReader(new FileReader(inputFilename));
-		stage1(ins, null); // do not write stage results
-		ins.close();
+		BufferedReader ins = new BufferedReader(new FileReader(inputFilename));						
+		// do not write stage results
+		stage1(ins, null);			
+		ins.close();		
 		System.out.println("Stage 1 done");
 	
 		String dsetID = FilenameUtils.getDsetID(inputFilename);
 		ArrayList<String> platformIDs = getPlatformIDs();
 		System.out.println("Run computation for N platforms: " + platformIDs.size());
 		for (String pid: platformIDs) {								
-			ins = new BufferedReader(new FileReader(inputFilename));
+			ins = new BufferedReader(new FileReader(inputFilename));			
 			stage2(ins, null, pid); // do not write output file
 			ins.close();			
 			System.out.println("Stage 2 done for platform: " + pid);		
@@ -1241,12 +1242,12 @@ public class GeoGSE2Pcl {
 	public static void main(String[] argv) throws IOException, ParseException {
 		
 		if (argv.length < 3) {
-			System.err.println("Usage: java GeoGSE2Pcl inputFilename outputDir log4j.properties");
+			System.err.println("Usage: java GeoGSE2Pcl inputFilename outputDir log4j.properties [serFilename]");
 			System.exit(-1);
 		}
 		PropertyConfigurator.configure(argv[2]);
 		Logger logger = Logger.getLogger("parse");
-		GeoGSE2Pcl gse2pcl = new GeoGSE2Pcl(logger);
+		GeoGSE2Pcl gse2pcl = new GeoGSE2Pcl(logger);		
 		gse2pcl.convert(argv[0], argv[1]);		
 	}
 }

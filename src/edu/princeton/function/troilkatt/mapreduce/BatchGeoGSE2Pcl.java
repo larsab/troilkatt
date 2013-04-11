@@ -130,7 +130,7 @@ public class BatchGeoGSE2Pcl extends PerFile {
 				serFilename = tfs.getFilenameDir(inputFilename) + "/" +  
 						FilenameUtils.getDsetID(inputFilename, true) + ".stage1.ser." + 
 						tfs.getFilenameTimestamp(inputFilename) + "." +
-						tfs.getFilenameCompression(inputFilename);
+						tfs.getFilenameCompression(inputFilename);				
 				
 				if (! tfs.isfile(serFilename)) {
 					mapLogger.fatal("File does not exist: " + serFilename);
@@ -150,6 +150,7 @@ public class BatchGeoGSE2Pcl extends PerFile {
 			FileInputStream fis = new FileInputStream(localSerFilename);
 			try {
 				parser.readStage1Results(fis);
+				fis.close();
 			} catch (ClassNotFoundException e) {
 				invalidInputFiles.increment(1);
 				mapLogger.fatal(e.getStackTrace());
