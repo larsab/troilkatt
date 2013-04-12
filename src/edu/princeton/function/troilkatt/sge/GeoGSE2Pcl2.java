@@ -29,7 +29,7 @@ public class GeoGSE2Pcl2 extends GeoGSE2Pcl {
 		String serFilename = OsPath.join(serDir, FilenameUtils.getDsetID(inputFilename, false)) + ".ser";
 		String dsetID = FilenameUtils.getDsetID(inputFilename);
 		String platformID = FilenameUtils.getPlatID(inputFilename);
-		String outputFilename = dsetID + ".pcl";
+		String outputFilename = OsPath.join(outputDir, dsetID + ".pcl");
 		
 		FileInputStream ser = null;
 		try {

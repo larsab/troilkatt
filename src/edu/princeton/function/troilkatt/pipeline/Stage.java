@@ -250,7 +250,6 @@ public class Stage {
  
 		// Always save log files and do cleanup
 		saveLogFiles(logFiles, timestamp);
-		// Do not cleanup in case of failure
 		cleanupLocalDirs();
 		cleanupHDFSDirs();
 		

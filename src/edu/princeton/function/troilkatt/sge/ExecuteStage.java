@@ -214,7 +214,7 @@ public class ExecuteStage {
 			// Accept some subtasks to fail
 		}
 
-		// Move all log files to task specific log directory, these are then saved in cleanup
+		// Move all log files to task specific log directory, these are then saved later
 		try {
 			String dstDir = OsPath.join(nfsLogDir, taskID);
 			tfs.mkdir(dstDir);
