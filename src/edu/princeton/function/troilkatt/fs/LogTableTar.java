@@ -91,7 +91,7 @@ public class LogTableTar extends LogTable {
 	 * @param logFiles log files to save
 	 * 
 	 * @throws StageException if file content could not be save in Hbase
-	 * @return number of files saved, or -1 if an error occired
+	 * @return number of files saved, or -1 if an error occured
 	 */
 	@Override
 	public int putLogFiles(String stageName, long timestamp, ArrayList<String> localFiles) throws StageException {		
@@ -102,6 +102,8 @@ public class LogTableTar extends LogTable {
 		
 		//	First make a temporary directory
 		String tmpSubdir = OsPath.join(tmpDir, String.valueOf(timestamp));
+		// and make sure it is empty
+		OsPath.deleteAll(tmpSubdir);
 		if (! OsPath.mkdir(tmpSubdir)) {
 			logger.fatal("Could not make tmp directory: " + tmpDir);
 		}
@@ -134,6 +136,9 @@ public class LogTableTar extends LogTable {
 			logger.fatal("Could not compress directory: " + tmpSubdir);						
 			return -1;
 		}
+		
+		// Deelte copied files
+		OsPath.deleteAll(tmpSubdir);
 		
 		return fileCnt;
 	}

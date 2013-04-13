@@ -61,7 +61,8 @@ public class MongoDBSource extends Source {
 		whereKey = argsParts[2];
 		
 		try {
-			wherePattern = Pattern.compile(argsParts[3]);
+			// All checks are for lowercase values
+			wherePattern = Pattern.compile(argsParts[3].toLowerCase());
 		} catch (PatternSyntaxException e) {
 			logger.fatal("Invalid filter pattern: " + args);
 			throw new StageInitException("Invalid filter pattern: " + args);
@@ -91,7 +92,7 @@ public class MongoDBSource extends Source {
 		while(cursor.hasNext()) {
 			DBObject entry = cursor.next();
 		
-			String whereVal = (String) entry.get(wk);
+			String whereVal = (String) entry.get(wk);			
 			if (whereVal == null) {
 				if (l != null) {
 					l.warn("Ignoring row that does not include where field: " + wk);
@@ -99,7 +100,8 @@ public class MongoDBSource extends Source {
 				continue;
 			}
 			
-			Matcher matcher = wre.matcher(whereVal);
+			// ignore case
+			Matcher matcher = wre.matcher(whereVal.toLowerCase());
 			if (matcher.find() == false) { // no match		
 				continue;
 			}

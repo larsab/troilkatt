@@ -8,8 +8,11 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 
+import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.GeoGDSParser;
+import edu.princeton.function.troilkatt.tools.GeoGSEParser;
+import edu.princeton.function.troilkatt.tools.GeoSoftParser;
 import edu.princeton.function.troilkatt.tools.ParseException;
 
 /**
@@ -32,10 +35,22 @@ public class UpdateGEOMeta {
 			System.err.println("Usage: java UpdateGEOMeta inputFilename.soft mongo.server.address");
 			System.exit(2);
 		}
-
-		GeoGDSParser parser = new GeoGDSParser();
+		
 		String inputFilename = argv[0];
-		parser.parseFile(inputFilename);		
+		String basename = OsPath.basename(inputFilename);
+		
+		GeoSoftParser parser = null;
+		if (basename.startsWith("GDS")) {
+			parser = new GeoGDSParser();
+		} 
+		else if (basename.startsWith("GSE")) {
+			parser = new GeoGSEParser();
+		}
+		else {
+			System.err.println("Invalid filename (does not start with GDS or GSE): " + basename);
+			System.exit(-1);
+		}
+		parser.parseFile(inputFilename);
 		
 		MongoClient mongoClient = new MongoClient(argv[1]);
 		DB db = mongoClient.getDB( "troilkatt" );

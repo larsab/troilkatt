@@ -27,7 +27,7 @@ import edu.princeton.function.troilkatt.pipeline.StageInitException;
  * Retrieves all raw files for an organism
  *
  */
-public class GeoRawOrgSGE extends GeoGDSMirror {
+public class GeoRawOrgMongoDB extends GeoGDSMirror {
 	public static final String rawFtpDir = "/pub/geo/DATA/supplementary/series";
 	
 	// Text file with the list of files that were returned by the retrieve() method in the last iteration
@@ -48,7 +48,7 @@ public class GeoRawOrgSGE extends GeoGDSMirror {
 	 * @param arguments [0] organism name (latin name in hypens such as 'Homo sapiens').
 	 *                  [1] MongoDB server address
 	 */
-	public GeoRawOrgSGE(String name, String arguments, String outputDir,
+	public GeoRawOrgMongoDB(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, 
 			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
 			Pipeline pipeline)

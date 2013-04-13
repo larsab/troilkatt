@@ -339,11 +339,14 @@ public class ExecuteStage {
 		} catch (StageInitException e1) {
 			System.err.println("Could not initialize stage: " + e1);
 			e1.printStackTrace();
+			// The stage initialization should not fail, so it the entire job should fail
 			System.exit(-1);
 		} catch (StageException e) {
 			System.err.println("Could not execute stage: " + e);
 			e.printStackTrace();
-			System.exit(-1);
+			// Failure are expected the program returns without an error code to let the 
+			// job succeed
+			System.exit(0);
 		}
 		System.out.println("Done");		
 	}
