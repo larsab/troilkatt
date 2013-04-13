@@ -24,6 +24,7 @@ import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 public class MongoDBSource extends Source {	
 	protected String serverAdr;
+	protected int serverPort;
 	protected String collectionName;
 	protected String whereKey;	
 	protected Pattern wherePattern;
@@ -48,17 +49,18 @@ public class MongoDBSource extends Source {
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
 				
 		String[] argsParts = splitArgs(this.args);
-		if (argsParts.length != 5) {
+		if (argsParts.length != 6) {
 			logger.error("Invalid arguments: ");
 			for (String p: argsParts) {
 				logger.error("\t" + p);
 			}
-			throw new StageInitException("Invalid number of arguments: expected 5, got " + argsParts.length);
+			throw new StageInitException("Invalid number of arguments: expected 6, got " + argsParts.length);
 		}
 		
 		serverAdr = argsParts[0];
-		collectionName = argsParts[1];		
-		whereKey = argsParts[2];
+		serverPort = Integer.valueOf(argsParts[1]);
+		collectionName = argsParts[2];		
+		whereKey = argsParts[3];
 		
 		try {
 			// All checks are for lowercase values
@@ -68,7 +70,7 @@ public class MongoDBSource extends Source {
 			throw new StageInitException("Invalid filter pattern: " + args);
 		}
 		
-		selectKey = argsParts[4];
+		selectKey = argsParts[5];
 	}
 	
 	/**
@@ -149,7 +151,7 @@ public class MongoDBSource extends Source {
 		
 		MongoClient mongoClient;
 		try {
-			mongoClient = new MongoClient(serverAdr);
+			mongoClient = new MongoClient(serverAdr, serverPort);
 		} catch (UnknownHostException e1) {
 			logger.fatal("Could not connect to MongoDB server: " + e1);
 			throw new StageException("Could not connect to MongoDB server: " + e1.getMessage());
