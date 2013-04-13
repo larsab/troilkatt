@@ -187,8 +187,7 @@ public class Stage {
 			}
 		}
 		hdfsGlobalMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "global-meta");		
-		
-		//this.pipelineStageDir = pipeline.localFSDir; 
+				
 		setCreateLocalFSDirs(localRootDir);
 		try {
 			setCreateHDFSDirs(hdfsStageMetaDir, hdfsStageTmpDir);

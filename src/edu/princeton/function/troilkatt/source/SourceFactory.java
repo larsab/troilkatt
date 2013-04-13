@@ -59,6 +59,9 @@ public class SourceFactory {
 	    else if (type.equals("geo_raw_org")) {	        
 	        return new GeoRawOrg(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
 	    }
+	    else if (type.equals("geo_raw_org_mongodb")) {	        
+	        return new GeoRawOrgMongoDB(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	    }
 	    else if (type.equals("list_dir")) {	        
 	        return new ListDir(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
 	    }

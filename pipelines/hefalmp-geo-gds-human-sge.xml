@@ -76,7 +76,6 @@
 			<storage-time>14</storage-time>					
 			<description>Average together duplicate genes</description>
 		</stage>
-		
 		<stage>
 			<name>cleanup_consolidation</name>
 			<type>sge_stage</type>
@@ -86,8 +85,7 @@
 			<storage-time>-1</storage-time>									
 			<description>Final numeric cleanup and consolidation</description>
 		</stage>
-	</pipeline>
-	
+	</pipeline>	
 	<sink>
 		<name>geo_gds_pcl_sink_sge</name>
 		<type>null_sink</type>

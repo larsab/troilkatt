@@ -1,7 +1,5 @@
 package edu.princeton.function.troilkatt.tools;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -79,23 +77,7 @@ public class GeoGDSParser extends GeoSoftParser {
 		}
 
 		return vals;
-	}
-
-	/**
-	 * Parse a file
-	 * 
-	 * @param filename file to parse
-	 * @return None, but the global singleKeys and multiKeys are initialized
-	 * @throws IOException 
-	 */
-	public void parseFile(String filename) throws IOException {
-		BufferedReader ins = new BufferedReader(new FileReader(filename));		
-		String line;
-		while ((line = ins.readLine()) != null) {
-			parseLine(line);
-		}			
-		ins.close();
-	}
+	}	
 	
 	/**
 	 * Parse a GEO GDS soft file
