@@ -95,7 +95,7 @@ public class TroilkattMapReduceTest extends TestSuper {
 		mrs.saveMetaFiles(metaFiles, 740);
 		OsPath.delete(metaFilename);
 		
-		String hdfsTmpOutputDir = OsPath.join(mrs.hdfsTmpDir, "unitPipeline-005-mapreduce-unittest-741");
+		String hdfsTmpOutputDir = OsPath.join(mrs.tfsTmpDir, "unitPipeline-005-mapreduce-unittest-741");
 		mrs.writeMapReduceArgsFile(inputFiles, hdfsTmpOutputDir, 741);
 	}
 
@@ -367,7 +367,7 @@ public class TroilkattMapReduceTest extends TestSuper {
 	}
 	
 	@Test 
-	public void testGetTaskHDFSOutputDir() throws IOException {
+	public void testGetTasktfsOutputDir() throws IOException {
 		Configuration conf = new Configuration();		
 		conf.set("mapred.work.output.dir", hdfsOutput);
 		String hdfsTaskDir = TroilkattMapReduce.getTaskHDFSOutputDir(conf);
@@ -376,7 +376,7 @@ public class TroilkattMapReduceTest extends TestSuper {
 	
 	// Invalid configuration file
 	@Test(expected=IOException.class)
-	public void testGetTaskHDFSOutputDir2() throws IOException {
+	public void testGetTasktfsOutputDir2() throws IOException {
 		Configuration conf = new Configuration();				
 		String hdfsTaskDir = TroilkattMapReduce.getTaskHDFSOutputDir(conf);
 		assertTrue(tfs.isdir(hdfsTaskDir));
@@ -384,10 +384,10 @@ public class TroilkattMapReduceTest extends TestSuper {
 	
 	// invalid root dir
 	//@Test(expected=IOException.class)
-	//public void testGetTaskHDFSOutputDir3() throws IOException {
+	//public void testGetTasktfsOutputDir3() throws IOException {
 	//	Configuration conf = new Configuration();		
 	//	conf.set("mapred.work.output.dir", "/invalid/dir");
-	//	String hdfsTaskDir = TroilkattMapReduce.getTaskHDFSOutputDir(conf);
+	//	String hdfsTaskDir = TroilkattMapReduce.getTasktfsOutputDir(conf);
 	//	assertTrue(tfs.isdir(hdfsTaskDir));
 	//}
 	

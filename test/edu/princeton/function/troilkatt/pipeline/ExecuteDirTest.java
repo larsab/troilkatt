@@ -171,11 +171,11 @@ public class ExecuteDirTest extends TestSuper {
 				pipeline);
 		
 		// Make sure HDFS dirs are empty
-		tfs.deleteDir(stage.hdfsOutputDir);
-		tfs.mkdir(stage.hdfsOutputDir);	
+		tfs.deleteDir(stage.tfsOutputDir);
+		tfs.mkdir(stage.tfsOutputDir);	
 		//stage.logTable.schema.clearTable();
-		tfs.deleteDir(stage.hdfsMetaDir);
-		tfs.mkdir(stage.hdfsMetaDir);
+		tfs.deleteDir(stage.tfsMetaDir);
+		tfs.mkdir(stage.tfsMetaDir);
 		
 		ArrayList<String> inputFiles = tfs.listdirR("troilkatt/data/test/input");
 		assertEquals(6, inputFiles.size());		
@@ -199,10 +199,10 @@ public class ExecuteDirTest extends TestSuper {
 		assertTrue(outputFiles.get(0).endsWith("file1.202.gz"));
 		assertTrue(outputFiles.get(1).endsWith("file2.202.gz"));
 		assertTrue(outputFiles.get(5).endsWith("file6.202.gz"));
-		assertTrue(tfs.isfile(OsPath.join(stage.hdfsOutputDir, "file1.202.gz")));
-		assertTrue(tfs.isfile(OsPath.join(stage.hdfsOutputDir, "file2.202.gz")));
-		assertTrue(tfs.isfile(OsPath.join(stage.hdfsOutputDir, "file6.202.gz")));
-		assertTrue(tfs.isfile(OsPath.join(stage.hdfsMetaDir, "202.tar.gz")));
+		assertTrue(tfs.isfile(OsPath.join(stage.tfsOutputDir, "file1.202.gz")));
+		assertTrue(tfs.isfile(OsPath.join(stage.tfsOutputDir, "file2.202.gz")));
+		assertTrue(tfs.isfile(OsPath.join(stage.tfsOutputDir, "file6.202.gz")));
+		assertTrue(tfs.isfile(OsPath.join(stage.tfsMetaDir, "202.tar.gz")));
 		assertTrue(stage.logTable.containsFile(stage.stageName, 202, "executeDirTest.log"));	
 	}
 }

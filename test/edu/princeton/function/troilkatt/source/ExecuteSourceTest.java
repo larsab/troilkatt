@@ -107,11 +107,11 @@ public class ExecuteSourceTest extends TestSuper {
 				pipeline);
 		
 		// Make sure HDFS dirs are empty
-		tfs.deleteDir(source.hdfsOutputDir);
-		tfs.mkdir(source.hdfsOutputDir);
+		tfs.deleteDir(source.tfsOutputDir);
+		tfs.mkdir(source.tfsOutputDir);
 		source.logTable.schema.clearTable();		
-		tfs.deleteDir(source.hdfsMetaDir);
-		tfs.mkdir(source.hdfsMetaDir);
+		tfs.deleteDir(source.tfsMetaDir);
+		tfs.mkdir(source.tfsMetaDir);
 		
 		// Write arguments file to meta dir
 		String[] files = {OsPath.join(dataDir, "files/file1"),
@@ -134,8 +134,8 @@ public class ExecuteSourceTest extends TestSuper {
 		Collections.sort(outputFiles);
 		assertTrue(outputFiles.get(0).endsWith("file1.105.gz"));
 		assertTrue(outputFiles.get(1).endsWith("file2.105.gz"));
-		assertTrue(tfs.isfile(OsPath.join(source.hdfsOutputDir, "file1.105.gz")));
-		assertTrue(tfs.isfile(OsPath.join(source.hdfsOutputDir, "file2.105.gz")));
+		assertTrue(tfs.isfile(OsPath.join(source.tfsOutputDir, "file1.105.gz")));
+		assertTrue(tfs.isfile(OsPath.join(source.tfsOutputDir, "file2.105.gz")));
 	}
 
 	@Test
@@ -170,11 +170,11 @@ public class ExecuteSourceTest extends TestSuper {
 				pipeline);
 		
 		// Make sure HDFS dirs are empty
-		tfs.deleteDir(source.hdfsOutputDir);
-		tfs.mkdir(source.hdfsOutputDir);
+		tfs.deleteDir(source.tfsOutputDir);
+		tfs.mkdir(source.tfsOutputDir);
 		//source.logTable.schema.clearTable();
-		tfs.deleteDir(source.hdfsMetaDir);
-		tfs.mkdir(source.hdfsMetaDir);
+		tfs.deleteDir(source.tfsMetaDir);
+		tfs.mkdir(source.tfsMetaDir);
 		
 		// Write arguments file to meta dir
 		String[] files = {OsPath.join(dataDir, "files/file1"),
@@ -184,16 +184,16 @@ public class ExecuteSourceTest extends TestSuper {
 		ArrayList<String> metaFiles = new ArrayList<String>();
 		metaFiles.add(metaFilename);
 		source.saveMetaFiles(metaFiles, 105);
-		assertTrue(tfs.isfile(OsPath.join(source.hdfsMetaDir, "105.tar.gz")));
+		assertTrue(tfs.isfile(OsPath.join(source.tfsMetaDir, "105.tar.gz")));
 		
 		ArrayList<String> outputFiles = source.retrieve2(107);
 		assertEquals(2, outputFiles.size());		
 		Collections.sort(outputFiles);
 		assertTrue(outputFiles.get(0).endsWith("file1.107.gz"));
 		assertTrue(outputFiles.get(1).endsWith("file2.107.gz"));
-		assertTrue(tfs.isfile(OsPath.join(source.hdfsOutputDir, "file1.107.gz")));
-		assertTrue(tfs.isfile(OsPath.join(source.hdfsOutputDir, "file2.107.gz")));
-		assertTrue(tfs.isfile(OsPath.join(source.hdfsMetaDir, "107.tar.gz")));
+		assertTrue(tfs.isfile(OsPath.join(source.tfsOutputDir, "file1.107.gz")));
+		assertTrue(tfs.isfile(OsPath.join(source.tfsOutputDir, "file2.107.gz")));
+		assertTrue(tfs.isfile(OsPath.join(source.tfsMetaDir, "107.tar.gz")));
 		assertTrue(source.logTable.containsFile("000-executeSource", 107, "executeSourceTest.log"));
 	}
 }

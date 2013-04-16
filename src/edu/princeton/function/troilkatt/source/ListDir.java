@@ -9,9 +9,9 @@ import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 /**
- * Return a list of files in a HDFS directory. Note! that the listing is recursive 
+ * Return a list of files in a TFS directory. Note! that the listing is recursive 
  */
-public class ListDir extends HDFSSource {
+public class ListDir extends TFSSource {
 	protected String listDir;
 
 	/**    
@@ -19,10 +19,10 @@ public class ListDir extends HDFSSource {
 	 * @param arguments directory to list.
 	 */
 	public ListDir(String name, String arguments, String outputDir, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 
-		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		logger.debug("Initializing module");
 		
 		listDir = arguments;
@@ -49,7 +49,7 @@ public class ListDir extends HDFSSource {
 	 * @param inputFiles list of input files to process.
 	 * @param metaFiles meta data files
 	 * @param logFiles list for storing log files.
-	 * @return list of files in HDFS.
+	 * @return list of files in TFS.
 	 * @throws StageException thrown if stage cannot be executed.
 	 */
 	@Override

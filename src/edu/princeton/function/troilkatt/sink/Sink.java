@@ -22,15 +22,15 @@ public class Sink extends Stage {
 	 */
 	public Sink(int stageNum, String sinkName,
 			String args, 
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
-		super(stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);				
+		super(stageNum, sinkName, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);				
 	}
 
 	/**
 	 * Sink function called in main loop.
 	 * 
-	 * @param inputFile HDFS filename of input files to sink
+	 * @param inputFiles list of TFS filename of files to sink
 	 * @param timestamp of iteration
 	 * @throws StageException 
 	 */
@@ -53,7 +53,7 @@ public class Sink extends Stage {
 		// Save log files to BigTable and do cleanup
 		saveLogFiles(logFiles, timestamp);
 		cleanupLocalDirs();
-		cleanupHDFSDirs();
+		cleanupTFSDirs();
 		
 		if (eThrown != null) {			
 			throw eThrown;
@@ -65,7 +65,7 @@ public class Sink extends Stage {
 	/**
 	 * Function called to process data. Sub-classes must implement this function.    
 	 * 
-	 * @param inputFiles list of HDFS input files to sink.
+	 * @param inputFiles list of TFS input files to sink.
 	 * @param metaFiles list of meta files.
 	 * @param logFiles list for storing log files.
 	 * @return list of output files.
@@ -108,14 +108,6 @@ public class Sink extends Stage {
 		logger.fatal("Process() called for sink");
 		throw new RuntimeException("Process() called for sink");
 	}
-	
-	/**
-	 * Sink classes should download input files explicitely
-	 */
-	//public ArrayList<String> downloadInputFiles(ArrayList<String> hdfsFiles) throws StageException {
-	//	logger.fatal("downloadInputFiles() called for sink");
-	//	throw new RuntimeException("downloadInputFiles() called for sink");
-	//}
 	
 	/**
 	 * Sink classes should not save output files

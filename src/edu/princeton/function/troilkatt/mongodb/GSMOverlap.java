@@ -12,6 +12,10 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
  
+/**
+ * Find overlapping GEO samples. The gsm2gid MongoDB collection is used as input,
+ * and output is written to the geoMeta collection
+ */
 public class GSMOverlap {
 	/*
 	 *  Caches with meta data already read from the geoMetaTable
@@ -20,21 +24,24 @@ public class GSMOverlap {
 	protected static HashMap<String, String> gid2meta;
 	// key: GSE or GDS id, value: number of GSMs for series/dataset
 	protected static HashMap<String, Integer> gid2nSamples;
-	
-	
+		
 	/**
 	 * Find overlapping samples
 	 * 
 	 * @param args command line arguments
-	 *  0: mongodb hostname
+	 *  0: MongoDB server IP address
+	 *  1: MongoDB server listen port
 	 * @throws UnknownHostException 
 	 */
 	public static void main(String[] args) throws UnknownHostException {
 		// Read in GSM to GDS/GSE mappings
-		if (args.length < 1) {
-			System.err.println("Usage: java UpdateGEOGSM mongo.server.address");
+		if (args.length < 2) {
+			System.err.println("Usage: java UpdateGEOGSM mongo.server.ip mongo.server.port");
 			System.exit(2);
 		}
+		String serverAdr = args[0];
+		int serverPort = Integer.valueOf(args[1]);
+		
 		
 		gid2meta = new HashMap<String, String>();
 		gid2nSamples = new HashMap<String, Integer>();
@@ -46,7 +53,7 @@ public class GSMOverlap {
 		// DEBUG
 		HashMap<String, Long> gsm2timestamp = new HashMap<String, Long>();
 				
-		MongoClient mongoClient = new MongoClient(args[0]);
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection collGSM = db.getCollection("gsm2gid");	
 		
@@ -145,7 +152,8 @@ public class GSMOverlap {
 	/**
 	 * Get meta data string for a series/dataset, and update gid2meta and gid2nSamples
 	 * 
-	 * @param GSE or GDS id
+	 * @param collMeta MongoDB geoMeta collection hande
+	 * @param gid GSE or GDS id
 	 * @return meta-data string, or null if the meta-data could not be read from MongoDB
 	 */
 	private static String getMeta(DBCollection collMeta, String gid) {

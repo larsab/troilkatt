@@ -15,21 +15,21 @@ public class NullStage extends Stage {
 	 */
 	public NullStage(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 				pipeline);
 	}
 	
 	/**
 	 * The function is overriden since the stage does not do anything
 	 * 
-	 * @param inputHDFSFiles list of input files
+	 * @param inputTFSFiles list of input files
 	 * @return list of input files
 	 */
-	public ArrayList<String> process2(ArrayList<String> inputHDFSFiles, long timestamp) throws StageException {		
-		return inputHDFSFiles;
+	public ArrayList<String> process2(ArrayList<String> inputTFSFiles, long timestamp) throws StageException {		
+		return inputTFSFiles;
 	}
 }

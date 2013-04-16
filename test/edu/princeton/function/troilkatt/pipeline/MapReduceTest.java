@@ -123,7 +123,7 @@ public class MapReduceTest extends TestSuper {
 		assertEquals(hdfsTmpOutputDir, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "hdfs.output.dir"));		
 		assertEquals("gz", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "compression.format"));
 		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "storage.time")) == -1);			
-		assertEquals(mrs.hdfsMetaDir, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "hdfs.meta.dir"));	
+		assertEquals(mrs.tfsMetaDir, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "hdfs.meta.dir"));	
 		String mapreduceDir = troilkattProperties.get("troilkatt.localfs.mapreduce.dir");		
 		assertEquals(OsPath.join(mapreduceDir, "input"), TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "mapred.input.dir"));
 		assertEquals(OsPath.join(mapreduceDir, "output"), TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "mapred.output.dir"));
@@ -477,8 +477,8 @@ public class MapReduceTest extends TestSuper {
 		metaFiles.add(mapFilename);
 		metaFiles.add(reduceFilename);
 		
-		mrs.tfs.deleteDir(mrs.hdfsMetaDir);
-		mrs.tfs.mkdir(mrs.hdfsMetaDir);
+		mrs.tfs.deleteDir(mrs.tfsMetaDir);
+		mrs.tfs.mkdir(mrs.tfsMetaDir);
 		mrs.saveMetaFiles(metaFiles, timestamp - 1);
 		OsPath.delete(metaFilename);
 		return metaFiles;

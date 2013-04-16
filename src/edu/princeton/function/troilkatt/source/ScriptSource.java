@@ -22,9 +22,9 @@ public class ScriptSource extends ExecuteSource {
 	 */
 	public ScriptSource(String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
-		super(name, args, outputDirectory, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		super(name, args, outputDirectory, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		
 		String[] cmdParts = args.split(" ");
 		String newCmd = null;
@@ -73,7 +73,7 @@ public class ScriptSource extends ExecuteSource {
 	 * @param metaFiles list of meta files that have been copied to the local FS meta file
 	 * directory.
 	 * @param logFiles list for storing log files produced by the executed program.
-	 * @return list of output files in HDFS
+	 * @return list of output files in TFS
 	 */
 	@Override
 	protected ArrayList<String> retrieve(ArrayList<String> metaFiles, ArrayList<String> logFiles,

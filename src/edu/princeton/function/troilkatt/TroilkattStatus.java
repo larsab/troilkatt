@@ -27,9 +27,9 @@ import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 public class TroilkattStatus {
 	protected Logger logger = Logger.getLogger("troilkatt.status"); 
 	
-	/* Status path on local FS and HDFS */
+	/* Status path on local FS and HDFS/NFS */
 	protected String localFilename;      // Local filename: absolute name	
-	protected String persistentFilename; // HDFS filename: absolute name
+	protected String persistentFilename; // tfs filename: absolute name
 	
 	
 	// Set in constructor
@@ -39,7 +39,7 @@ public class TroilkattStatus {
 	 * Constructor.
 	 * 
 	 * Verify that Troilkatt status and timestamp files are on the local filesystem.
-	 * If not, either download the file from HDFS or create a new file.
+	 * If not, either download the file from tfs or create a new file.
 	 * 
 	 * @param tfsHandle TFS handle
 	 * @param troilkattProperties initialized TroilkattProperties object 

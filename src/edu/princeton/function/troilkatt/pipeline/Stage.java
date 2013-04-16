@@ -18,9 +18,9 @@ import edu.princeton.function.troilkatt.utils.Utils;
  * 
  * The main loop in Troilkatt calls the process2() function in this class that does the
  * following:  
- * 1. Download all files from HDFS to local GS 
+ * 1. Download all files from TFS to local GS 
  * 2. Call process functions that must be implemented by the sub-class to process the data
- * 3. Save all files in log, meta, and output directory to HDFS 
+ * 3. Save all files in log, meta, and output directory to TFS 
  * 4. Call cleanup() in previous stage
  * 
  * Subclasses that inherit from Stage must implement:
@@ -43,7 +43,8 @@ public class Stage {
 		"TROILKATT.BIN", "TROILKATT.UTILS", "TROILKATT.GLOBALMETA_DIR",
 		"TROILKATT.SCRIPTS", "TROILKATT.REDIRECT_OUTPUT", "TROILKATT.REDIRECT_ERROR",
 		"TROILKATT.REDIRECT_INPUT", "TROILKATT.SEPERATE_COMMAND",
-		"TROILKATT.FILE_NOEXT", "TROILKATT.FILE", "TROILKATT.JAR", "TROILKATT.CLASSPATH"};
+		"TROILKATT.FILE_NOEXT", "TROILKATT.FILE", "TROILKATT.JAR", "TROILKATT.CLASSPATH", 
+		"TROILKATT.MONGODB_SERVER_HOST", "TROILKATT.MONGODB_SERVER_PORT"};
 	
 	/* Each stage has three logfiles: filelist.log, output.log, and error.log.
 	 * The filelist.log automically created and contains a list of output files
@@ -74,14 +75,14 @@ public class Stage {
 	public String stageTmpDir;
 	public String stageOutputDir;
 	
-	// Directories in HDFS and Hbase tables
-	public String hdfsOutputDir;	//
+	// Directories in HDFS/NFS and Hbase tables/ log tar directory
+	public String tfsOutputDir;	//
 	public LogTable logTable;
-	//protected String hdfsPipelineMetaDir;
-	protected String hdfsGlobalMetaDir;
+	//protected String tfsPipelineMetaDir;
+	protected String tfsGlobalMetaDir;
 	// Set in the constructor
-	public String hdfsMetaDir;	
-	public String hdfsTmpDir;
+	public String tfsMetaDir;	
+	public String tfsTmpDir;
 		
 	protected TroilkattProperties troilkattProperties;
 	public Logger logger;	
@@ -93,46 +94,46 @@ public class Stage {
 	 * @param stageNum stage number in pipeline.
 	 * @param name name of the stage.
 	 * @param args stage specific arguments.
-	 * @param outputDirectory output directory in HDFS. The directory name is either relative to
-	 * the troilkatt root data directory, or absolute (starts with either "/" or "hdfs:/")
+	 * @param outputDirectory output directory in TFS. The directory name is either relative to
+	 * the troilkatt root data directory, or absolute (starts with either "/" or "hdfs://")
 	 * @param compressionFormat compression to use for output files
 	 * @param storageTime persistent storage time for output files in days. If -1 files
 	 * are stored forever. If zero files are deleted immediately after pipeline execution is done.
 	 * @param localRootDir directory on local FS used as root for saving temporal files
-	 * @param hdfsStageMetaDir meta file directory for this stage in HDFS.
-	 * @param hdfsStageTmpDir tmp directory for this stage in HDFS  (can be null).
+	 * @param tfsStageMetaDir meta file directory for this stage in tfs.
+	 * @param tfsStageTmpDir tmp directory for this stage in tfs  (can be null).
 	 * @param pipeline reference to the pipeline this stage belongs to.
 	 * @throws TroilkattPropertiesException if there is an error in the Troilkatt configuration file
 	 * @throws StageInitException if the stage cannot be initialized
 	 */
 	public Stage(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		
-		this(stageNum, name, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		this(stageNum, name, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		
 		// this.args is initialized below
 		if ((outputDirectory == null) || outputDirectory.isEmpty()) {
-			this.hdfsOutputDir = null;
+			this.tfsOutputDir = null;
 			logger.warn("Output directory not set for stage: " + name);						
 			this.compressionFormat = null;
 			this.storageTime = 0;
 		}
 		else {
 			if (outputDirectory.startsWith("/") || outputDirectory.startsWith("hdfs:/")) { // is absolute
-				this.hdfsOutputDir = outputDirectory;
+				this.tfsOutputDir = outputDirectory;
 			}
 			else { // is relative to root
-				this.hdfsOutputDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
+				this.tfsOutputDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 						OsPath.join("data", outputDirectory));
 			}
 			
 			// Create directory if it does not exist
 			try {
-				tfs.mkdir(this.hdfsOutputDir);
+				tfs.mkdir(this.tfsOutputDir);
 			} catch (IOException e) {
-				throw new StageInitException("Could not create output directory for stage: " + this.hdfsOutputDir);
+				throw new StageInitException("Could not create output directory for stage: " + this.tfsOutputDir);
 			}
 						
 			if (! TroilkattFS.isValidCompression(compressionFormat)) {
@@ -155,14 +156,14 @@ public class Stage {
 	 * @param name name of the stage.
 	 * @param args stage specific arguments.
 	 * @param localRootDir directory on local FS used as root for saving temporal files
-	 * @param hdfsStageMetaDir meta file directory for this stage in HDFS.
-	 * @param hdfsStageTmpDir tmp directory for this stage in HDFS  (can be null).
+	 * @param tfsStageMetaDir meta file directory for this stage in tfs.
+	 * @param tfsStageTmpDir tmp directory for this stage in tfs  (can be null).
 	 * @param pipeline pipeline reference to the pipeline this stage belongs to.	 
 	 * @throws TroilkattPropertiesException if there is an error in the Troilkatt configuration file.
 	 * @throws StageInitException if the stage cannot be initialized
 	 */
 	public Stage(int stageNum, String name, String args,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		
 		name = name.trim();
@@ -170,7 +171,7 @@ public class Stage {
 		this.stageName = String.format("%03d-%s", stageNum, name);		
 		// this.args is initialized below
 		
-		this.hdfsOutputDir = null;
+		this.tfsOutputDir = null;
 		this.compressionFormat = null;
 		this.storageTime = 0;
 				
@@ -186,14 +187,14 @@ public class Stage {
 				throw new StageInitException("Could not create global-meta directory: " + globalMetaDir);
 			}
 		}
-		hdfsGlobalMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "global-meta");		
+		tfsGlobalMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "global-meta");		
 				
 		setCreateLocalFSDirs(localRootDir);
 		try {
-			setCreateHDFSDirs(hdfsStageMetaDir, hdfsStageTmpDir);
+			setCreateTFSDirs(tfsStageMetaDir, tfsStageTmpDir);
 		} catch (IOException e) {
-			logger.fatal("Could not set (or create) HDFS directories: " + e);
-			throw new StageInitException("Could not set or create HDFS directories for stage");
+			logger.fatal("Could not set (or create) TFS directories: " + e);
+			throw new StageInitException("Could not set or create TFS directories for stage");
 		}
 		
 		// Set troilkatt variables in arguments string
@@ -209,37 +210,37 @@ public class Stage {
 	/**
 	 * Wrapper function called to process data that does the following:
 	 * 
-	 * 1. Download all files from HDFS to local GS 
+	 * 1. Download all files from TFS to local GS 
 	 * 2. Call process functions that must be implemented by the sub-class to process the data
-	 * 3. Save all files in log, meta, and output directory to HDFS 
+	 * 3. Save all files in log, meta, and output directory to TFS 
 	 * 4. Delete tmp files
  	 *
- 	 * @param inputHDFSFiles list of input files to process. The list contains HDFS filenames. 
+ 	 * @param inputTFSFiles list of input files to process. The list contains HDFS filenames. 
 	 * @param timestamp timestamp added to output files.
 	 * @return list of output HDFS filenames
 	 * @throws StageException 
 	 */
-	public ArrayList<String> process2(ArrayList<String> inputHDFSFiles, long timestamp) throws StageException {
+	public ArrayList<String> process2(ArrayList<String> inputTFSFiles, long timestamp) throws StageException {
 		logger.debug("Start process2() at " + timestamp);
 
 		// Download input and meta files
-		ArrayList<String> inputFiles = downloadInputFiles(inputHDFSFiles);
+		ArrayList<String> inputFiles = downloadInputFiles(inputTFSFiles);
 		ArrayList<String> metaFiles = downloadMetaFiles();
 		ArrayList<String> logFiles = new ArrayList<String>();
 		
 		// Do processing		
 		ArrayList<String> outputFiles = null;
 		StageException eThrown = null; // set to true in case of excpeption in process()
-		ArrayList<String> hdfsOutputFiles = null;
+		ArrayList<String> tfsOutputFiles = null;
 		try {
 			outputFiles = process(inputFiles, metaFiles, logFiles, timestamp);
 			// Only save output and meta files if job succeeded
-			if (hdfsOutputDir != null) {
-				hdfsOutputFiles = saveOutputFiles(outputFiles, timestamp);
+			if (tfsOutputDir != null) {
+				tfsOutputFiles = saveOutputFiles(outputFiles, timestamp);
 			}
 			else { // no output files should be saved
 				logger.warn("Stage does not produce any output data");
-				hdfsOutputFiles = new ArrayList<String>();
+				tfsOutputFiles = new ArrayList<String>();
 			}
 			saveMetaFiles(metaFiles, timestamp);
 			logger.debug("Process2() done at " + timestamp);
@@ -250,14 +251,14 @@ public class Stage {
 		// Always save log files and do cleanup
 		saveLogFiles(logFiles, timestamp);
 		cleanupLocalDirs();
-		cleanupHDFSDirs();
+		cleanupTFSDirs();
 		
 		if (eThrown != null) {
 			// Log files saved so we can now throw exception
 			throw eThrown;
 		}
 				
-		return hdfsOutputFiles;
+		return tfsOutputFiles;
 	}
 
 	/**
@@ -272,12 +273,12 @@ public class Stage {
 	public  ArrayList<String> recover( ArrayList<String> inputFiles, long timestamp) throws StageException {
 		logger.debug("Recover stage at "  + timestamp);
 		
-		if ((hdfsOutputDir != null) && (! hdfsOutputDir.isEmpty())) {
+		if ((tfsOutputDir != null) && (! tfsOutputDir.isEmpty())) {
 			// Read files from previous iteration
 			try {
-				return tfs.listdirT(hdfsOutputDir, timestamp);
+				return tfs.listdirT(tfsOutputDir, timestamp);
 			} catch (IOException e) {
-				logger.fatal("Could not list files in outputdirectory: " + hdfsOutputDir, e);
+				logger.fatal("Could not list files in outputdirectory: " + tfsOutputDir, e);
 				throw new StageException("Could not recover files from last iteration");
 			}
 		}
@@ -331,41 +332,41 @@ public class Stage {
 	 * 
 	 * This function is only called from the constructor
 	 * 
-	 * @param hdfsStageMetaDir HDFS metafile directory for this stage 
-	 * @param hdfsStageTmpDir HDFS tmp directory for this stage (can be null)
+	 * @param tfsStageMetaDir tfs metafile directory for this stage 
+	 * @param tfsStageTmpDir tfs tmp directory for this stage (can be null)
 	 * @throws IOException 
 	 * @throws TroilkattPropertiesException 
 	 */
-	private void setCreateHDFSDirs(String hdfsStageMetaDir, String hdfsStageTmpDir) throws IOException, TroilkattPropertiesException {
-		//hdfsMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", stageNum, name));
-		hdfsMetaDir = hdfsStageMetaDir;
-		tfs.mkdir(hdfsMetaDir);
+	private void setCreateTFSDirs(String tfsStageMetaDir, String tfsStageTmpDir) throws IOException, TroilkattPropertiesException {
+		//tfsMetaDir = OsPath.join(tfsPipelineMetaDir, String.format("%03d-%s", stageNum, name));
+		tfsMetaDir = tfsStageMetaDir;
+		tfs.mkdir(tfsMetaDir);
 		
-		//hdfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
-		hdfsTmpDir = hdfsStageTmpDir;
+		//tfsTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
+		tfsTmpDir = tfsStageTmpDir;
 		
-		if (hdfsTmpDir != null) {
+		if (tfsTmpDir != null) {
 			// Delete any old files
-			if (tfs.isdir(hdfsTmpDir)) {
-				tfs.deleteDir(hdfsTmpDir);
+			if (tfs.isdir(tfsTmpDir)) {
+				tfs.deleteDir(tfsTmpDir);
 			}
-			tfs.mkdir(hdfsTmpDir);
+			tfs.mkdir(tfsTmpDir);
 		}
 	}
 
 	/**
-	 * Copy input files from HDFS to local FS.
+	 * Copy input files from TFS to local FS.
 	 *  
-	 * Note! All files in HDFS will be put in the same directory on local FS even if they are
-	 * in subdirectories in HDFS
+	 * Note! All files in TFS will be put in the same directory on local FS even if they are
+	 * in subdirectories in TFS
 	 *  
-	 * @param hdfsFiles list of files to download from HDFS
+	 * @param tfsFiles list of files to download from tfs
 	 * @return list of local filenames (absolute filenames)
 	 * @throws StageException if one or more files could not be downloaded
 	 */
-	public ArrayList<String> downloadInputFiles(ArrayList<String> hdfsFiles) throws StageException {
+	public ArrayList<String> downloadInputFiles(ArrayList<String> tfsFiles) throws StageException {
 		ArrayList<String> localFiles = new ArrayList<String>();
-		for (String f: hdfsFiles) {
+		for (String f: tfsFiles) {
 			String ln;
 			try {
 				ln = tfs.getFile(f, stageInputDir, stageTmpDir, stageLogDir);
@@ -374,7 +375,7 @@ public class Stage {
 				throw new StageException("Could not download file: " + f);
 			}
 			if (ln == null) {
-				throw new StageException("Could not copy file from HDFS: " + f);
+				throw new StageException("Could not copy file from TFS: " + f);
 			}
 			localFiles.add(ln);
 		}
@@ -382,7 +383,7 @@ public class Stage {
 	}
 	
 	/**
-	 * Copy  meta files from HDFS to local FS.
+	 * Copy  meta files from TFS to local FS.
 	 *  
 	 * @return list of downloaded filenames (local FS), or an empty list if the stage
 	 * does not have any metadata files.
@@ -390,13 +391,13 @@ public class Stage {
 	 */
 	public ArrayList<String> downloadMetaFiles() throws StageException {
 		try {
-			String newestMetaDir = tfs.getNewestDir(hdfsMetaDir);
+			String newestMetaDir = tfs.getNewestDir(tfsMetaDir);
 			if (newestMetaDir == null) {
 				logger.info("No meta-data for stage");
 				return new ArrayList<String>();
 			}
 			else {
-				ArrayList<String> metaFiles = tfs.getDirFiles(OsPath.join(hdfsMetaDir, newestMetaDir), stageMetaDir, stageLogDir, stageTmpDir);		
+				ArrayList<String> metaFiles = tfs.getDirFiles(OsPath.join(tfsMetaDir, newestMetaDir), stageMetaDir, stageLogDir, stageTmpDir);		
 				if (metaFiles == null) {
 					logger.fatal("Could not download meta file for stage");
 					throw new StageException("Could not download meta file for stage");
@@ -429,13 +430,13 @@ public class Stage {
 	 * Function called to save the output files created by this stage.
 	 * 
 	 * @param localFiles list of files on local FS to save
-	 * @return list of filenames in HDFS
+	 * @return list of filenames in TFS
 	 * @throws StageException if one or more files could not be saved
 	 */
 	 public ArrayList<String> saveOutputFiles(ArrayList<String> localFiles, long timestamp) throws StageException {
-		 ArrayList<String> hdfsFiles= new ArrayList<String>();
+		 ArrayList<String> tfsFiles= new ArrayList<String>();
 		
-		 if (hdfsOutputDir == null) {
+		 if (tfsOutputDir == null) {
 			 throw new RuntimeException("saveOutputFiles called for a stage where output directory is not set");
 		 }
 		 
@@ -443,19 +444,19 @@ public class Stage {
 			 logger.warn("No files to save");			
 		 }
 		 else {
-			 logger.info(String.format("Save %d files to HDFS", localFiles.size()));		
+			 logger.info(String.format("Save %d files to TFS", localFiles.size()));		
 
 			 // Save output files to the output directory specified in the 
 			 for (String f: localFiles) {
-				 String hdfsName = tfs.putLocalFile(f, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp); 
-				 if (hdfsName == null) {
-					 throw new StageException("Could not copy output file to HDFS: " + f);
+				 String tfsName = tfs.putLocalFile(f, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp); 
+				 if (tfsName == null) {
+					 throw new StageException("Could not copy output file to TFS: " + f);
 				 }
-				 hdfsFiles.add(hdfsName);
+				 tfsFiles.add(tfsName);
 			 }
 		 }
 
-		 return hdfsFiles;
+		 return tfsFiles;
 	 }
 	
 	/**
@@ -467,7 +468,7 @@ public class Stage {
 	 */
 	public void saveMetaFiles(ArrayList<String> metaFiles, long timestamp) throws StageException {
 		if (metaFiles.size() > 0) {
-			if (tfs.putLocalDirFiles(hdfsMetaDir, timestamp, metaFiles, META_COMPRESSION, stageLogDir, stageTmpDir) == false) {
+			if (tfs.putLocalDirFiles(tfsMetaDir, timestamp, metaFiles, META_COMPRESSION, stageLogDir, stageTmpDir) == false) {
 				throw new StageException("Could not save meta files");
 			}
 		}
@@ -483,7 +484,7 @@ public class Stage {
 	protected int saveLogFiles(ArrayList<String> logFiles, long timestamp) throws StageException {
 		if (logFiles.size() > 0) {
 			// The logfiles are saved in the tmp directory
-			//if (tfs.putDirFiles(hdfsLogDir, timestamp, logFiles, LOG_COMPRESSION, stageLogDir, stageTmpDir) == false) {
+			//if (tfs.putDirFiles(tfsLogDir, timestamp, logFiles, LOG_COMPRESSION, stageLogDir, stageTmpDir) == false) {
 			//	throw new StageException("Could not save log files");
 			//}
 			int nSaved = logTable.putLogFiles(stageName, timestamp, logFiles);
@@ -520,21 +521,21 @@ public class Stage {
 	}
 	
 	/**
-	 * This function is called when the processing is done. It deleted the content of the tmp directory created on HDFS.
+	 * This function is called when the processing is done. It deleted the content of the tmp directory created on TFS.
 	 * 
 	 * @throws StageException if all tmp files could not be deleted 
 	 */
-	protected void cleanupHDFSDirs() throws StageException {
+	protected void cleanupTFSDirs() throws StageException {
 		try {
-			if (tfs.isdir(hdfsTmpDir)) {			
-				if (tfs.deleteDir(hdfsTmpDir) == false) {
-					logger.warn("Could not delete HDFS directory: " + hdfsTmpDir);
-					throw new StageException("Cleanup failed: could not delete HDFS directory: " + hdfsTmpDir);
+			if (tfs.isdir(tfsTmpDir)) {			
+				if (tfs.deleteDir(tfsTmpDir) == false) {
+					logger.warn("Could not delete TFS directory: " + tfsTmpDir);
+					throw new StageException("Cleanup failed: could not delete TFS directory: " + tfsTmpDir);
 				}
 			}
 		} catch (IOException e) {
-			logger.warn("Could not delete HDFS directory: " + e.toString());
-			throw new StageException("Cleanup failed: I/O Exception while deleting HDFS directory: " + hdfsTmpDir);
+			logger.warn("Could not delete TFS directory: " + e.toString());
+			throw new StageException("Cleanup failed: I/O Exception while deleting tFS directory: " + tfsTmpDir);
 		}
 	}
 
@@ -662,6 +663,8 @@ public class Stage {
 				OsPath.normPath(prop.get("troilkatt.localfs.scripts.dir"), log));
 		newStr = newStr.replace("TROILKATT.JAR", prop.get("troilkatt.jar"));
 		newStr = newStr.replace("TROILKATT.CLASSPATH", prop.get("troilkatt.classpath"));
+		newStr = newStr.replace("TROILKATT.MONGODB_SERVER_HOST", prop.get("troilkatt.troilkatt.mongodb.server.host"));
+		newStr = newStr.replace("TROILKATT.MONGODB_SERVER_PORT", prop.get("troilkatt.troilkatt.mongodb.server.port"));
 
 		// Command line argument helpers
 		newStr = newStr.replace("TROILKATT.REDIRECT_OUTPUT", ">");

@@ -15,7 +15,7 @@ import edu.princeton.function.troilkatt.tools.FilenameUtils;
  * Compare the content of two directories A and B, and return a list of files that are 
  * only in directory A. For the comparison the filename extensions are removed. 
  */
-public class ListDirDiff extends HDFSSource {
+public class ListDirDiff extends TFSSource {
 	protected String srcDir;
 	protected String dstDir;
 	
@@ -24,9 +24,9 @@ public class ListDirDiff extends HDFSSource {
 	 * @param arguments directories A and B separated
 	 */
 	public ListDirDiff(String name, String arguments, String outputDir, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
-		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 
 		logger.debug("Initializing module");
 

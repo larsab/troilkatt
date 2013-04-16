@@ -38,6 +38,9 @@ public class TroilkattProperties {
 			"troilkatt.jar",
 			"troilkatt.libjars",
 			"troilkatt.classpath",
+			"troilkatt.sge.slots.per.node",
+			"troilkatt.mongodb.server.host",
+			"troilkatt.mongodb.server.port",
 			"troilkatt.container.bin"};
 	
 	/**

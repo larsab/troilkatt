@@ -19,11 +19,11 @@ public class CopyToLocalFS extends Sink {
 	 * See superclass for description of other arguments.
 	 */
 	public CopyToLocalFS(int stageNum, String sinkName, String args,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
 		
-		super(stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		super(stageNum, sinkName, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		outputDir = args;
 		
 		if (! OsPath.isdir(outputDir)) {
@@ -37,7 +37,7 @@ public class CopyToLocalFS extends Sink {
 	/**
 	 * Function called to copy data.    
 	 * 
-	 * @param inputFiles list of input files in HDFS to sink.
+	 * @param inputFiles list of input files in TFS to sink.
 	 * @param metaFiles ignored by this sink
 	 * @param logFiles ignored by this sink
 	 * @return list of output files.

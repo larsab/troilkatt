@@ -134,9 +134,9 @@ public class MapReduceStage extends MapReduce {
 			}
 			
 			try {
-				String dstName = OsPath.join(hdfsOutputDir, basename);
+				String dstName = OsPath.join(tfsOutputDir, basename);
 				if (tfs.renameFile(f, dstName) == false) {			
-					logger.warn("Could not move file: " + basename + ": to: " + hdfsOutputDir);
+					logger.warn("Could not move file: " + basename + ": to: " + tfsOutputDir);
 				}			
 				else {
 					outputFiles.add(dstName);

@@ -146,7 +146,7 @@ public class MapReduce extends Stage {
 			out.println("compression.format = " + compressionFormat);
 			out.println("storage.time = " + storageTime);
 			//out.println("hdfs.log.dir = " + hdfsLogDir);			
-			out.println("hdfs.meta.dir = " + hdfsMetaDir);
+			out.println("hdfs.meta.dir = " + tfsMetaDir);
 			String mapreduceDir;
 			try {
 				mapreduceDir = troilkattProperties.get("troilkatt.localfs.mapreduce.dir");
@@ -251,7 +251,7 @@ public class MapReduce extends Stage {
 			
 			String dstName = null;
 			try {
-				dstName = tfs.putHDFSFile(f, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);
+				dstName = tfs.putTFSFile(f, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);
 			} catch (IOException e) {
 				logger.warn("Could not move file: " + f + ": IOException: " + e.getMessage());
 			}
@@ -281,7 +281,7 @@ public class MapReduce extends Stage {
 			long timestamp) throws StageException {						
 		
 		// Temporary MapReduce output directory
-		String hdfsTmpOutputDir = OsPath.join(hdfsTmpDir, getStageID() + "-" + timestamp);
+		String hdfsTmpOutputDir = OsPath.join(tfsTmpDir, getStageID() + "-" + timestamp);
 		
 		// Create arguments file for MapReduce Job-task
 		writeMapReduceArgsFile(inputFiles, hdfsTmpOutputDir, timestamp);

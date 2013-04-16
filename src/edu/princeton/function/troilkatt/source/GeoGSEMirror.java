@@ -14,6 +14,9 @@ import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
+/**
+ * Mirror all GEO GSE (series) files
+ */
 public class GeoGSEMirror extends GeoGDSMirror {
 	public static final String GSEftpDir = "/pub/geo/DATA/SOFT/by_series";
 
@@ -24,18 +27,18 @@ public class GeoGSEMirror extends GeoGDSMirror {
 	 */
 	public GeoGSEMirror(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, 
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
-		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, GSEftpDir);		
+		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline, GSEftpDir);		
 	}
 	
 	/**
-	 * Helper function to download a GEO series file, unpack it, and save the unpacked files in HDFS.
+	 * Helper function to download a GEO series file, unpack it, and save the unpacked files in tfs.
 	 * 
 	 * @param id of the series file to download
-	 * @return HDFS filename or null if file could not be downlaoded
-	 * @throws StageException if an exception occurs during download, unpacking or HDFS save
+	 * @return tfs filename or null if file could not be downlaoded
+	 * @throws StageException if an exception occurs during download, unpacking or tfs save
 	 */
 	@Override
 	protected String downloadFile(FTPClient ftp, String id, long timestamp) throws StageException {
@@ -88,15 +91,15 @@ public class GeoGSEMirror extends GeoGDSMirror {
 	
 		for (String u: unpackedFiles) {
 			if (u.endsWith(".SOFT") || u.endsWith(".soft")) {
-				String hdfsFilename = tfs.putLocalFile(u, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);				
+				String tfsFilename = tfs.putLocalFile(u, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);				
 				OsPath.delete(u);
-				if (hdfsFilename != null) {
+				if (tfsFilename != null) {
 					// File was successfully downloaded
-					return hdfsFilename;
+					return tfsFilename;
 				}
 				else {
-					logger.fatal("Could not copy downloaded file to HDFS");					
-					throw new StageException("Could not copy downloaded file to HDFS");
+					logger.fatal("Could not copy downloaded file to tfs");					
+					throw new StageException("Could not copy downloaded file to tfs");
 				}
 			}
 		}		

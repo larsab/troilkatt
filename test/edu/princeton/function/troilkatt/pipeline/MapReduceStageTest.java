@@ -115,9 +115,9 @@ public class MapReduceStageTest extends TestSuper {
 		assertTrue(outputFiles.get(0).endsWith("file1.out.741.gz"));
 		assertTrue(outputFiles.get(1).endsWith("file2.out.741.gz"));
 		assertTrue(outputFiles.get(3).endsWith("file4.out.741.gz"));
-		assertTrue(tfs.isfile(OsPath.join(mrs.hdfsOutputDir, "file1.out.741.gz")));
-		assertTrue(tfs.isfile(OsPath.join(mrs.hdfsOutputDir, "file2.out.741.gz")));
-		assertTrue(tfs.isfile(OsPath.join(mrs.hdfsOutputDir, "file4.out.741.gz")));
+		assertTrue(tfs.isfile(OsPath.join(mrs.tfsOutputDir, "file1.out.741.gz")));
+		assertTrue(tfs.isfile(OsPath.join(mrs.tfsOutputDir, "file2.out.741.gz")));
+		assertTrue(tfs.isfile(OsPath.join(mrs.tfsOutputDir, "file4.out.741.gz")));
 		
 		/*
 		 * Test MapReduce logfiles

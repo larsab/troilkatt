@@ -13,10 +13,11 @@ import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
 
 /** 
- * Superclass to execute a stage as a MapReduce job. The MapReduce job to execute should be 
- * a subclass of edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce
+ * Execute a stage as an SGE job. There is one SGE task for each input file. Each task
+ * comprises a stripped down troilkatt that is used to run the stage. The stage to run
+ * and its arguments are all specified as stage arguments. 
  * 
- * The subclass MapReduceStage can be used to execute a stage in parallel using MapReduce.
+ * The stripped down troilkatt is started by executing troilkatt.sge.ExecuteStage
  */
 public class SGEStage extends Stage {	
 	// Script run by SGE for each file
@@ -26,33 +27,49 @@ public class SGEStage extends Stage {
 	
 	// Root directory for SGE files. This is used both for temporary output and log files
 	protected String sgeDir;	
-	// classpath
+	// classpath used to start troilkatt.sge.ExecuteStage 
 	protected String classPath;
 	
-	// args with TROILKATT symbols intact
+	// args with TROILKATT symbols
 	protected String stageArgs;
 	
-	// container bin arguments
+	// container bin arguments (given as stage arguments)
 	protected int maxProcs;
 	protected long maxVMSize; // in MB
+	
+	// SGE queue arguments (in properties file)
+	protected int slotsPerNode; 
+	// Number of slots to request for each SGE task (slotsPerNode / maxProcs)
+	protected int sgePESlots;
 	
 	/**
 	 * Constructor.
 	 * 
 	 * @param args stage arguments
-	 * @param see description for ExecutePerFile class
+	 *  0: stage to execute
+	 *  1: maximum number of processes to run per cluster node
+	 *  2: maximum per process virtual memory size (in MB)
+	 *  3...: stage specific arguments 
+	 * @param other see superclass description
 	 */
 	public SGEStage(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String nfsStageMetaDir, String nfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args,
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				localRootDir, nfsStageMetaDir, nfsStageTmpDir,
 				pipeline);		
 		
 		sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");		
 		classPath = troilkattProperties.get("troilkatt.classpath");
+		try {
+			slotsPerNode = Integer.valueOf(troilkattProperties.get("troilkatt.sge.slots.per.node"));
+		}
+		catch (NumberFormatException e) {
+			logger.fatal("Invalid value for troilkatt.sge.slots.per.node in configuration file: ", e);
+			throw new StageInitException("Invalid value for troilkatt.sge.slots.per.node");
+		}
 		scriptFilename = OsPath.join(stageTmpDir, "sge.sh");		
 		argsFilename = OsPath.join(sgeDir, "sge.args");					
 	
@@ -74,6 +91,11 @@ public class SGEStage extends Stage {
 			throw new StageInitException("Invalid number for maximum troilkatt or task vmem: " + argsParts[1] + " or " + argsParts[2]);
 		}
 		
+		sgePESlots = slotsPerNode / maxProcs;
+		if (slotsPerNode % maxProcs != 0) {
+			sgePESlots++;
+		}
+		
 		stageArgs = argsParts[0];
         for (int i = 3; i < argsParts.length; i++) {
         	String p = argsParts[i];
@@ -91,8 +113,8 @@ public class SGEStage extends Stage {
 	 * Instead the SGE tasks will do this.
 	 */
 	@Override
-	public ArrayList<String> downloadInputFiles(ArrayList<String> hdfsFiles) throws StageException {
-		return hdfsFiles;
+	public ArrayList<String> downloadInputFiles(ArrayList<String> nfsFiles) throws StageException {
+		return nfsFiles;
 	}
 	
 	/**
@@ -111,7 +133,7 @@ public class SGEStage extends Stage {
 		
 		for (String f: localFiles) {			
 			String relName = OsPath.absolute2relative(f, nfsTmpOutputDir);
-			String newName = OsPath.join(hdfsOutputDir, relName);
+			String newName = OsPath.join(tfsOutputDir, relName);
 			String dirName = OsPath.dirname(newName);
 			
 			try {
@@ -155,7 +177,7 @@ public class SGEStage extends Stage {
 			 * Command to execute
 			 */
 			// java command									
-			out.write("java -classpath " + classPath + " edu.princeton.function.troilkatt.sge.ExecuteStage ");
+			out.write("java -Xmx2048m -classpath " + classPath + " edu.princeton.function.troilkatt.sge.ExecuteStage ");
 			// 1st argument: arguments file location
 			out.write(argsFilename);
 			// 2nd argument: task ID
@@ -190,7 +212,7 @@ public class SGEStage extends Stage {
 	 * to read the arguments file
 	 * 
 	 * @param inputFiles of input files to process
-	 * @param hdfsTmpOutputDir output directory for MapReduce job
+	 * @param nfsTmpOutputDir output directory for MapReduce job
 	 * @param timstamp for this iteration
 	 * @return none
 	 * @throws StageException if file could not be created
@@ -207,7 +229,7 @@ public class SGEStage extends Stage {
 			out.println("compression.format = " + compressionFormat);
 			out.println("storage.time = " + storageTime);
 			out.println("nfs.log.dir = " + nfsTmpLogDir); // tmp storage for log files		
-			out.println("nfs.meta.dir = " + hdfsMetaDir); // shared among all tasks
+			out.println("nfs.meta.dir = " + tfsMetaDir); // shared among all tasks
 			String localSgeDir;
 			try {
 				localSgeDir = troilkattProperties.get("troilkatt.localfs.sge.dir");
@@ -258,23 +280,12 @@ public class SGEStage extends Stage {
 	}
 	
 	/**
-	 * Handle MapReduce job output files. These are stored in the stage's HDFS tmp directory,
-	 * and it may contain named files, reduce output files (part-r-*), and other hadoop
-	 * specific files.
+	 * Move SGE job log files to a local directory. This function is called befor compressing
+	 * the data.
 	 * 
-	 * This function ignores map output files (part-m-*) and hadoop internal files such as
-	 * _logs/* or _SUCESS.
-	 * 
-	 * This function timstamps, moves, and potentially compress all files in the HDFS tmp directory 
-	 * to the DFS output directory, except the Hadoop internal files specified in the global variable 
-	 *  hadoopInternalOutputFiles
-	 * 
-	 * It is possible to overwrite this function in order to for example merge and rename the
-	 * reduce output files, or to save map output files 
-	 * 
-	 * @param hdfsTmpOutputDir output directory for MapReduce job
+	 * @param nfsTmpOutputDir output directory for MapReduce job
 	 * @param timestamp timestamp to add to output files
-	 * @return list of output files saved in the HDFS output directory.
+	 * @return none
 	 * @throws StageException 
 	 */
 	protected void moveSGELogFiles(String nfsTmpLogDir, ArrayList<String> logFiles) throws StageException {	
@@ -283,7 +294,7 @@ public class SGEStage extends Stage {
 			tmpFiles = tfs.listdirR(nfsTmpLogDir);			
 		} catch (IOException e) {
 			logger.fatal("Could not read list of outputfiles in NFS: " + e.toString());
-			throw new StageException("Could not read list of outputfiles in HDFS");
+			throw new StageException("Could not read list of outputfiles in MFS");
 		}
 		
 		if (tmpFiles == null) {
@@ -316,7 +327,7 @@ public class SGEStage extends Stage {
 	/**
 	 * Run the MapReduce program and update file lists.
 	 * 
-	 * @param inputFiles list of HDFS input files to process
+	 * @param inputFiles list of NFS input files to process
 	 * @param metaFiles list of meta files
 	 * @param logFiles list for storing log files
 	 * @return list of output files
@@ -377,10 +388,13 @@ public class SGEStage extends Stage {
 	
 	/**
 	 * Return SGE command to execute
+	 * 
+	 * 
+	 * @param memSize: memory size in megabytes
 	 */
 	protected String getCmd(int nInputFiles, String outputLogfile, String errorLogfile, String tmpLogdir) {
 		// Note SGE task ID indexes starts from one (and not zero), and range includes last index
-		return String.format("qsub -sync y -wd %s -t %d-%d %s > %s 2> %s", tmpLogdir, 1, nInputFiles, scriptFilename, outputLogfile, errorLogfile);
+		return String.format("qsub -sync y -l h_vmem=%dM -pe mpi %d -wd %s -t %d-%d %s > %s 2> %s", maxVMSize, sgePESlots, tmpLogdir, 1, nInputFiles, scriptFilename, outputLogfile, errorLogfile);
 	}
 	
 }

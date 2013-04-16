@@ -14,12 +14,12 @@ public class NullSource extends Source {
 
 	public NullSource(String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		
 		super(name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 				pipeline);
 	}
 	

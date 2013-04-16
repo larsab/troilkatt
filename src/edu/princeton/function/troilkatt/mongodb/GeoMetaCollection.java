@@ -7,7 +7,6 @@ import com.mongodb.DBObject;
 
 /**
  * Utility functions for updating GEO meta data stored in MongoDB
- *
  */
 public class GeoMetaCollection {
 	public static String mongoDB = "troilkatt";

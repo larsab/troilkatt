@@ -13,7 +13,7 @@ import com.mongodb.MongoClient;
 
 
 /**
- * Update GEO GSM to GDS/GSE mappings stored in MongoDB
+ * Add GEO GSM to GDS/GSE mappings to gsm2gid MongoDB collection
  * 
  * Note! This should be run as a single process and not in parallel
  *
@@ -24,7 +24,9 @@ public class AddGEOGSM {
 	 * Add GEO GSM to GDS/GSE mappings
 	 * 
 	 * @param argv command line arguments
-	 *  0: mongodb hostname
+	 *  0: timestamp to add to the created MongoDB entry
+	 *  1: MongoDB server address
+	 *  2: MongoDB server listen port
 	 * @throws UnknownHostException 
 	 */
 	public static void main(String[] argv) throws UnknownHostException {
@@ -34,8 +36,10 @@ public class AddGEOGSM {
 		}
 		
 		long timestamp = Long.valueOf(argv[0]);
+		String serverAdr = argv[1];
+		int serverPort = Integer.valueOf(argv[2]);
 	
-		MongoClient mongoClient = new MongoClient(argv[1]);
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection collMeta = db.getCollection("geoMeta");
 		// No check on return value, since the javadoc does not specify what these are

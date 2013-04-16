@@ -46,10 +46,10 @@ public class HREFSource extends Source {
 	 */
 	public HREFSource(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, String localRootDir,
-			String hdfsStageMetaDir, String hdfsStageTmpDir, Pipeline pipeline)
+			String tfsStageMetaDir, String tfsStageTmpDir, Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
 		super(name, arguments, outputDir, compressionFormat, storageTime,
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);		
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);		
 		
 		String[] parts = arguments.split(" ");
 		if (parts.length < 1) {
@@ -82,7 +82,7 @@ public class HREFSource extends Source {
 	 * 
 	 * @param metaFiles ignored
 	 * @param logFiles list for storing log files produced by this step
-	 * @return list of output files in HDFS
+	 * @return list of output files in TFS
 	 * @throws StageException 
 	 */
 	@Override
@@ -149,7 +149,7 @@ public class HREFSource extends Source {
 		
 		/*
 		 * Attempt to download retrieved URL's that match pattern, and save
-		 * downloaded files in HDFS
+		 * downloaded files in TFS
 		 */		
 		try {
 			URI cwd = pageURL.toURI();		
@@ -166,12 +166,12 @@ public class HREFSource extends Source {
 				}
 
 				String fn = downloadBinaryFile(url, stageOutputDir);
-				String hdfsFilename = tfs.putLocalFile(fn, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);
-				if (hdfsFilename != null) {
-					outputFiles.add(hdfsFilename);
+				String tfsFilename = tfs.putLocalFile(fn, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);
+				if (tfsFilename != null) {
+					outputFiles.add(tfsFilename);
 				}
 				else {
-					logger.warn("Could not save file in HDFS: " + fn);
+					logger.warn("Could not save file in TFS: " + fn);
 				}
 				OsPath.delete(fn);				
 			}

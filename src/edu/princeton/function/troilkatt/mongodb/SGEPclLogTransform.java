@@ -13,13 +13,17 @@ import com.mongodb.MongoClient;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.PclLogTransform;
 
+/**
+ * Log transform expression values if they are not already log transformed. For the latter
+ * the file is copied to an output directory.
+ */
 public class SGEPclLogTransform {
 	/**
 	 * Helper function to copy a file line by line
 	 * 
 	 * @param br source file
 	 * @param bw destination file
-	 * @return 
+	 * @return none
 	 * @throws IOException 
 	 */
 	public static void copy(BufferedReader br, BufferedWriter bw) throws IOException {
@@ -32,11 +36,12 @@ public class SGEPclLogTransform {
 	/**
 	 * @param args [0] inputFilename
 	 *             [1] outputFilename
-	 *             [2] MongoDB server address
+	 *             [2] MongoDB server IP address
+	 *             [3] MongoDB server listen port
 	 */
 	public static void main(String[] args) throws Exception {	
-		if (args.length < 3) {
-			System.err.println("Usage: java SGEPclLogTransform inputFilename outputFilename mongoServerAddress");
+		if (args.length < 4) {
+			System.err.println("Usage: java SGEPclLogTransform inputFilename outputFilename mongoServerIP mongoServerPort");
 			System.exit(2);
 		}
 		
@@ -47,13 +52,18 @@ public class SGEPclLogTransform {
 		String gid = FilenameUtils.getDsetID(inputFilename);
 		String outputFilename = args[1];		
 		String serverAdr = args[2];
+		int serverPort = Integer.valueOf(args[3]);
 
-		MongoClient mongoClient = new MongoClient(serverAdr);
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection coll = db.getCollection("geoMeta");
 		// Note! no check on getCollection return value, since these are not specified 
 		// in the documentation
 		
+		/*
+		 * Use the calculated "info" information to determine if valeus have already
+		 * been log transformed.
+		 */
 		String loggedStr = (String) GeoMetaCollection.getField(coll, gid, "calculated:logged");
 		if (loggedStr == null) {
 			System.err.println("Could not read meta data for: " + gid);				

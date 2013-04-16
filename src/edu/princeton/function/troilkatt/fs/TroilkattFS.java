@@ -53,24 +53,24 @@ public class TroilkattFS {
 	/**
 	 * Do a (non-recursive) directory listing.
 	 * 
-	 * @param hdfsDir directory to list
+	 * @param tfsDir directory to list
 	 * @return ArrayList of String with absolute filenames, or null if the directory
 	 * name is not valid.
 	 * @throws IOException
 	 */
-	public ArrayList<String> listdir(String hdfsDir) throws IOException {
+	public ArrayList<String> listdir(String tfsDir) throws IOException {
 		throw new RuntimeException("Method not implemented");
 	}
 	
 	/**
 	 * Do a recursive listing of files.
 	 * 
-	 * @param hdfsDir directory to list
+	 * @param tfsDir directory to list
 	 * @return ArrayList of String with absolute filenames, or null if the directory
 	 * name is not valid.
 	 * @throws IOException 
 	 */
-	public ArrayList<String> listdirR(String hdfsDir) throws IOException {
+	public ArrayList<String> listdirR(String tfsDir) throws IOException {
 		throw new RuntimeException("Method not implemented");
 	}
 	
@@ -78,15 +78,15 @@ public class TroilkattFS {
 	 * Get a list of the files with the newest timestamps in a directory. The listing
 	 * is recursive.
 	 * 
-	 * @param hdfsDir directory to list
+	 * @param tfsDir directory to list
 	 * @return ArrayList of String with absolute filenames, or null if the directory
 	 * name is not valid.
 	 * @throws IOException
 	 */
-	public ArrayList<String> listdirN(String hdfsDir) throws IOException {
-		ArrayList<String> allFiles = listdirR(hdfsDir);
+	public ArrayList<String> listdirN(String tfsDir) throws IOException {
+		ArrayList<String> allFiles = listdirR(tfsDir);
 		if (allFiles == null) {
-			logger.warn("No files in directory: " + hdfsDir);
+			logger.warn("No files in directory: " + tfsDir);
 			return null;
 		}
 					
@@ -126,16 +126,16 @@ public class TroilkattFS {
 	 * Get a list of the files with a specified timestamps in a directory. The listing
 	 * is recursive.
 	 * 
-	 * @param hdfsDir directory to list
+	 * @param tfsDir directory to list
 	 * @param timestamp timestamp files are matched against
 	 * @return ArrayList of String with absolute filenames, or null if the directory
 	 * name is not valid.
 	 * @throws IOException
 	 */
-	public ArrayList<String> listdirT(String hdfsDir, long timestamp) throws IOException {
-		ArrayList<String> allFiles = listdirR(hdfsDir);
+	public ArrayList<String> listdirT(String tfsDir, long timestamp) throws IOException {
+		ArrayList<String> allFiles = listdirR(tfsDir);
 		if (allFiles == null) {
-			logger.warn("No files in directory: " + hdfsDir);
+			logger.warn("No files in directory: " + tfsDir);
 			return null;
 		}
 					
@@ -157,20 +157,20 @@ public class TroilkattFS {
 	 * "timestamp.compression", and further it is assumed that only the timestamp differ
 	 * among the subdirectories.
 	 * 
-	 * @param hdfsDir directory with sub-directories to check
+	 * @param tfsDir directory with sub-directories to check
 	 * @return sub-directory (basename) with highest timestamp, or null if no timestamped directory
 	 * is found, or null if multiple timestamped directories with different names are found.
 	 * @throws IOException 
 	 */
-	public String getNewestDir(String hdfsDir) throws IOException {
-		ArrayList<String> subdirs = listdir(hdfsDir);
+	public String getNewestDir(String tfsDir) throws IOException {
+		ArrayList<String> subdirs = listdir(tfsDir);
 		
 		if (subdirs == null) {
-			logger.warn("Invalid directory: " + hdfsDir);
+			logger.warn("Invalid directory: " + tfsDir);
 			return null;
 		}
 		else if (subdirs.size() == 0) {
-			logger.warn("No timestamped sub-directories in: " + hdfsDir);
+			logger.warn("No timestamped sub-directories in: " + tfsDir);
 			return null;
 		}
 				
@@ -193,10 +193,10 @@ public class TroilkattFS {
 	}
 	
 	/**
-	 * Copy file from HDFS to the local FS directory, uncompress the file,
+	 * Copy file from TFS to the local FS directory, uncompress the file,
 	 * and remove the timestamp and compression extension. 
 	 * 
-	 * @param hdfsName filename in HDFS. The file must have a timestamp and compression extension.
+	 * @param tfsName filename in tfs. The file must have a timestamp and compression extension.
 	 * @param localDir directory on local FS where file is copied and uncompressed to.
 	 * @param tmpDir directory on local FS used to hold file before compression
 	 * @param logDir directory where logfiles are written to.
@@ -204,15 +204,15 @@ public class TroilkattFS {
 	 * copied/uncompressed
 	 * @throws IOException 
 	 */
-	public String getFile(String hdfsName, String localDir, String tmpDir, String logDir) throws IOException {
+	public String getFile(String tfsName, String localDir, String tmpDir, String logDir) throws IOException {
 		throw new RuntimeException("Method not implemented");
 	}
 
 	/**
-	 * Copy all files in a HDFS directory to a local FS directory, uncompress the file,
+	 * Copy all files in a tfs directory to a local FS directory, uncompress the file,
 	 * and remove the timestamps and compression extension.
 	 * 
-	 * @param hdfsName HDFS directory with files to download
+	 * @param tfsName tfs directory with files to download
 	 * @param localDir directory where files are written to
 	 * @param logDir directory for logfiles
 	 * @param tmpDir directory where temporal files are stored during uncompression
@@ -220,63 +220,63 @@ public class TroilkattFS {
 	 * not be downloaded
 	 * @throws IOException 
 	 */
-	public ArrayList<String> getDirFiles(String hdfsName, String localDir, String logDir, String tmpDir) throws IOException {		
+	public ArrayList<String> getDirFiles(String tfsName, String localDir, String logDir, String tmpDir) throws IOException {		
 		throw new RuntimeException("Method not implemented");
 	}
 
 	/**
-	 * Compress a file, add a timestamp, and move the file from local FS to HDFS.
+	 * Compress a file, add a timestamp, and move the file from local FS to tfs.
 	 * 
 	 * NOTE! This function will move the source file, since we assume that there may be some large files
-	 * that are put to HDFS and that creating multiple copies of these is both space and time consuming.
+	 * that are put to tfs and that creating multiple copies of these is both space and time consuming.
 	 *  
 	 * @param localFilename absolute filename on local FS.
-	 * @param hdfsOutputDir HDFS output directory where file is copied.
+	 * @param tfsOutputDir tfs output directory where file is copied.
 	 * @param tmpDir directory on local FS where temporary files can be stored
 	 * @param logDir logfile directory on local FS
 	 * @param compression compression method to use for file 
 	 * @param timestamp timestamp to add to file
-	 * @return HDFS filename on success, null otherwise
+	 * @return tfs filename on success, null otherwise
 	 */
-	public String putLocalFile(String localFilename, String hdfsOutputDir, String tmpDir, String logDir, 
+	public String putLocalFile(String localFilename, String tfsOutputDir, String tmpDir, String logDir, 
 			String compression, long timestamp) {
 		
 		throw new RuntimeException("Method not implemented");
 	}
 	
 	/**
-	 * Compress a file and move the file from local FS to HDFS.
+	 * Compress a file and move the file from local FS to tfs.
 	 * 
 	 * NOTE! This function will move the source file, since we assume that there may be some large files
-	 * that are put to HDFS and that creating multiple copies of these is both space and time consuming.
+	 * that are put to tfs and that creating multiple copies of these is both space and time consuming.
 	 *  
 	 * @param localFilename absolute filename on local FS.
-	 * @param hdfsOutputDir HDFS output directory where file is copied.
+	 * @param tfsOutputDir tfs output directory where file is copied.
 	 * @param tmpDir directory on local FS where temporary files can be stored
 	 * @param logDir logfile directory on local FS
 	 * @param compression compression method to use for file 
 	 * @param timestamp timestamp to add to file
-	 * @return HDFS filename on success, null otherwise
+	 * @return tfs filename on success, null otherwise
 	 */
-	public String putLocalFile(String localFilename, String hdfsOutputDir, String tmpDir, String logDir, String compression) {
+	public String putLocalFile(String localFilename, String tfsOutputDir, String tmpDir, String logDir, String compression) {
 		throw new RuntimeException("Method not implemented");
 	}
 	
 
 	/**
 	 * Create a directory using the timestamp as name, compress  the directory files, and copy the 
-	 * compressed directory from local FS to HDFS 
+	 * compressed directory from local FS to tfs 
 	 * 
-	 * @param hdfsDir HDFS directory where new sub-directory is created
+	 * @param tfsDir tfs directory where new sub-directory is created
 	 * @param timestamp name for new sub-directory
-	 * @param metaFiles files to copy to HDFS
-	 * @param localFiles list of absolute filenames in directory to copy to HDFS
+	 * @param metaFiles files to copy to tfs
+	 * @param localFiles list of absolute filenames in directory to copy to tfs
 	 * @param compression method to use for directory 
 	 * @param logDir directory where logfiles are stored
 	 * @param tmpDir directory on local FS where compressed directory is stored
-	 * @return true if all files were copied to HDFS, false otherwise
+	 * @return true if all files were copied to tfs, false otherwise
 	 */
-	public boolean putLocalDirFiles(String hdfsDir, long timestamp, ArrayList<String> localFiles, 
+	public boolean putLocalDirFiles(String tfsDir, long timestamp, ArrayList<String> localFiles, 
 			String compression, String logDir, String tmpDir) {		
 		throw new RuntimeException("Method not implemented");
 	}
@@ -294,7 +294,7 @@ public class TroilkattFS {
 	 * @return destination filename, or null if the file could not be moved
 	 * @throws IOException 
 	 */
-	public String putHDFSFile(String srcFilename, String dstDir,
+	public String putTFSFile(String srcFilename, String dstDir,
 			String tmpDir, String logDir, 
 			String compression, long timestamp) throws IOException {
 		
@@ -310,7 +310,7 @@ public class TroilkattFS {
 	 * @return destination filename, or null if the file could not be moved
 	 * @throws IOException 
 	 */
-	public String putHDFSFile(String srcFilename, String dstDir) throws IOException { 
+	public String putTFSFile(String srcFilename, String dstDir) throws IOException { 
 			
 		throw new RuntimeException("Method not implemented");
 	}
@@ -360,7 +360,7 @@ public class TroilkattFS {
 			} 
 
 			/*
-			 * Execute script to compress file to local FS, then copy compressed file to HDFS
+			 * Execute script to compress file to local FS, then copy compressed file to tfs
 			 */
 			if (compression.equals("none")) { // No compression to use
 				if (OsPath.rename(uncompressedFilename, compressedFilename) == false) {
@@ -834,7 +834,7 @@ public class TroilkattFS {
 	}
 
 	/**
-	 * Check if file exists in HDFS
+	 * Check if file exists in tfs
 	 *
 	 * @param filename filename to check
 	 * @return true if directory exist
@@ -845,7 +845,7 @@ public class TroilkattFS {
 	}
 	
 	/**
-	 * Check if directory exists in HDFS
+	 * Check if directory exists in tfs
 	 *
 	 * @param dirName directory to check
 	 * @return true if directory exist
@@ -858,7 +858,7 @@ public class TroilkattFS {
 	/**
 	 * Mkdir that first checks if a directory exists. Otherwise it creates the directory.
 	 *
-	 * @param hdfs HDFS handle
+	 * @param tfs tfs handle
 	 * @param dirName directory to create
 	 * @throws IOException if an IOException occurs or if the mkdir failed.
 	 */
@@ -882,7 +882,7 @@ public class TroilkattFS {
 	}
 
 	/**
-	 * Delete file in HDFS
+	 * Delete file in tfs
 	 * 
 	 * @param filename file to delete
 	 * @return true if file was deleted, false otherwise
@@ -893,7 +893,7 @@ public class TroilkattFS {
 	}
 	
 	/**
-	 * Delete a directory recursively in HDFS
+	 * Delete a directory recursively in tfs
 	 * 
 	 * @param directory to delete
 	 * @return true if directory was deleted, false otherwise
@@ -907,25 +907,25 @@ public class TroilkattFS {
 	 * Clenup a troilkatt directory by deleting files that are older than storageTime.
 	 * The cleanup is recursive such that all subdirectories will also be cleaned.
 	 * 
-	 * @param hdfsOutputDir HDFS directory to clean
+	 * @param tfsOutputDir tfs directory to clean
 	 * @param timestamp current timestamp
 	 * @param storageTime time to keep files in the directory. The time is given in days.
 	 * If storageTime is -1, no files are deleted. If storageTime is 0 all files are 
 	 * deleted.
 	 * @throws IOException 
 	 */
-	public void cleanupDir(String hdfsOutputDir, long timestamp, int storageTime) throws IOException {
+	public void cleanupDir(String tfsOutputDir, long timestamp, int storageTime) throws IOException {
 		if (storageTime <= -1) {
-			logger.info("All files in directory are kept forever: " + hdfsOutputDir);
+			logger.info("All files in directory are kept forever: " + tfsOutputDir);
 			return;
 		}
 		else if (storageTime == 0) {
 			storageTime = Integer.MIN_VALUE;; // to ensure all files are deleted
 		}
 		
-		ArrayList<String> files = listdirR(hdfsOutputDir);
+		ArrayList<String> files = listdirR(tfsOutputDir);
 		if (files == null) {
-			logger.warn("Invalid directory: " + hdfsOutputDir);
+			logger.warn("Invalid directory: " + tfsOutputDir);
 			return;
 		}
 		
@@ -961,31 +961,31 @@ public class TroilkattFS {
 	 * Clenup a troilkatt meta directory by deleting files that are older than storageTime.
 	 * The newest file will not be deleted even if it is older than storageTime.
 	 * 
-	 * @param hdfsMetaDir HDFS meta directory to clean
+	 * @param tfsMetaDir tfs meta directory to clean
 	 * @param timestamp current timestamp
 	 * @param storageTime time to keep files in the directory. The time is given in days.
 	 * If storageTime is -1, no files are deleted. If storageTime is 0 all files are 
 	 * deleted.
 	 * @throws IOException 
 	 */
-	public void cleanupMetaDir(String hdfsMetaDir, long timestamp, int storageTime) throws IOException {
+	public void cleanupMetaDir(String tfsMetaDir, long timestamp, int storageTime) throws IOException {
 		if (storageTime <= -1) {
-			logger.info("All files in directory are kept forever: " + hdfsMetaDir);
+			logger.info("All files in directory are kept forever: " + tfsMetaDir);
 			return;
 		}
 		else if (storageTime == 0) {
 			storageTime = Integer.MIN_VALUE; // to ensure all files are deleted
 		}
 		
-		String newestDir = getNewestDir(hdfsMetaDir);
+		String newestDir = getNewestDir(tfsMetaDir);
 		if (newestDir == null) {
-			logger.warn("No directory archive found: " + hdfsMetaDir);
+			logger.warn("No directory archive found: " + tfsMetaDir);
 			return;
 		}
 		
-		ArrayList<String> files = listdir(hdfsMetaDir);
+		ArrayList<String> files = listdir(tfsMetaDir);
 		if (files == null) {
-			logger.warn("Invalid directory: " + hdfsMetaDir);
+			logger.warn("Invalid directory: " + tfsMetaDir);
 			return;
 		}
 		int deleted = 0;
@@ -1025,12 +1025,12 @@ public class TroilkattFS {
 	/**
 	 * Remove timestamp and compression format.
 	 * 
-	 * @param hdfsName filename with timestamp and compression format
+	 * @param tfsName filename with timestamp and compression format
 	 * @return basename with timestamp and compression format removed, or null if the
 	 * filename is invalid.
 	 */
-	public String getFilenameName(String hdfsName) {
-		String basename = OsPath.basename(hdfsName);
+	public String getFilenameName(String tfsName) {
+		String basename = OsPath.basename(tfsName);
 		String[] parts = basename.split("\\.");
 		
 		if (parts.length > 2) {
@@ -1042,7 +1042,7 @@ public class TroilkattFS {
 			return name;
 		}
 		else {
-			logger.fatal("Invalid tfs filename: " + hdfsName);
+			logger.fatal("Invalid tfs filename: " + tfsName);
 			return null;
 		}		
 	}
@@ -1050,24 +1050,24 @@ public class TroilkattFS {
 	/**
 	 * Get directory from path.
 	 * 
-	 * @param hdfsName filename with timestamp and compression format
+	 * @param tfsName filename with timestamp and compression format
 	 * @return directory part of the filename (parent).
 	 */
-	public String getFilenameDir(String hdfsName) {
+	public String getFilenameDir(String tfsName) {
 		throw new RuntimeException("Method not implemented");
 	}
 	
 	/**
 	 * Get timestamp from filename
 	 * 
-	 * @param hdfsName filename with timestamp and compression format.
+	 * @param tfsName filename with timestamp and compression format.
 	 * @return timestamp, or -1 if the filename is invalid.
 	 */
-	public long getFilenameTimestamp(String hdfsName) {
-		String basename = OsPath.basename(hdfsName);
+	public long getFilenameTimestamp(String tfsName) {
+		String basename = OsPath.basename(tfsName);
 		String[] parts = basename.split("\\.");
 		if (parts.length < 3) {
-			logger.warn("Invalid tfs filename: " + hdfsName);
+			logger.warn("Invalid tfs filename: " + tfsName);
 			return -1;
 		}
 		
@@ -1075,7 +1075,7 @@ public class TroilkattFS {
 			return Long.valueOf(parts[parts.length - 2]);
 		}
 		catch (NumberFormatException e) {
-			logger.fatal("Invalid tfs filename: " + hdfsName);
+			logger.fatal("Invalid tfs filename: " + tfsName);
 			return -1;
 		}
 	}
@@ -1083,18 +1083,18 @@ public class TroilkattFS {
 	/**
 	 * Get compression format from filename
 	 * 
-	 * @param hdfsName filename with timestamp and compression format.
+	 * @param tfsName filename with timestamp and compression format.
 	 * @return compression format (gz, bz2, etc), or null if the filename is invalid.
 	 */
-	public String getFilenameCompression(String hdfsName) {
-		String basename = OsPath.basename(hdfsName);
+	public String getFilenameCompression(String tfsName) {
+		String basename = OsPath.basename(tfsName);
 		String[] parts = basename.split("\\.");
 	
 		if (parts.length >= 3) {
 			return parts[parts.length - 1];
 		}
 		else {
-			logger.fatal("Invalid tfs filename: " + hdfsName);
+			logger.fatal("Invalid tfs filename: " + tfsName);
 			return null;
 		}
 	}
@@ -1102,15 +1102,15 @@ public class TroilkattFS {
 	/**
 	 * Get timestamp from directory name
 	 * 
-	 * @param hdfsName filename with timestamp and compression format (timestamp.compression or timestamp.tar.compression).
+	 * @param tfsName filename with timestamp and compression format (timestamp.compression or timestamp.tar.compression).
 	 * @return timestamp, or -1 if the filename is invalid.
 	 */
-	public long getDirTimestamp(String hdfsName) {
-		String basename = OsPath.basename(hdfsName);
+	public long getDirTimestamp(String tfsName) {
+		String basename = OsPath.basename(tfsName);
 		String[] parts = basename.split("\\.");
 		
 		if (parts.length < 2) {
-			logger.fatal("Invalid tfs directory: " + hdfsName);
+			logger.fatal("Invalid tfs directory: " + tfsName);
 			return -1;		
 		}
 		
@@ -1120,7 +1120,7 @@ public class TroilkattFS {
 				timestampString = parts[ parts.length - 3 ];
 			}
 			else {
-				logger.fatal("Invalid compression format for tfs directory: " + hdfsName);
+				logger.fatal("Invalid compression format for tfs directory: " + tfsName);
 				return -1;
 			}
 		}		
@@ -1129,7 +1129,7 @@ public class TroilkattFS {
 			return Long.valueOf(timestampString);
 		}
 		catch (NumberFormatException e) {
-			logger.fatal("Invalid tfs directory: " + hdfsName);
+			logger.fatal("Invalid tfs directory: " + tfsName);
 			return -1;
 		}
 	}
@@ -1137,11 +1137,11 @@ public class TroilkattFS {
 	/**
 	 * Get compression format from directory
 	 * 
-	 * @param hdfsName filename with timestamp and compression format.
+	 * @param tfsName filename with timestamp and compression format.
 	 * @return compression format, or null if the filename is invalid.
 	 */
-	public String getDirCompression(String hdfsName) {
-		String basename = OsPath.basename(hdfsName);
+	public String getDirCompression(String tfsName) {
+		String basename = OsPath.basename(tfsName);
 		String[] parts = basename.split("\\.");		
 		
 		if (parts.length >= 2) {
@@ -1153,7 +1153,7 @@ public class TroilkattFS {
 			}
 		}
 		else {
-			logger.fatal("Invalid hdfs filename: " + hdfsName);
+			logger.fatal("Invalid tfs filename: " + tfsName);
 			return null;
 		}
 	}
@@ -1197,27 +1197,27 @@ public class TroilkattFS {
 	}
 
 	/**
-	 * Copy a status file from HDFS to local FS
+	 * Copy a status file from tfs to local FS
 	 * 
-	 * @param hdfsFilename Source HDFS filename
+	 * @param tfsFilename Source tfs filename
 	 * @param localFilename Destination local FS filename
 	 * @throws IOException
-	 * @throws TroilkattPropertiesException if invalid hdfsFilename
+	 * @throws TroilkattPropertiesException if invalid tfsFilename
 	 */	
-	public void getStatusFile(String hdfsFilename, String localFilename) throws IOException, TroilkattPropertiesException {
+	public void getStatusFile(String tfsFilename, String localFilename) throws IOException, TroilkattPropertiesException {
 		throw new RuntimeException("Method not implemented");
 	}
 	
 	/**
-	 * Copy a status file from local FS to HDFS
+	 * Copy a status file from local FS to tfs
 	 * 
 	 * @param localFilename Source local FS filename
-	 * @param hdfsFilename Destination HDFS filename
+	 * @param tfsFilename Destination tfs filename
 	 * 
-	 * @throws IOException if file could not be copeid to HDFS
+	 * @throws IOException if file could not be copeid to tfs
 	 * @throws TroilkattPropertiesException 
 	 */
-	public void saveStatusFile(String localFilename, String hdfsFilename) throws IOException, TroilkattPropertiesException {		
+	public void saveStatusFile(String localFilename, String tfsFilename) throws IOException, TroilkattPropertiesException {		
 		throw new RuntimeException("Method not implemented");
 	}
 }

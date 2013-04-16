@@ -24,11 +24,11 @@ public class ExecuteDir extends Stage {
 	 */
 	public ExecuteDir(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 				pipeline);
 		
 		if (args.contains("TROILKATT.FILE")) {

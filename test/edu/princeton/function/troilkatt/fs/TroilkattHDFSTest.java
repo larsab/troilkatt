@@ -913,7 +913,7 @@ public class TroilkattHDFSTest extends TestSuper {
 				new Path(srcFile));		
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));				 
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "none", 4));		
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "none", 4));		
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -923,7 +923,7 @@ public class TroilkattHDFSTest extends TestSuper {
 				new Path(srcFile));		
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));				 
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "gz", 5));		
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "gz", 5));		
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -933,7 +933,7 @@ public class TroilkattHDFSTest extends TestSuper {
 				new Path(srcFile));		
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));				 
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "bz2", 6));		
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "bz2", 6));		
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -944,7 +944,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		dstFile = OsPath.join(hdfsRoot, "moveDst/file1.7.gz");				
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));				 
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "gz", 7));		
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "gz", 7));		
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -954,7 +954,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		dstFile = OsPath.join(hdfsRoot, "moveDst/subdir/file1.9.gz");				
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));				 
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, OsPath.join(dstDir, "subdir"),
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, OsPath.join(dstDir, "subdir"),
 				tmpDir, logDir, "gz", 9));		
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
@@ -965,7 +965,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		dstFile = OsPath.join(hdfsRoot, "moveDst/file1.gz.8.bz2");				
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));				 
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "bz2", 8));		
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "bz2", 8));		
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -980,7 +980,7 @@ public class TroilkattHDFSTest extends TestSuper {
 				new Path(dstFile));		
 		assertTrue(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "none", 10));
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "none", 10));
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -989,7 +989,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		dstFile = OsPath.join(hdfsRoot, "moveDst/file1.9.gz");				
 		assertFalse(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));				 
-		assertNull(tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "gz", 9));				
+		assertNull(tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "gz", 9));				
 		assertFalse(tfs.isfile(dstFile));
 
 		srcFile = OsPath.join(hdfsRoot, "moveSrc/file1");
@@ -1001,13 +1001,13 @@ public class TroilkattHDFSTest extends TestSuper {
 		// Invalid compression format
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));
-		assertNull(tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "invalid", 10));
+		assertNull(tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "invalid", 10));
 		assertTrue(tfs.isfile(srcFile));
 		
 		// Invalid timestamp
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));
-		assertNull(tfs.putHDFSFile(srcFile, dstDir, tmpDir, logDir, "bz2", -10));
+		assertNull(tfs.putTFSFile(srcFile, dstDir, tmpDir, logDir, "bz2", -10));
 		assertTrue(tfs.isfile(srcFile));				
 	}
 	
@@ -1025,7 +1025,7 @@ public class TroilkattHDFSTest extends TestSuper {
 				new Path(srcFile));			
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));
-		assertNull(tfs.putHDFSFile(srcFile, "/foo/bar/baz", tmpDir, logDir, "gz", 9));
+		assertNull(tfs.putTFSFile(srcFile, "/foo/bar/baz", tmpDir, logDir, "gz", 9));
 		assertTrue(tfs.isfile(srcFile));
 	}
 	
@@ -1044,7 +1044,7 @@ public class TroilkattHDFSTest extends TestSuper {
 	//	String dstFile = OsPath.join(testRoot, "moveDst/file1.10.bz2");
 	//	assertTrue(tfs.isfile(srcFile));
 	//	assertFalse(tfs.isfile(dstFile));
-	//	tfs.putHDFSFile(srcFile, dstDir, "/foo/bar", logDir, "bz2", 10);
+	//	tfs.putTFSFile(srcFile, dstDir, "/foo/bar", logDir, "bz2", 10);
 	//	assertTrue(tfs.isfile(srcFile));
 	//}
 	
@@ -1059,7 +1059,7 @@ public class TroilkattHDFSTest extends TestSuper {
 	//	String dstFile = OsPath.join(testRoot, "moveDst/file1.11.bz2");
 	//	assertTrue(tfs.isfile(srcFile));
 	//	assertFalse(tfs.isfile(dstFile));
-	//	tfs.putHDFSFile(srcFile, dstDir, tmpDir, "/foo/bar", "bz2", 10);
+	//	tfs.putTFSFile(srcFile, dstDir, tmpDir, "/foo/bar", "bz2", 10);
 	//	assertTrue(tfs.isfile(srcFile));
 	//}
 	
@@ -1087,7 +1087,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		String dstFile = OsPath.join(dstDir, "file1.4.none");
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir));
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir));
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -1095,7 +1095,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		dstFile = OsPath.join(dstDir, "file1.5.gz");
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir));
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir));
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -1103,7 +1103,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		dstFile = OsPath.join(dstDir, "file1.6.bz2");
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, dstDir));
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, dstDir));
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
@@ -1115,33 +1115,33 @@ public class TroilkattHDFSTest extends TestSuper {
 		dstFile = OsPath.join(dstDir, "subdir/file1.7.gz");
 		assertTrue(tfs.isfile(srcFile));
 		assertFalse(tfs.isfile(dstFile));
-		assertEquals(dstFile, tfs.putHDFSFile(srcFile, OsPath.join(dstDir, "subdir")));
+		assertEquals(dstFile, tfs.putTFSFile(srcFile, OsPath.join(dstDir, "subdir")));
 		assertFalse(tfs.isfile(srcFile));
 		assertTrue(tfs.isfile(dstFile));
 		
 		// Invalid source file
-		assertNull(tfs.putHDFSFile("/invalud/file", dstDir));
+		assertNull(tfs.putTFSFile("/invalud/file", dstDir));
 		
 		// Missing timestamp
 		srcFile = OsPath.join(dstDir, "file1.gz");
 		OsPath.copy(localFile1, localFile2);
 		tfs.hdfs.moveFromLocalFile(new Path(localFile2), new Path(srcFile));
 		assertTrue(tfs.isfile(srcFile));
-		assertNull(tfs.putHDFSFile(srcFile, dstDir));
+		assertNull(tfs.putTFSFile(srcFile, dstDir));
 		
 		// Missing compression
 		srcFile = OsPath.join(dstDir, "file1.5");
 		OsPath.copy(localFile1, localFile2);
 		tfs.hdfs.moveFromLocalFile(new Path(localFile2), new Path(srcFile));
 		assertTrue(tfs.isfile(srcFile));
-		assertNull(tfs.putHDFSFile(srcFile, dstDir));
+		assertNull(tfs.putTFSFile(srcFile, dstDir));
 		
 		// Missing timestamp and compression		
 		srcFile = OsPath.join(dstDir, "file1");
 		OsPath.copy(localFile1, localFile2);
 		tfs.hdfs.moveFromLocalFile(new Path(localFile2), new Path(srcFile));
 		assertTrue(tfs.isfile(srcFile));
-		assertNull(tfs.putHDFSFile(srcFile, dstDir));
+		assertNull(tfs.putTFSFile(srcFile, dstDir));
 		
 		// Invalid destination directory
 		// Missing timestamp
@@ -1150,7 +1150,7 @@ public class TroilkattHDFSTest extends TestSuper {
 		tfs.hdfs.moveFromLocalFile(new Path(localFile2), new Path(srcFile));
 		assertTrue(tfs.isfile(srcFile));
 		// Note fails since pseudo mode does not respect directory user flags
-		//assertNull(tfs.putHDFSFile(srcFile, "/invalid/dir"));
+		//assertNull(tfs.putTFSFile(srcFile, "/invalid/dir"));
 	}
 	
 	@Test

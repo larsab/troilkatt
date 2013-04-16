@@ -13,19 +13,25 @@ import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.PclMissingValues;
 
+/**
+ * Add missing values. Also remove rows, columns and with too many missing values.
+ */
 public class SGEPclMissingValues {
 	
 
 	/**
+	 * Main entry point.
+	 * 
 	 * @param args [0] inputFilename
 	 *             [1] outputFilename
 	 *             [2] gene cutoff value (float)
 	 *             [3] sample cutoff value (float)
 	 *             [4] dataset cutoff value (float)
-	 *             [5] MongoDB server address
+	 *             [5] MongoDB server IP address
+	 *             [6] MongoDB server listen port
 	 */
 	public static void main(String[] args) throws Exception {	
-		if (args.length < 6) {
+		if (args.length < 7) {
 			System.err.println("Usage: java PclMissingValues inputFilename outputFilename geneCutoff sampleCutoff datasetCutoff mongoServerAddress");
 			System.exit(2);
 		}
@@ -40,20 +46,24 @@ public class SGEPclMissingValues {
 		int sampleCutoff = Integer.valueOf(args[3]);
 		float datasetCutoff = Float.valueOf(args[4]);
 		String serverAdr = args[5];
+		int serverPort = Integer.valueOf(args[6]);
 
-		MongoClient mongoClient = new MongoClient(serverAdr);
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection coll = db.getCollection("geoMeta");
 		// Note! no check on getCollection return value, since these are not specified 
 		// in the documentation
 		
+		/*
+		 * "info" calculation determined if zeros are missing values and the cutoff-value for
+		 * expression values.
+		 */
 		String zeroAreMVsStr = (String) GeoMetaCollection.getField(coll, gid, "calculated:zerosAreMVs");
 		if (zeroAreMVsStr == null) {
 			System.err.println("Could not read meta data for: " + gid);				
 			return;
 		}
-		boolean zerosAsMVs = zeroAreMVsStr.equals("1");
-		
+		boolean zerosAsMVs = zeroAreMVsStr.equals("1");		
 		
 		String mvCutoffStr = (String) GeoMetaCollection.getField(coll, gid, "calculated:cutoff");
 		if (mvCutoffStr == null) {

@@ -22,8 +22,8 @@ public class SourceFactory {
 	 * @param tmpDir directory for temporary files
 	 * @param datasetTable a dataset table object
 	 * @param localRootDir directory on local FS used as root for saving temporal files
-	 * @param hdfsStageMetaDir meta file directory for this stage in HDFS.
-	 * @param hdfsStageTmpDir tmp directory for this stage in HDFS  (can be null).
+	 * @param tfsStageMetaDir meta file directory for this stage in TFS.
+	 * @param tfsStageTmpDir tmp directory for this stage in TFS  (can be null).
 	 * @param pipelineTable tables.pipeline.Pipeline object
 	 * @param troilkattProperties troilkatt properties object
 	 * @param logger callers logger object
@@ -34,64 +34,64 @@ public class SourceFactory {
 	 */
 	public static Source newSource(String type, String sourceName, String args, 
 			String outputDir, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline,
 			Logger logger) throws TroilkattPropertiesException, StageInitException {
 		
 	    if (type.equals("array_express")) {
-	        return new ArrayExpressMirror(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new ArrayExpressMirror(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("execute_source")) {
-	        return new ExecuteSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new ExecuteSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("file_source")) {
-	        return new FileSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new FileSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("geo_gds_mirror")) {	        
-	        return new GeoGDSMirror(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new GeoGDSMirror(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("geo_gse_mirror")) {	        
-	        return new GeoGSEMirror(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new GeoGSEMirror(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("geo_raw_mirror")) {	        
-	        return new GeoRawMirror(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new GeoRawMirror(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("geo_raw_org")) {	        
-	        return new GeoRawOrg(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new GeoRawOrg(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("geo_raw_org_mongodb")) {	        
-	        return new GeoRawOrgMongoDB(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new GeoRawOrgMongoDB(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("list_dir")) {	        
-	        return new ListDir(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new ListDir(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("list_dir_diff")) {	        
-	        return new ListDirDiff(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new ListDirDiff(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("list_dir_new")) {
-	    	return new ListDirNew(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	    	return new ListDirNew(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }	    
 	    else if (type.equals("null_source")) {
-	    	return new NullSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	    	return new NullSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("script_source")) {
-	    	return new ScriptSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	    	return new ScriptSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 	    else if (type.equals("hbase_source")) {
-		    return new HbaseSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		    return new HbaseSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		}
 	    else if (type.equals("mongodb_source")) {
-		    return new MongoDBSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		    return new MongoDBSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		}
 	    else if (type.equals("href_source")) {
-		    return new HREFSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		    return new HREFSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		}
 	    else if (type.equals("os_cmds_source")) {
-		    return new OsCmdsSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		    return new OsCmdsSource(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		}
 	    // Add more crawlers here
 	    //else if (type.equals("source")) {
-	    //    return new Source(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	    //    return new Source(sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    //}
 	    //
 	    else {
@@ -113,8 +113,8 @@ public class SourceFactory {
 	 * @param tmpDir directory for temporary files
 	 * @param datasetTable a dataset table object
 	 * @param localRootDir directory on local FS used as root for saving temporal files
-	 * @param hdfsStageMetaDir meta file directory for this stage in HDFS.
-	 * @param hdfsStageTmpDir tmp directory for this stage in HDFS  (can be null).
+	 * @param tfsStageMetaDir meta file directory for this stage in TFS.
+	 * @param tfsStageTmpDir tmp directory for this stage in TFS  (can be null).
 	 * @param pipelineTable tables.pipeline.Pipeline object
 	 * @param troilkattProperties troilkatt properties object
 	 * @param logger callers logger object
@@ -130,11 +130,11 @@ public class SourceFactory {
 		
 		TroilkattProperties troilkattProperties = pipeline.troilkattProperties;
 		String localRootDir = troilkattProperties.get("troilkatt.localfs.dir");
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
+		String tfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				OsPath.join("meta", pipeline.name));
-		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 0, sourceName));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
+		String tfsStageMetaDir = OsPath.join(tfsPipelineMetaDir, String.format("%03d-%s", 0, sourceName));
+		String tfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
-		return newSource(type, sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, logger);
+		return newSource(type, sourceName, args, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline, logger);
 	}
 }

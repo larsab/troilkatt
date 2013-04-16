@@ -10,7 +10,7 @@ import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.utils.Utils;
 
 /**
- * Troilkatt wrapper for HDFS
+ * Troilkatt wrapper for NFS
  * 
  * Note the code is written for version 0.20.X. Some minor changes are required for 0.21.X.
  */
@@ -66,7 +66,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * Copy file from NFS to the local FS directory, uncompress the file,
 	 * and remove the timestamp and compression extension. 
 	 * 
-	 * @param hdfsName filename in HDFS. The file must have a timestamp and compression extension.
+	 * @param nfsName filename in NFS. The file must have a timestamp and compression extension.
 	 * @param localDir directory on local FS where file is copied and uncompressed to.
 	 * @param tmpDir directory on local FS used to hold file before compression
 	 * @param logDir directory where logfiles are written to.
@@ -119,7 +119,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * be packed and compressed in which case the file is uncompressed and unpacked. Also,
 	 * remove the timestamps and compression extension from all files.
 	 * 
-	 * @param nfsName HDFS directory with files to download
+	 * @param nfsName NFS directory with files to download
 	 * @param localDir directory where files are written to
 	 * @param logDir directory for logfiles
 	 * @param tmpDir directory where temporal files are stored during uncompression
@@ -171,7 +171,7 @@ public class TroilkattNFS extends TroilkattFS {
 	}
 
 	/**
-	 * Compress a file, add a timestamp, and move the file from local FS to HDFS.
+	 * Compress a file, add a timestamp, and move the file from local FS to NFS.
 	 * 
 	 * NOTE! This function will move the source file, since we assume that there may be some large files
 	 * that are put to NFS and that creating multiple copies of these is both space and time consuming.
@@ -188,7 +188,7 @@ public class TroilkattNFS extends TroilkattFS {
 	public String putLocalFile(String localFilename, String nfsOutputDir, String tmpDir, String logDir, 
 			String compression, long timestamp) {
 		
-		logger.debug("Put local file " + localFilename + " to HDFS dir " + nfsOutputDir + " with timestamp " + timestamp + " using compression " + compression);						
+		logger.debug("Put local file " + localFilename + " to NFS dir " + nfsOutputDir + " with timestamp " + timestamp + " using compression " + compression);						
 		
 		/*
 		 * Check input file and output directory
@@ -242,7 +242,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * add a timestamp to the filename.
 	 * 
 	 * NOTE! This function will move the source file, since we assume that there may be some large files
-	 * that are put to HDFS and that creating multiple copies of these is both space and time consuming.
+	 * that are put to NFS and that creating multiple copies of these is both space and time consuming.
 	 *  
 	 * @param localFilename absolute filename on local FS. The filename should include a timestamp.
 	 * @param nfsOutputDir NFS output directory where file is copied.
@@ -250,7 +250,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * @param logDir logfile directory on local FS
 	 * @param compression compression method to use for file 
 	 * @param timestamp timestamp to add to file
-	 * @return HDFS filename on success, null otherwise
+	 * @return NFS filename on success, null otherwise
 	 */
 	@Override
 	public String putLocalFile(String localFilename, String nfsOutputDir, String tmpDir, String logDir, String compression) {
@@ -289,16 +289,16 @@ public class TroilkattNFS extends TroilkattFS {
 
 	/**
 	 * Create a directory using the timestamp as name, compress  the directory files, and copy the 
-	 * compressed directory from local FS to HDFS 
+	 * compressed directory from local FS to NFS 
 	 * 
-	 * @param nfsDir HDFS directory where new sub-directory is created
+	 * @param nfsDir NFS directory where new sub-directory is created
 	 * @param timestamp name for new sub-directory
-	 * @param metaFiles files to copy to HDFS
-	 * @param localFiles list of absolute filenames in directory to copy to HDFS
+	 * @param metaFiles files to copy to NFS
+	 * @param localFiles list of absolute filenames in directory to copy to NFS
 	 * @param compression method to use for directory 
 	 * @param logDir directory where logfiles are stored
 	 * @param tmpDir directory on local FS where compressed directory is stored
-	 * @return true if all files were copied to HDFS, false otherwise
+	 * @return true if all files were copied to NFS, false otherwise
 	 */
 	@Override
 	public boolean putLocalDirFiles(String nfsDir, long timestamp, ArrayList<String> localFiles, 
@@ -381,7 +381,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * @throws IOException 
 	 */
 	@Override
-	public String putHDFSFile(String srcFilename, String dstDir,
+	public String putTFSFile(String srcFilename, String dstDir,
 			String tmpDir, String logDir, 
 			String compression, long timestamp) throws IOException {
 		
@@ -414,7 +414,7 @@ public class TroilkattNFS extends TroilkattFS {
 	 * @throws IOException 
 	 */
 	@Override
-	public String putHDFSFile(String srcFilename, String dstDir) throws IOException { 
+	public String putTFSFile(String srcFilename, String dstDir) throws IOException { 
 			
 		if (! isfile(srcFilename)) {
 			logger.fatal("Source is not a file: " + srcFilename);
@@ -477,7 +477,6 @@ public class TroilkattNFS extends TroilkattFS {
 	/**
 	 * Mkdir that first checks if a directory exists. Otherwise it creates the directory.
 	 *
-	 * @param hdfs HDFS handle
 	 * @param dirName directory to create
 	 * @throws IOException if an IOException occurs or if the mkdir failed.
 	 */
@@ -520,7 +519,7 @@ public class TroilkattNFS extends TroilkattFS {
 	}
 	
 	/**
-	 * Delete a directory recursively in HDFS
+	 * Delete a directory recursively in NFS
 	 * 
 	 * @param directory to delete
 	 * @return true if directory was deleted, false otherwise
@@ -565,12 +564,12 @@ public class TroilkattNFS extends TroilkattFS {
 	}		
 	
 	/**
-	 * Copy a status file from HDFS to local FS
+	 * Copy a status file from NFS to local FS
 	 * 
-	 * @param nfsFilename Source HDFS filename
+	 * @param nfsFilename Source NFS filename
 	 * @param localFilename Destination local FS filename
 	 * @throws IOException
-	 * @throws TroilkattPropertiesException if invalid hdfsFilename
+	 * @throws TroilkattPropertiesException if invalid nfsFilename
 	 */	
 	public void getStatusFile(String nfsFilename, String localFilename) throws IOException, TroilkattPropertiesException {
 			
@@ -581,13 +580,13 @@ public class TroilkattNFS extends TroilkattFS {
 			System.out.println("Status file not found: " + localFilename);			
 						
 			if (isfile(nfsFilename)) {
-				if (Utils.getYesOrNo("Download from HDFS?", true)) {
-					logger.debug(String.format("Copy HDFS file %s to local file %s\n", nfsFilename, localFilename));
+				if (Utils.getYesOrNo("Download from NFS?", true)) {
+					logger.debug(String.format("Copy NFS file %s to local file %s\n", nfsFilename, localFilename));
 					OsPath.copy(nfsFilename, localFilename);											
 				}
 			}
 			else {
-				logger.info("Status file not in local FS nor HDFS");
+				logger.info("Status file not in local FS nor NFS");
 				System.out.println("Creating new status file");
 				logger.info("Create new status file");
 				File nf = new File(localFilename);
@@ -599,33 +598,33 @@ public class TroilkattNFS extends TroilkattFS {
 					logger.fatal("Could not create new status file: " + e);
 					throw e;
 				}	
-				// Attempt to save new status file to verify that the HDFS path is valid
+				// Attempt to save new status file to verify that the NFS path is valid
 				try {
 					saveStatusFile(localFilename, nfsFilename);
 				} catch (IOException e) {
-					throw new TroilkattPropertiesException("Invalid HDFS status filename: " + nfsFilename);
+					throw new TroilkattPropertiesException("Invalid NFS status filename: " + nfsFilename);
 				}
 			}
 		}
 		else { // file in local FS
-			//TODO: verify that the files on local and HDFS match
+			//TODO: verify that the files on local and NFS match
 			
 			// TODO: verify that the status file is not corrupt
 		}
 	}
 	
 	/**
-	 * Copy a status file from local FS to HDFS
+	 * Copy a status file from local FS to NFS
 	 * 
 	 * @param localFilename Source local FS filename
-	 * @param hdfsFilename Destination HDFS filename
+	 * @param nfsFilename Destination NFS filename
 	 * 
-	 * @throws IOException if file could not be copeid to HDFS
+	 * @throws IOException if file could not be copeid to NFS
 	 * @throws TroilkattPropertiesException 
 	 */
 	public void saveStatusFile(String localFilename, String nfsFilename) throws IOException, TroilkattPropertiesException {	
 		
-		logger.info(String.format("Copy status file %s to HDFS file %s\n", localFilename, nfsFilename));
+		logger.info(String.format("Copy status file %s to NFS file %s\n", localFilename, nfsFilename));
 		if (isfile(nfsFilename)) {
 			logger.debug("Deleting older version of status file");
 			deleteFile(nfsFilename);

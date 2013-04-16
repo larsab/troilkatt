@@ -531,7 +531,7 @@ public class TroilkattHDFS extends TroilkattFS {
 	 * @throws IOException 
 	 */
 	@Override
-	public String putHDFSFile(String srcFilename, String dstDir,
+	public String putTFSFile(String srcFilename, String dstDir,
 			String tmpDir, String logDir, 
 			String compression, long timestamp) throws IOException {
 		
@@ -641,7 +641,7 @@ public class TroilkattHDFS extends TroilkattFS {
 	 * @throws IOException 
 	 */
 	@Override
-	public String putHDFSFile(String srcFilename, String dstDir) throws IOException { 
+	public String putTFSFile(String srcFilename, String dstDir) throws IOException { 
 			
 		if (! isfile(srcFilename)) {
 			logger.fatal("Source is not a file: " + srcFilename);

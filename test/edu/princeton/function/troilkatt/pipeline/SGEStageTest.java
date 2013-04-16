@@ -116,7 +116,7 @@ public class SGEStageTest extends TestSuperNFS {
 		assertEquals("gz", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "compression.format"));
 		assertTrue(Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "storage.time")) == -1);			
 		assertEquals("/nfs/tmp/log", TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "nfs.log.dir"));		
-		assertEquals(sges.hdfsMetaDir, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "nfs.meta.dir"));	
+		assertEquals(sges.tfsMetaDir, TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "nfs.meta.dir"));	
 		assertEquals(OsPath.join(troilkattProperties.get("troilkatt.localfs.sge.dir"), "pipeline"), TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.pipeline.dir"));
 		assertEquals(OsPath.join(troilkattProperties.get("troilkatt.localfs.sge.dir"), "tmp"), TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.tmp.dir"));
 		assertNotNull(TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "logging.level"));		
@@ -248,7 +248,7 @@ public class SGEStageTest extends TestSuperNFS {
 		/*
 		 * Test meta and logfile
 		 */		
-		assertTrue(OsPath.isfile(OsPath.join(sges.hdfsMetaDir, "3222.tar.gz")));
+		assertTrue(OsPath.isfile(OsPath.join(sges.tfsMetaDir, "3222.tar.gz")));
 		assertTrue(sges.logTable.containsFile(sges.stageName, 3222, "sge_2.out"));		
 	}
 

@@ -122,11 +122,11 @@ public class ScriptSourceTest extends TestSuper {
 				pipeline);
 		
 		// Make sure HDFS dirs are empty
-		tfs.deleteDir(source.hdfsOutputDir);
-		tfs.mkdir(source.hdfsOutputDir);
+		tfs.deleteDir(source.tfsOutputDir);
+		tfs.mkdir(source.tfsOutputDir);
 		source.logTable.schema.clearTable();
-		tfs.deleteDir(source.hdfsMetaDir);
-		tfs.mkdir(source.hdfsMetaDir);
+		tfs.deleteDir(source.tfsMetaDir);
+		tfs.mkdir(source.tfsMetaDir);
 		
 		// Write arguments file to meta dir
 		String[] files = {OsPath.join(dataDir, "files/file1"),
@@ -150,8 +150,8 @@ public class ScriptSourceTest extends TestSuper {
 		Collections.sort(outputFiles);
 		assertTrue(outputFiles.get(0).endsWith("file1.107.bz2"));
 		assertTrue(outputFiles.get(1).endsWith("file2.107.bz2"));
-		assertTrue(tfs.isfile(OsPath.join(source.hdfsOutputDir, "file1.107.bz2")));
-		assertTrue(tfs.isfile(OsPath.join(source.hdfsOutputDir, "file2.107.bz2")));		
+		assertTrue(tfs.isfile(OsPath.join(source.tfsOutputDir, "file1.107.bz2")));
+		assertTrue(tfs.isfile(OsPath.join(source.tfsOutputDir, "file2.107.bz2")));		
 		//assertTrue(source.logTable.containsFile(0, "scriptSource", 107, "scriptSourceTest.out"));
 	}
 	

@@ -1,8 +1,5 @@
 package edu.princeton.function.troilkatt.sink;
 
-/**
- * Sink for writing processed data to the global meta directory.
- */
 import java.util.ArrayList;
 
 import edu.princeton.function.troilkatt.Pipeline;
@@ -11,6 +8,9 @@ import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
+/**
+ * Sink for writing processed data to the global meta directory.
+ */
 public class GlobalMeta extends Sink {
 	protected String downloadDir;
 	
@@ -21,11 +21,11 @@ public class GlobalMeta extends Sink {
 	 * @param args: sub-directory on global meta-dir
 	 */
 	public GlobalMeta(int stageNum, String sinkName, String args,
-			String localRootDir, String hdfsStageMetaDir,
-			String hdfsStageTmpDir, Pipeline pipeline)
+			String localRootDir, String tfsStageMetaDir,
+			String tfsStageTmpDir, Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
-		super(stageNum, sinkName, args, localRootDir, hdfsStageMetaDir,
-				hdfsStageTmpDir, pipeline);		
+		super(stageNum, sinkName, args, localRootDir, tfsStageMetaDir,
+				tfsStageTmpDir, pipeline);		
 		
 		if (args != null) {
 			downloadDir = OsPath.join(this.globalMetaDir, this.args);
@@ -42,9 +42,9 @@ public class GlobalMeta extends Sink {
 	}
 
 	/**
-	 * Function called to download files from HDFS to the global meta directory 
+	 * Function called to download files from TFS to the global meta directory 
 	 * 
-	 * @param inputFiles list of HDFS input files to sink.
+	 * @param inputFiles list of TFS input files to sink.
 	 * @param metaFiles list of meta files.
 	 * @param logFiles list for storing log files.
 	 * @return list of output files.

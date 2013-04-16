@@ -16,6 +16,9 @@ import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.GeoGSE2Pcl;
 import edu.princeton.function.troilkatt.tools.ParseException;
 
+/**
+ * Split an GEO series (GSEXXX.soft) into platform specific soft files 
+ */
 public class GeoGSESplit extends GeoGSE2Pcl {
 	
 	/**

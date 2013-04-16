@@ -11,7 +11,7 @@ import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 /**
- * Generic source class. Different soure implementations inherit from this class.
+ * Generic source class. Different source implementations inherit from this class.
  *
  * A source is a special case of a pipeline stage.
  *
@@ -25,22 +25,22 @@ public class Source extends Stage {
 	 *
 	 * @param name name of the stage.
 	 * @param args stage specific arguments.
-	 * @param outputDirectory stage output directory in HDFS
+	 * @param outputDirectory stage output directory in TFS
 	 * @param compressionFormat compression to use for output files
 	 * @param storageTime persistent storage time for output files in days. If -1 files
 	 * are stored forever.
 	 * @param localRootDir directory on local FS used as root for saving temporal files
-	 * @param hdfsStageMetaDir meta file directory for this stage in HDFS.
-	 * @param hdfsStageTmpDir tmp directory for this stage in HDFS  (can be null).
+	 * @param tfsStageMetaDir meta file directory for this stage in TFS.
+	 * @param tfsStageTmpDir tmp directory for this stage in TFS (can be null).
 	 * @param pipeline pipeline this stage belongs to.	
 	 * @throws TroilkattPropertiesException if there is an error in the Troilkatt configuration file
 	 * @throws StageInitException if the stage cannot be initialized
 	 */
 	public Source(String name, String arguments, String outputDir, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 
-		super(0, name, arguments, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);		
+		super(0, name, arguments, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);		
 		this.logger = Logger.getLogger("troilkatt.source-" + name);	          			
 	}
 
@@ -48,16 +48,16 @@ public class Source extends Stage {
 	 * When updating a dataset this function is called to initiate the crawling. This
 	 * function does the following:
 	 * 
-	 * 1. Download meta-data files from HDFS
+	 * 1. Download meta-data files from TFS
 	 * 2. Call retrieve() to retrieve data (function must be implemented by a subclass)
-	 * 3. Save all files in the log and meta directories to HDFS.
+	 * 3. Save all files in the log and meta directories to TFS.
 	 * 
 	 * Note! files in the output directory are not automatically saved since it is
 	 * assumed that each subclass will implement its own file save or just use the 
 	 * provided saveOutputFiles method.
 	 *
 	 * @param timestamp timestamp added to output files.
-	 * @return list of output filenames (HDFS filenames)
+	 * @return list of output filenames (TFS filenames)
 	 * @throws StageException if files could not be retrieved 
 	 */
 	public ArrayList<String> retrieve2(long timestamp) throws StageException {
@@ -68,11 +68,11 @@ public class Source extends Stage {
 		ArrayList<String> logFiles = new ArrayList<String>();
 		
 		// Retrieve new files	
-		ArrayList<String> hdfsOutputFiles = null;
+		ArrayList<String> tfsOutputFiles = null;
 		StageException eThrown = null;
 		try {
-			hdfsOutputFiles = retrieve(metaFiles, logFiles, timestamp);
-			logger.info("Retrive returned: " + hdfsOutputFiles.size());
+			tfsOutputFiles = retrieve(metaFiles, logFiles, timestamp);
+			logger.info("Retrive returned: " + tfsOutputFiles.size());
 			saveMetaFiles(metaFiles, timestamp);
 		} catch (StageException e) {
 			// Do not throw exception until log files have been saved
@@ -83,7 +83,7 @@ public class Source extends Stage {
 		// Save log files to BigTable and do cleanup
 		saveLogFiles(logFiles, timestamp);		
 		cleanupLocalDirs();
-		cleanupHDFSDirs();
+		cleanupTFSDirs();
 		
 		if (eThrown != null) {			
 			throw eThrown;
@@ -91,7 +91,7 @@ public class Source extends Stage {
 				
 		logger.debug("Retrive done at " + timestamp);
 		
-		return hdfsOutputFiles;
+		return tfsOutputFiles;
 	}
 
 	/**
@@ -105,12 +105,12 @@ public class Source extends Stage {
 	public  ArrayList<String> recover(long timestamp) throws StageException {
 		logger.debug("Recover retrieve at " + timestamp);
 
-		if ((hdfsOutputDir != null) && (! hdfsOutputDir.isEmpty())) {
+		if ((tfsOutputDir != null) && (! tfsOutputDir.isEmpty())) {
 			// Read files from previous iteration
 			try {
-				return tfs.listdirT(hdfsOutputDir, timestamp);
+				return tfs.listdirT(tfsOutputDir, timestamp);
 			} catch (IOException e) {
-				logger.fatal("Could not list files in outputdirectory: " + hdfsOutputDir, e);
+				logger.fatal("Could not list files in outputdirectory: " + tfsOutputDir, e);
 				throw new StageException("Could not recover files from last iteration");
 			}
 		}
@@ -128,7 +128,7 @@ public class Source extends Stage {
 	 * Any new meta files are added to tis list
 	 * @param logFiles list for storing log filenames.
 	 * @param timestamp of Troilkatt iteration.
-	 * @return list of output files in HDFS.
+	 * @return list of output files in TFS.
 	 * @throws StageException thrown if stage cannot be executed.
 	 */
 	protected ArrayList<String> retrieve(ArrayList<String> metaFiles, 
@@ -177,7 +177,7 @@ public class Source extends Stage {
 	 * Sources do not download input files
 	 */
 	@Override
-	public ArrayList<String> downloadInputFiles(ArrayList<String> hdfsFiles) throws StageException {
+	public ArrayList<String> downloadInputFiles(ArrayList<String> tfsFiles) throws StageException {
 		logger.fatal("downloadInputFiles() called for source");
 		throw new RuntimeException("downloadInputFiles() called for source");
 	}

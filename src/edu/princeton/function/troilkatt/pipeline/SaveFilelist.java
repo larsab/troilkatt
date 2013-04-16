@@ -22,11 +22,11 @@ public class SaveFilelist extends Stage {
 	 */
 	public SaveFilelist(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 				pipeline);
 		
 		if ((outputDirectory != null) && (! outputDirectory.isEmpty())) {
@@ -48,13 +48,13 @@ public class SaveFilelist extends Stage {
 	 * meta nor logfiles
 	 */
 	@Override
-	public ArrayList<String> process2(ArrayList<String> inputHDFSFiles, long timestamp) throws StageException {
+	public ArrayList<String> process2(ArrayList<String> inputTFSFiles, long timestamp) throws StageException {
 		logger.debug("Start process2() at " + timestamp);
 		
 		// Do processing (i.e. write input filenames to a file)
 		try {
 			logger.info("Write to file: " + listFilename);
-			FSUtils.writeTextFile(listFilename, inputHDFSFiles);
+			FSUtils.writeTextFile(listFilename, inputTFSFiles);
 		} catch (IOException e) {
 			logger.error("Could not write to file: " + listFilename, e);
 			throw new StageException("Could not write to file: " + listFilename);
@@ -62,7 +62,7 @@ public class SaveFilelist extends Stage {
 		
 		// And return the input files
 		logger.debug("Process2() done at " + timestamp);
-		return inputHDFSFiles;
+		return inputTFSFiles;
 	}
 	
 	/**

@@ -98,13 +98,13 @@ public class GeoGDSMirrorTest extends TestSuper {
 		
 		// Copy fake GDS files to HDFS output dir
 		Path srcFile = new Path(OsPath.join(dataDir, configurationFile));		
-		tfs.deleteDir(source.hdfsOutputDir);
-		tfs.mkdir(source.hdfsOutputDir);
-		tfs.hdfs.copyFromLocalFile(srcFile, new Path(OsPath.join(source.hdfsOutputDir, "GDS1.100.bz2")));
-		tfs.hdfs.copyFromLocalFile(srcFile, new Path(OsPath.join(source.hdfsOutputDir, "GDS2.101.bz2")));
-		tfs.hdfs.copyFromLocalFile(srcFile, new Path(OsPath.join(source.hdfsOutputDir, "GDS3.101.bz2")));
+		tfs.deleteDir(source.tfsOutputDir);
+		tfs.mkdir(source.tfsOutputDir);
+		tfs.hdfs.copyFromLocalFile(srcFile, new Path(OsPath.join(source.tfsOutputDir, "GDS1.100.bz2")));
+		tfs.hdfs.copyFromLocalFile(srcFile, new Path(OsPath.join(source.tfsOutputDir, "GDS2.101.bz2")));
+		tfs.hdfs.copyFromLocalFile(srcFile, new Path(OsPath.join(source.tfsOutputDir, "GDS3.101.bz2")));
 		
-		HashSet<String> oldIDs = source.getOldIDs(source.hdfsOutputDir);
+		HashSet<String> oldIDs = source.getOldIDs(source.tfsOutputDir);
 		assertEquals(3, oldIDs.size());
 		assertTrue(oldIDs.contains("GDS1"));
 		assertTrue(oldIDs.contains("GDS2"));
@@ -159,7 +159,7 @@ public class GeoGDSMirrorTest extends TestSuper {
 		FTPClient ftp = new FTPClient();		
 	    assertTrue(source.connectFTP(ftp));
 		String hdfsName = source.downloadFile(ftp, "GDS312.soft.gz", 109);
-		assertEquals(OsPath.join(source.hdfsOutputDir, "GDS312.soft.109.bz2"), hdfsName);
+		assertEquals(OsPath.join(source.tfsOutputDir, "GDS312.soft.109.bz2"), hdfsName);
 		assertTrue(tfs.isfile(hdfsName));
 		
 		String localName = tfs.getFile(hdfsName, outDir, tmpDir, logDir);

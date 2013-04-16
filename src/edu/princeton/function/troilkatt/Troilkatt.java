@@ -243,7 +243,7 @@ public class Troilkatt {
 				"troilkatt.localfs.utils.dir",
 				"troilkatt.localfs.scripts.dir"};
 		
-		String[] hdfsDirs = {"troilkatt.tfs.root.dir"};
+		String[] tfsDirs = {"troilkatt.tfs.root.dir"};
 		
 		for (String p: localDirs) {
 			String d = troilkattProperties.get(p);
@@ -253,7 +253,7 @@ public class Troilkatt {
 			}
 		}
 		
-		for (String p: hdfsDirs) {
+		for (String p: tfsDirs) {
 			String d = troilkattProperties.get(p);
 			if (! tfs.isdir(d)) {
 				System.err.printf("Warning: directory %s does not exist on local file system: %s\n", p, d);				
@@ -282,7 +282,7 @@ public class Troilkatt {
 				"troilkatt.localfs.mapreduce.dir",
 				"troilkatt.localfs.sge.dir"};
 		
-		String[] hdfsDirs = {"troilkatt.tfs.root.dir"};
+		String[] tfsDirs = {"troilkatt.tfs.root.dir"};
 		
 		for (String p: localDirs) {
 			String d = troilkattProperties.get(p);
@@ -296,12 +296,12 @@ public class Troilkatt {
 			}
 		}
 		
-		for (String p: hdfsDirs) {
+		for (String p: tfsDirs) {
 			String d = troilkattProperties.get(p);
 			if (! tfs.isdir(d)) {
 				System.err.printf("Warning: directory %s does not exist on local file system: %s\n", p, d);				
 				tfs.mkdir(d);
-				System.err.println("Warning: HDFS directory created: " + d);
+				System.err.println("Warning: tfs directory created: " + d);
 				if (! tfs.isdir(d)) {
 					throw new IOException("Could not create directory: " + d);
 				}
@@ -310,25 +310,25 @@ public class Troilkatt {
 	}
 	
 	/**
-	 * Copy  global meta files from HDFS to local FS, and ensure that all 
+	 * Copy  global meta files from tfs to local FS, and ensure that all 
 	 * files are readable by other (such as MapReduce) users.
 	 * 
 	 * @param tfs initialized TFS handle
-	 * @param hdfsGlobalMetaDir directory on HDFS to download
+	 * @param tfsGlobalMetaDir directory on tfs to download
 	 * @param localfsGlobalMetaDir directory on local FS where files are downloaded to
 	 * @param logDir logfile directory
 	 * @param tmpDir temp file directory
 	 * @throws IOException 
 	 */
 	protected void downloadGlobalMetaFiles(TroilkattFS tfs,
-			String hdfsGlobalMetaDir, String localfsGlobalMetaDir,
+			String tfsGlobalMetaDir, String localfsGlobalMetaDir,
 			String logDir, String tmpDir) throws IOException {		
-		String newestGlobalMetaDir = tfs.getNewestDir(hdfsGlobalMetaDir);
+		String newestGlobalMetaDir = tfs.getNewestDir(tfsGlobalMetaDir);
 		if (newestGlobalMetaDir == null) {
 			logger.warn("No global meta data!");				
 		}
 		else {
-			ArrayList<String> globalMetaFiles = tfs.getDirFiles(OsPath.join(hdfsGlobalMetaDir, newestGlobalMetaDir), localfsGlobalMetaDir, logDir, tmpDir);		
+			ArrayList<String> globalMetaFiles = tfs.getDirFiles(OsPath.join(tfsGlobalMetaDir, newestGlobalMetaDir), localfsGlobalMetaDir, logDir, tmpDir);		
 			if (globalMetaFiles == null) {
 				logger.fatal("Could not download global meta files");
 				throw new IOException("Could not download global meta files");
@@ -398,12 +398,12 @@ public class Troilkatt {
 	 * Helper function to list all leaf sub directories
 	 * 
 	 * @param tfs initialized TFS handle
-	 * @param hdfsRootDir root directory
+	 * @param tfsRootDir root directory
 	 * @return list of leaf sub directories
 	 */
-	protected ArrayList<String> listAllLeafDirs(TroilkattFS tfs, String hdfsRootDir) {		
+	protected ArrayList<String> listAllLeafDirs(TroilkattFS tfs, String tfsRootDir) {		
 		ArrayList<String> leafDirs = new ArrayList<String>();
-		addLeafDirsR(tfs, hdfsRootDir, leafDirs);
+		addLeafDirsR(tfs, tfsRootDir, leafDirs);
 		return leafDirs;
 	}
 
@@ -473,8 +473,8 @@ public class Troilkatt {
 		/*
 		 * Setup temporary directories for the main thread
 		 */
-		String hdfsRootDir = troilkattProperties.get("troilkatt.tfs.root.dir");
-		String hdfsGlobalMetaDir = OsPath.join(hdfsRootDir, "global-meta");
+		String tfsRootDir = troilkattProperties.get("troilkatt.tfs.root.dir");
+		String tfsGlobalMetaDir = OsPath.join(tfsRootDir, "global-meta");
 		String localfsGlobalMetaDir = troilkattProperties.get("troilkatt.globalfs.global-meta.dir");
 		OsPath.mkdir(localfsGlobalMetaDir);
 		String rootLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "troilkatt");
@@ -531,7 +531,7 @@ public class Troilkatt {
 				throw new IOException("Could not list files global meta directoy");
 			}
 			System.out.println("got " + globalFSFiles.length + " files");
-			if (tfs.putLocalDirFiles(hdfsGlobalMetaDir, lastTimestamp, Utils.array2list(globalFSFiles), "tar.gz", rootLogDir, rootTmpDir) == false) {
+			if (tfs.putLocalDirFiles(tfsGlobalMetaDir, lastTimestamp, Utils.array2list(globalFSFiles), "tar.gz", rootLogDir, rootTmpDir) == false) {
 				throw new IOException("Could not save global meta files");
 			}
 
@@ -563,7 +563,7 @@ public class Troilkatt {
 			if (firstTime && (! args.get("only").equals("cleanup"))) {
 				// Only need to download global meta data after first loop			
 				downloadGlobalMetaFiles(tfs,
-						hdfsGlobalMetaDir,
+						tfsGlobalMetaDir,
 						localfsGlobalMetaDir,
 						rootLogDir,
 						rootTmpDir);
@@ -605,7 +605,7 @@ public class Troilkatt {
 				if (globalFSFiles == null) {
 					throw new IOException("Could not list files global meta directoy");
 				}
-				if (tfs.putLocalDirFiles(hdfsGlobalMetaDir, timestamp, Utils.array2list(globalFSFiles), "tar.gz", rootLogDir, rootTmpDir) == false) {
+				if (tfs.putLocalDirFiles(tfsGlobalMetaDir, timestamp, Utils.array2list(globalFSFiles), "tar.gz", rootLogDir, rootTmpDir) == false) {
 					throw new IOException("Could not save global meta files");
 				}
 				status.saveStatusFile();
@@ -631,8 +631,8 @@ public class Troilkatt {
 				logger.info("Skipping cleanup");
 			}
 			else {
-				ArrayList<String> allDirs = listAllLeafDirs(tfs, OsPath.join(hdfsRootDir, "data"));
-				allDirs.addAll(listAllLeafDirs(tfs, OsPath.join(hdfsRootDir, "meta")));
+				ArrayList<String> allDirs = listAllLeafDirs(tfs, OsPath.join(tfsRootDir, "data"));
+				allDirs.addAll(listAllLeafDirs(tfs, OsPath.join(tfsRootDir, "meta")));
 				for (Pipeline p: pipelines) {
 					logger.info("Clean: pipeline "  + p.name);
 					ArrayList<String> cleanedDirs = p.cleanup(timestamp);

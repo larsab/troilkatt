@@ -3,15 +3,19 @@ package edu.princeton.function.troilkatt.pipeline;
 import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 
+/**
+ * Execute troilkatt scripts in parallel using SGE.
+ *
+ */
 public class ScriptPerFileSGE extends ExecutePerFileSGE {
 
 	public ScriptPerFileSGE(int stageNum, String name, String args,
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir,
-			String hdfsStageTmpDir, Pipeline pipeline)
+			String localRootDir, String nfsStageMetaDir,
+			String nfsStageTmpDir, Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, outputDirectory, compressionFormat,
-				storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				storageTime, localRootDir, nfsStageMetaDir, nfsStageTmpDir,
 				pipeline);
 		
 		String[] cmdParts = args.split(" ");

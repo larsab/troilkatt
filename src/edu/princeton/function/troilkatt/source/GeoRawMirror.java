@@ -22,7 +22,6 @@ import edu.princeton.function.troilkatt.tools.FilenameUtils;
 
 /**
  * Mirror GEO raw files
- *
  */
 public class GeoRawMirror extends GeoGDSMirror {
 	public static final String rawFtpDir = "/pub/geo/DATA/supplementary/series";
@@ -31,11 +30,11 @@ public class GeoRawMirror extends GeoGDSMirror {
 	
 	public GeoRawMirror(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, 
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
 		super(name, arguments, outputDir, compressionFormat, storageTime,
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, rawFtpDir);		
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline, rawFtpDir);		
 		
 		// Debug
 		/*String[] argsParts = splitArgs(this.args);
@@ -76,7 +75,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 		logger.info("Retrieve at: " + timestamp);
 	
 		// Get list of files that have not already been downloaded
-		HashSet<String> oldIDs = getOldIDs(hdfsOutputDir);		
+		HashSet<String> oldIDs = getOldIDs(tfsOutputDir);		
 		// Create log file with old IDs
 		String oldLog = OsPath.join(stageLogDir, "old");
 		try {
@@ -119,7 +118,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 			logger.warn(e1.toString());
 		}
 		
-		// Download new files from FTP server, one at a time, save the file in HDFS,
+		// Download new files from FTP server, one at a time, save the file in tfs,
 		// and then delete the file on the local FS
 		ArrayList<String> outputFiles = new ArrayList<String>();
 		ArrayList<String> outputIDs = new ArrayList<String>();
@@ -132,17 +131,17 @@ public class GeoRawMirror extends GeoGDSMirror {
 				continue;
 			}				
 
-			// Upload file to HDFS
-			String hdfsFilename = tfs.putLocalFile(outputFilename, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);
+			// Upload file to tfs
+			String tfsFilename = tfs.putLocalFile(outputFilename, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);
 			String id = FilenameUtils.getDsetID(n, false);
-			if (hdfsFilename != null) {
-				outputFiles.add(hdfsFilename);
+			if (tfsFilename != null) {
+				outputFiles.add(tfsFilename);
 				outputIDs.add(id);
 			}
 			else {
-				logger.fatal("Could not copy downloaded file to HDFS");
+				logger.fatal("Could not copy downloaded file to tfs");
 				OsPath.delete(outputFilename);
-				throw new StageException("Could not copy downloaded file to HDFS");
+				throw new StageException("Could not copy downloaded file to tfs");
 			}
 
 			// Delete downloaded file

@@ -19,10 +19,10 @@ public class NullSink extends Sink {
 	 * See superclass for parameters.
 	 */
 	public NullSink(int stageNum, String sinkName, String args,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
-		super(stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);	
+		super(stageNum, sinkName, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);	
 	}
 
 	/**

@@ -24,7 +24,7 @@ import edu.princeton.function.troilkatt.pipeline.StageException;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 /**
- * Retrieves all raw files for an organism
+ * Download all raw files for an organism from the GEO FTP server.
  *
  */
 public class GeoRawOrgMongoDB extends GeoGDSMirror {
@@ -50,11 +50,11 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 	 */
 	public GeoRawOrgMongoDB(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, 
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String nfsStageMetaDir, String nfsStageTmpDir,
 			Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
 		super(name, arguments, outputDir, compressionFormat, storageTime,
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, rawFtpDir);
+				localRootDir, nfsStageMetaDir, nfsStageTmpDir, pipeline, rawFtpDir);
 		
 		
 		
@@ -194,7 +194,7 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 		}
 		
 		/*
-		 * Download new files from FTP server, one at a time, save the file in HDFS,
+		 * Download new files from FTP server, one at a time, save the file in NFS,
 		 * and then delete the file on the local FS
 		 */
 		ArrayList<String> outputFiles = new ArrayList<String>();
@@ -210,16 +210,16 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 				continue;
 			}				
 
-			// Upload file to HDFS
-			String hdfsFilename = tfs.putLocalFile(outputFilename, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);				
-			if (hdfsFilename != null) {
-				outputFiles.add(hdfsFilename);
+			// Upload file to NFS
+			String nfsFilename = tfs.putLocalFile(outputFilename, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);				
+			if (nfsFilename != null) {
+				outputFiles.add(nfsFilename);
 				outputIDs.add(i);
 			}
 			else {
-				logger.fatal("Could not copy downloaded file to HDFS");
+				logger.fatal("Could not copy downloaded file to NFS");
 				OsPath.delete(outputFilename);
-				throw new StageException("Could not copy downloaded file to HDFS");
+				throw new StageException("Could not copy downloaded file to NFS");
 			}
 
 			// Update metafile with new downloaded file ID

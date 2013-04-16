@@ -22,7 +22,7 @@ import edu.princeton.function.troilkatt.tools.FilenameUtils;
 /**
  * Mirror all GEO GDS (dataset) files.
  */
-public class GeoGDSMirror extends HDFSSource {
+public class GeoGDSMirror extends TFSSource {
 	protected final String ftpServer = "ftp.ncbi.nih.gov";	
 	public static final String GDSftpDir = "/pub/geo/DATA/SOFT/GDS";
 	
@@ -41,10 +41,10 @@ public class GeoGDSMirror extends HDFSSource {
 	 */
 	public GeoGDSMirror(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, 
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
-		this(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, GDSftpDir);
+		this(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline, GDSftpDir);
 	}
 	
 	/**
@@ -59,10 +59,10 @@ public class GeoGDSMirror extends HDFSSource {
 	 */
 	public GeoGDSMirror(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, 
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline,	String dir)
 			throws TroilkattPropertiesException, StageInitException {
-		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+		super(name, arguments, outputDir, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 		
 		this.ftpDir = dir;
 		adminEmail = troilkattProperties.get("troilkatt.admin.email");		
@@ -94,12 +94,12 @@ public class GeoGDSMirror extends HDFSSource {
 	}
 	
 	/**
-	 * Download new files from the GEO FTP server and save these in HDFS.
+	 * Download new files from the GEO FTP server and save these in tfs.
 	 * 
 	 * @param metaFiles ignored
 	 * @param logFiles list of log files which includes a file with the files new, and 
 	 * downloaded files for each iteration.
-	 * @return list of output files in HDFS
+	 * @return list of output files in tfs
 	 * @throws StageException 
 	 */
 	@Override
@@ -121,7 +121,7 @@ public class GeoGDSMirror extends HDFSSource {
 		}
 	
 		// Get list of files that have not already been downloaded
-		HashSet<String> oldIDs = getOldIDs(hdfsOutputDir);		
+		HashSet<String> oldIDs = getOldIDs(tfsOutputDir);		
 		// Create log file with old IDs
 		String oldLog = OsPath.join(stageLogDir, "old");
 		try {
@@ -144,13 +144,13 @@ public class GeoGDSMirror extends HDFSSource {
 			logger.warn(e1.toString());
 		}
 		
-		// Download new files from FTP server, one at a time, save the file in HDFS,
+		// Download new files from FTP server, one at a time, save the file in tfs,
 		// and then delete the file on the local FS
 		ArrayList<String> outputFiles = new ArrayList<String>();
 		ArrayList<String> outputIDs = new ArrayList<String>();
 		for (String n: newFiles) {
-			String hdfsFilename = downloadFile(ftp, n, timestamp);
-			if (hdfsFilename == null) {
+			String tfsFilename = downloadFile(ftp, n, timestamp);
+			if (tfsFilename == null) {
 				logger.warn("File with ID: " + n + " not downloaded");
 				// Sleep a while before continuing
 				try {
@@ -182,7 +182,7 @@ public class GeoGDSMirror extends HDFSSource {
 				continue;
 			}
 			String id = OsPath.basename(n).split("\\.")[0];
-			outputFiles.add(hdfsFilename);
+			outputFiles.add(tfsFilename);
 			outputIDs.add(id);
 		}	
 		
@@ -209,22 +209,22 @@ public class GeoGDSMirror extends HDFSSource {
 	/**
 	 * Helper function to create a hash set with the IDs of previously downloaded datasets.
 	 * 
-	 * @param hdfsOutputDir directory with previously downloaded datasets	
-	 * @return list with datasets IDs in hdfsOutputDir
-	 * @throws StageException if hdfsOutputDir could not be listed
+	 * @param tfsOutputDir directory with previously downloaded datasets	
+	 * @return list with datasets IDs in tfsOutputDir
+	 * @throws StageException if tfsOutputDir could not be listed
 	 */
-	protected HashSet<String> getOldIDs(String hdfsOutputDir) throws StageException {		
+	protected HashSet<String> getOldIDs(String tfsOutputDir) throws StageException {		
 		
 		// Get list of files already downloaded
 		ArrayList<String> oldFiles;
 		try {
-			oldFiles = tfs.listdirR(hdfsOutputDir);
+			oldFiles = tfs.listdirR(tfsOutputDir);
 		} catch (IOException e2) {
 			logger.fatal("Could not list output directory: " + e2.toString());
 			throw new StageException("Could not list output directory");
 		}
 		if (oldFiles == null) {
-			logger.fatal("Could not list output directory: " + hdfsOutputDir);
+			logger.fatal("Could not list output directory: " + tfsOutputDir);
 			throw new StageException("Could not list output directory");
 		}
 		HashSet<String> oldIDs = new HashSet<String>();
@@ -315,11 +315,11 @@ public class GeoGDSMirror extends HDFSSource {
 	}
 
 	/**
-	 * Helper function to download a file, unpack it, and save the unpacked files in HDFS.
+	 * Helper function to download a file, unpack it, and save the unpacked files in tfs.
 	 * 
 	 * @param filename file to download. The file should be in the ftpDir
-	 * @return HDFS filename or null if file could not be downlaoded
-	 * @throws StageException if an exception occurs during download, unpacking or HDFS save
+	 * @return tfs filename or null if file could not be downlaoded
+	 * @throws StageException if an exception occurs during download, unpacking or tfs save
 	 */
 	protected String downloadFile(FTPClient ftp, String filename, long timestamp) throws StageException {
 	
@@ -368,15 +368,15 @@ public class GeoGDSMirror extends HDFSSource {
 	
 		for (String u: unpackedFiles) {
 			if (u.endsWith(".SOFT") || u.endsWith(".soft")) {
-				String hdfsFilename = tfs.putLocalFile(u, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);				
+				String tfsFilename = tfs.putLocalFile(u, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);				
 				OsPath.delete(u);
-				if (hdfsFilename != null) {
+				if (tfsFilename != null) {
 					// File was successfully downloaded
-					return hdfsFilename;
+					return tfsFilename;
 				}
 				else {
-					logger.fatal("Could not copy downloaded file to HDFS");					
-					throw new StageException("Could not copy downloaded file to HDFS");
+					logger.fatal("Could not copy downloaded file to tfs");					
+					throw new StageException("Could not copy downloaded file to tfs");
 				}
 			}
 		}		

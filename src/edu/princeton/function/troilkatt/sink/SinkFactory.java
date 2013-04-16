@@ -12,19 +12,19 @@ public class SinkFactory {
 
 	public static Sink newSink(String type, int stageNum, String sinkName,
 			String args, 
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline, Logger logger) throws TroilkattPropertiesException, StageInitException {
 		if (type.equals("copy_to_local")) {
-	        return new CopyToLocalFS(stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new CopyToLocalFS(stageNum, sinkName, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 		else if (type.equals("copy_to_remote")) {
-	        return new CopyToRemote(stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new CopyToRemote(stageNum, sinkName, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    } 
 		else if (type.equals("null_sink")) {
-	        return new NullSink(stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new NullSink(stageNum, sinkName, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 		else if (type.equals("global_meta_sink")) {
-	        return new GlobalMeta(stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+	        return new GlobalMeta(stageNum, sinkName, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline);
 	    }
 		//else if (type.equals("sink")) {
        // return new Sink(stageNum, sinkName, args, pipeline);
@@ -41,11 +41,11 @@ public class SinkFactory {
 		
 		TroilkattProperties troilkattProperties = pipeline.troilkattProperties;
 		String localRootDir = troilkattProperties.get("troilkatt.localfs.dir");
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
+		String tfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				OsPath.join("meta", pipeline.name));
-		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", stageNum, sinkName));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
+		String tfsStageMetaDir = OsPath.join(tfsPipelineMetaDir, String.format("%03d-%s", stageNum, sinkName));
+		String tfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
-		return newSink(type, stageNum, sinkName, args, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, logger);	    
+		return newSink(type, stageNum, sinkName, args, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline, logger);	    
 	}
 }

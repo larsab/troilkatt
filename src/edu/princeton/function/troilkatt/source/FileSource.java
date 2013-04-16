@@ -23,12 +23,12 @@ public class FileSource extends Source {
 	 */
 	public FileSource(String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		
 		super(name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, 
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir, 
 				pipeline);
 
 		logger.debug("Initializing module");
@@ -43,7 +43,7 @@ public class FileSource extends Source {
 	}
 
 	/**
-	 * Read a list of HDFS filenames from a file on the local FS.
+	 * Read a list of TFS filenames from a file on the local FS.
 	 * 
 	 * @param metaFiles ignored
 	 * @param logFiles input file is saved as a log file

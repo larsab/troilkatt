@@ -3,15 +3,18 @@ package edu.princeton.function.troilkatt.pipeline;
 import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 
+/**
+ * Execute a troilkatt script
+ */
 public class ScriptPerFile extends ExecutePerFile {
 
 	public ScriptPerFile(int stageNum, String name, String args,
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir,
-			String hdfsStageTmpDir, Pipeline pipeline)
+			String localRootDir, String tfsStageMetaDir,
+			String tfsStageTmpDir, Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, outputDirectory, compressionFormat,
-				storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 				pipeline);
 		if (args.isEmpty()) {
 			logger.fatal("Troilkatt script to execute could not be parsed: " + args);

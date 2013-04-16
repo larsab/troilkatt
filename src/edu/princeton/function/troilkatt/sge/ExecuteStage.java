@@ -23,14 +23,7 @@ import edu.princeton.function.troilkatt.pipeline.StageFactory;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 /**
- * Execute a Troilkatt stage in parallel as a MapReduce job.
- * 
- *
- * Mapper class that gets as input a filename and outputs a filename. For each file
- * it does the following:
- * 1. Copy a file to the local filesystem (the files can be tens of gigabytes in size)
- * 2. Execute a command that takes the local file as argument
- * 3. Copy the resulting file to NFS
+ * Execute a Troilkatt stage in parallel as a SGE job.
  */
 public class ExecuteStage {	
 	
@@ -50,8 +43,6 @@ public class ExecuteStage {
 	protected String localFSTmpDir;								
 	protected String loggingLevel;
 	protected long timestamp;
-	//protected long softMaxMemoryMb;
-	//protected long hardMaxMemoryMb;
 	
 	protected ArrayList<String> inputFiles;
 		
@@ -171,11 +162,9 @@ public class ExecuteStage {
 	}
 		
 	/**
-	 * Do the mapping: execute the stage on the input file. The stage specific
-	 * code will take care of downloading input files and saving output and logfiles.
+	 * Execute the stage
 	 * 
-	 * @param key HDFS soft filename
-	 * @param value always null since the SOFT files can be very large	 
+	 * @param nfsInputFile input filename	 
 	 * @throws StageException 
 	 */		
 	public void process2(String nfsInputFile) throws StageException {					
@@ -246,16 +235,14 @@ public class ExecuteStage {
 
 
 	/**
-	 * Helper function to initialize global variables by reading the arguments file.
-	 * 
-	 * edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce has the corresponding
-	 * read arguments file.
+	 * Helper function to initialize global variables by reading the arguments file. These were
+	 * written in SGEStage
 	 * 
 	 * Note! Logger has not yet been initialized since the log directory and logging level are
 	 * specified in the arguments file (to be read by this function). 
 	 * 
 	 * @param filename arguments file created by the MapReduce pipeline stage
-	 * @return none
+	 * @return list of inputFiles
 	 * @throws StageInitException if arguments file could not be read or parsed
 	 */
 	protected ArrayList<String> readSGEArgsFile(String filename) throws StageInitException {
@@ -264,7 +251,6 @@ public class ExecuteStage {
 		try {
 			BufferedReader ib = new BufferedReader(new FileReader(filename));
 			
-			// Note! read order of lines must match write order in MapReduce.writeMapReduceArgsFile
 			configurationFile = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "configuration.file");
 			pipelineName = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "pipeline.name");			
 			stageName = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "stage.name");
@@ -275,10 +261,6 @@ public class ExecuteStage {
 			nfsLogDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "nfs.log.dir");
 			nfsMetaDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "nfs.meta.dir");	
 			localFSPipelineDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.pipeline.dir");
-			//localFSInputDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.input.dir");
-			//localFSOutputDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.output.dir");
-			//localFSMetaDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.meta.dir");
-			//globalFSGlobalMetaDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.global-meta.dir");			
 			
 			localFSTmpDir = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "sge.tmp.dir");								
 			loggingLevel = TroilkattMapReduce.checkKeyGetVal(ib.readLine(), "logging.level");

@@ -10,7 +10,7 @@ import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 
 /**
 * Filter: copy a selection of files from the input directory to the output directory, but
-* do not copy any files nor store them in HBase.
+* do not copy any files.
 */
 public class Filter extends Stage {
 	protected Pattern pattern;
@@ -25,11 +25,11 @@ public class Filter extends Stage {
     */
 	public Filter(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 				pipeline);
 		
 		try {
@@ -45,20 +45,20 @@ public class Filter extends Stage {
 	 * meta nor logfiles
 	 */
 	@Override
-	public ArrayList<String> process2(ArrayList<String> inputHDFSFiles, long timestamp) throws StageException {
+	public ArrayList<String> process2(ArrayList<String> inputTFSFiles, long timestamp) throws StageException {
 		logger.debug("Start process2() at " + timestamp);
 		
 		// Do processing		
-		ArrayList<String> hdfsOutputFiles = process(inputHDFSFiles, null, null, timestamp);
+		ArrayList<String> tfsOutputFiles = process(inputTFSFiles, null, null, timestamp);
 		
 		logger.debug("Process2() done at " + timestamp);
-		return hdfsOutputFiles;
+		return tfsOutputFiles;
 	}
 		   
     
 	/**
 	 *  Filter all files produced by the previous step. The filtering is done on both
-	 *  the local FS name (if given) and the HDFS filename (if given). A file passes
+	 *  the local FS name (if given) and the TFS filename (if given). A file passes
 	 *  the filter if one of these match the pattern specified as an argument in the
 	 *  pipeline configuration file.   
 	 * 

@@ -72,7 +72,7 @@ public class GeoGSEMirrorTest extends TestSuper {
 		FTPClient ftp = new FTPClient();		
 	    assertTrue(source.connectFTP(ftp));
 		String hdfsName = source.downloadFile(ftp, "GSE312", 109);
-		assertEquals(OsPath.join(source.hdfsOutputDir, "GSE312_family.soft.109.bz2"), hdfsName);
+		assertEquals(OsPath.join(source.tfsOutputDir, "GSE312_family.soft.109.bz2"), hdfsName);
 		assertTrue(tfs.isfile(hdfsName));
 		
 		String localName = tfs.getFile(hdfsName, outDir, tmpDir, logDir);

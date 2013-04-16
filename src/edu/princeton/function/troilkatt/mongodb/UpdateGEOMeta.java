@@ -16,8 +16,7 @@ import edu.princeton.function.troilkatt.tools.GeoSoftParser;
 import edu.princeton.function.troilkatt.tools.ParseException;
 
 /**
- * Add timestamped GEO meta entries to MongoDB collection
- *
+ * Update GEO MongoDB entries with meta-data extracted from the SOFT file.  
  */
 public class UpdateGEOMeta {
 	
@@ -26,13 +25,14 @@ public class UpdateGEOMeta {
 	 *  
 	 * @param argv command line arguments. 
 	 *  0: input filename (GSEXXX_family.soft or GDSXXX.soft)
-	 *  1: MongoDB server hostname 	 
+	 *  1: MongoDB server IP address 	
+	 *  2: MongoDB server port 
 	 * @throws IOException 
 	 * @throws ParseException 
 	 */
 	public static void main(String[] argv) throws ParseException, IOException {
-		if (argv.length < 2) {
-			System.err.println("Usage: java UpdateGEOMeta inputFilename.soft mongo.server.address");
+		if (argv.length < 3) {
+			System.err.println("Usage: java UpdateGEOMeta inputFilename.soft mongo.server.ip mongo.server.port");
 			System.exit(2);
 		}
 		
@@ -52,7 +52,11 @@ public class UpdateGEOMeta {
 		}
 		parser.parseFile(inputFilename);
 		
-		MongoClient mongoClient = new MongoClient(argv[1]);
+		
+		String serverAdr = argv[1];
+		int serverPort = Integer.valueOf(argv[2]);
+		
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection coll = db.getCollection("geoMeta");
 		// Note! no check on getCollection return value, since these are not specified 

@@ -16,6 +16,9 @@ import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.GeoGSE2Pcl;
 import edu.princeton.function.troilkatt.tools.ParseException;
 
+/**
+ * Convert a (platform specific) SOFT file to the PCL format
+ */
 public class GeoGSE2Pcl2 extends GeoGSE2Pcl {
 	
 	/**
@@ -25,11 +28,18 @@ public class GeoGSE2Pcl2 extends GeoGSE2Pcl {
 		super(logger);
 	}
 	
-	public boolean convert(String inputFilename, String outputDir, String serDir) {
-		String serFilename = OsPath.join(serDir, FilenameUtils.getDsetID(inputFilename, false)) + ".ser";
-		String dsetID = FilenameUtils.getDsetID(inputFilename);
-		String platformID = FilenameUtils.getPlatID(inputFilename);
-		String outputFilename = OsPath.join(outputDir, dsetID + ".pcl");
+	/**
+	 * Convert the input SOFT file to the PCL foramt
+	 * 
+	 * @param inputFilename platform specific SOFT file
+	 * @param outputFilename PCL filename
+	 * @param serDir directory with the SER file that corresponds to the input file. These
+	 * where written by the GeoGSESplit program.
+	 * @return
+	 */
+	public boolean convert(String inputFilename, String outputFilename, String serDir) {
+		String serFilename = OsPath.join(serDir, FilenameUtils.getDsetID(inputFilename, false)) + ".ser";		
+		String platformID = FilenameUtils.getPlatID(inputFilename);		
 		
 		FileInputStream ser = null;
 		try {
@@ -127,7 +137,8 @@ public class GeoGSE2Pcl2 extends GeoGSE2Pcl {
 	 *  
 	 * @param argv command line arguments. 
 	 *  0: input filename (GSEXXX_family.soft)
-	 *  1: output directory
+	 *  1: output filename (GSEXXX.pcl)
+	 *  2: directory with ser files (created by GeoGSESplit)
 	 *  3: log4j.properties file
 	 * @throws IOException 
 	 * @throws ParseException 
@@ -135,7 +146,7 @@ public class GeoGSE2Pcl2 extends GeoGSE2Pcl {
 	public static void main(String[] argv) throws IOException, ParseException {
 		
 		if (argv.length < 4) {
-			System.err.println("Usage: java GeoGSE2Pcl inputFilename outputDir serDir log4j.properties");
+			System.err.println("Usage: java GeoGSE2Pcl inputFilename outputFilename serDir log4j.properties");
 			System.exit(-1);
 		}
 		PropertyConfigurator.configure(argv[4]);

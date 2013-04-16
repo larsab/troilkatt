@@ -16,13 +16,24 @@ import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.GeoGSMOverlap;
 
 /**
- * TODO: read entries to remove from MongoDB instead of file (similar to raw)
+ * Remove overlapping samples from a PCL file. The overlap is calcualated before running this
+ * tool.
  */
 public class SGEPclRemoveOverlapping {
 
-	public static void process(String inputFilename, String outputFilename, String serverAdr) throws IOException {
-		MongoClient mongoClient = new MongoClient(serverAdr);
-		DB db = mongoClient.getDB( "troilkatt" );
+	/**
+	 * Remove overlapping samples from a PCL file. The overlapping samples to remove are read
+	 * from the MongoDB geoMeta collection
+	 * 
+	 * @param inputFilename input PCL filename
+	 * @param outputFilename output PCL filename
+	 * @param serverAdr MongoDB server IP address
+	 * @param serverPort MongoDB server listen port
+	 * @return none
+	 */
+	public static void process(String inputFilename, String outputFilename, String serverAdr, int serverPort) throws IOException {
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
+		DB db = mongoClient.getDB("troilkatt");
 		DBCollection coll = db.getCollection("geoMeta");
 				
 		String dsetID = FilenameUtils.getDsetID(inputFilename, true);
@@ -130,19 +141,23 @@ public class SGEPclRemoveOverlapping {
 	
 
 	/**
+	 * Main entry point
+	 * 
 	 * @param args [0] input filename
 	 *             [1] output filename
-	 *             [2] mongoDB server
+	 *             [2] mongoDB server IP
+	 *             [3] mongoDB server port
 	 */
 	public static void main(String[] args) throws Exception {		
-		if (args.length < 3) {
-			System.err.println("Usage: java PclRemoveOverlapping inputFilename outputFilename mongoDBServerIP");
+		if (args.length < 4) {
+			System.err.println("Usage: java PclRemoveOverlapping inputFilename outputFilename mongoDBServerIP mongoDBServerPort");
 			System.exit(2);
 		}
 		
 		String inputFilename = args[0];
 		String outputFilename = args[1];
 		String serverAdr = args[2];
-		process(inputFilename, outputFilename, serverAdr);
+		int serverPort = Integer.valueOf(args[3]);
+		process(inputFilename, outputFilename, serverAdr, serverPort);
 	}
 }

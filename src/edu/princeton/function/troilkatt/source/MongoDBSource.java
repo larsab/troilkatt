@@ -42,10 +42,10 @@ public class MongoDBSource extends Source {
 	 */
 	public MongoDBSource(String name, String arguments, String outputDir,
 			String compressionFormat, int storageTime, String localRootDir,
-			String hdfsStageMetaDir, String hdfsStageTmpDir, Pipeline pipeline)
+			String nfsStageMetaDir, String nfsStageTmpDir, Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
 		super(name, arguments, outputDir, compressionFormat, storageTime,
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline);
+				localRootDir, nfsStageMetaDir, nfsStageTmpDir, pipeline);
 				
 		String[] argsParts = splitArgs(this.args);
 		if (argsParts.length != 5) {
@@ -61,7 +61,7 @@ public class MongoDBSource extends Source {
 		whereKey = argsParts[2];
 		
 		try {
-			// All checks are for lowercase values
+			// All checks are for lowercase valuess
 			wherePattern = Pattern.compile(argsParts[3].toLowerCase());
 		} catch (PatternSyntaxException e) {
 			logger.fatal("Invalid filter pattern: " + args);
@@ -141,7 +141,7 @@ public class MongoDBSource extends Source {
 	 * Any new meta files are added to tis list
 	 * @param logFiles list for storing log filenames.
 	 * @param timestamp of Troilkatt iteration.
-	 * @return list of output files in HDFS.
+	 * @return list of output files in NFS.
 	 * @throws StageException thrown if stage cannot be executed.
 	 */
 	protected ArrayList<String> retrieve(ArrayList<String> metaFiles, 

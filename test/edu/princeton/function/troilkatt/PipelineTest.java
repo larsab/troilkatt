@@ -90,7 +90,7 @@ public class PipelineTest extends TestSuper {
 		assertEquals(NullSource.class, p.source.getClass());
 		assertEquals("arg1 arg2 arg3", p.source.args);
 		String hdfsRoot = troilkattProperties.get("troilkatt.tfs.root.dir");
-		assertEquals(OsPath.join(hdfsRoot, "data/test/crawler-output"), p.source.hdfsOutputDir);
+		assertEquals(OsPath.join(hdfsRoot, "data/test/crawler-output"), p.source.tfsOutputDir);
 		assertEquals("gz", p.source.compressionFormat);
 		assertEquals(-1, p.source.storageTime);
 		
@@ -98,19 +98,19 @@ public class PipelineTest extends TestSuper {
 		assertEquals("001-firstStage", p.pipeline.get(0).stageName);
 		assertEquals(NullStage.class, p.pipeline.get(0).getClass());
 		assertEquals("arg1 arg2", p.pipeline.get(0).args);
-		assertEquals(OsPath.join(hdfsRoot, "data/test/stage1-output"), p.pipeline.get(0).hdfsOutputDir);
+		assertEquals(OsPath.join(hdfsRoot, "data/test/stage1-output"), p.pipeline.get(0).tfsOutputDir);
 		assertEquals("none", p.pipeline.get(0).compressionFormat);
 		assertEquals(1, p.pipeline.get(0).storageTime);
 		
 		assertEquals("002-secondStage", p.pipeline.get(1).stageName);
 		assertEquals(NullStage.class, p.pipeline.get(1).getClass());
 		assertEquals("arg1 arg2 arg3 arg4", p.pipeline.get(1).args);		
-		assertNull(p.pipeline.get(1).hdfsOutputDir);
+		assertNull(p.pipeline.get(1).tfsOutputDir);
 				
 		assertEquals("003-thirdStage", p.pipeline.get(2).stageName);
 		assertEquals(NullStage.class, p.pipeline.get(2).getClass());
 		assertEquals("", p.pipeline.get(2).args);		
-		assertNotNull(p.pipeline.get(2).hdfsOutputDir);
+		assertNotNull(p.pipeline.get(2).tfsOutputDir);
 		assertEquals("bz2", p.pipeline.get(2).compressionFormat);
 		assertEquals(2, p.pipeline.get(2).storageTime);
 		
@@ -253,7 +253,7 @@ public class PipelineTest extends TestSuper {
 		assertEquals("000-theSource", p.source.stageName);
 		assertEquals(NullSource.class, p.source.getClass());
 		assertEquals("arg1 arg2 arg3", p.source.args);
-		assertTrue(p.source.hdfsOutputDir.endsWith("test/crawler-output"));
+		assertTrue(p.source.tfsOutputDir.endsWith("test/crawler-output"));
 		assertEquals("gz", p.source.compressionFormat);
 		assertEquals(-1, p.source.storageTime);
 		

@@ -30,14 +30,14 @@ public class StageFactory {
 	 * @param stageNum stage number in pipeline.
 	 * @param name name of the stage.
 	 * @param args stage specific arguments.
-	 * @param outputDirectory output directory in HDFS. The directory name is either relative to
-	 * the troilkatt root data directory, or absolute (starts with either "/" or "hdfs:/")
+	 * @param outputDirectory output directory in TFS. The directory name is either relative to
+	 * the troilkatt root data directory, or absolute (starts with either "/" or "hdfs://")
 	 * @param compressionFormat compression to use for output files
 	 * @param storageTime persistent storage time for output files in days. If -1 files
 	 * are stored forever. If zero files are deleted immediately after pipeline execution is done.
 	 * @param localRootDir directory on local FS used as root for saving temporal files
-	 * @param hdfsStageMetaDir meta file directory for this stage in HDFS.
-	 * @param hdfsStageTmpDir tmp directory for this stage in HDFS  (can be null).
+	 * @param tfsStageMetaDir meta file directory for this stage in tfs.
+	 * @param tfsStageTmpDir tmp directory for this stage in tfs  (can be null).
 	 * @param pipeline reference to the pipeline this stage belongs to. 
 	 * @param logger: callers logger instance
 	 *
@@ -49,68 +49,68 @@ public class StageFactory {
 	public static Stage newStage(String type, 
 			int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline,		
 			Logger logger) throws TroilkattPropertiesException, StageInitException {
 	    
 	    if (type.equals("filter")) {
 	        return new Filter(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);				
 	    }
 	    else if (type.equals("execute_per_dir")) {	        
 	        return new ExecuteDir(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime,
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);				
 	    }
 	    else if (type.equals("execute_per_file")) {	        
 	        return new ExecutePerFile(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);				
 	    }
 	    else if (type.equals("execute_per_file_mr")) {	        
 	        return new ExecutePerFileMR(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);				
 	    }
 	    else if (type.equals("execute_per_file_sge")) {	        
 	        return new ExecutePerFileSGE(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);				
 	    }
 	    else if (type.equals("script_per_file")) {	        
 	        return new ScriptPerFile(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);				
 	    }
 	    else if (type.equals("script_per_file_mr")) {	        
 	        return new ScriptPerFileMR(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);				
 	    }
 	    else if (type.equals("script_per_file_sge")) {	        
 	        return new ScriptPerFileSGE(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);				
 	    }
 	    //else if (type.equals("script_per_file_sge")) {	        
 	    //    return new ScriptPerFileSGE(stageNum, name, args, 
 		//			outputDirectory, compressionFormat, storageTime, 
-		//			localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+		//			localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 		//			pipeline);				
 	    //}
 	    else if (type.equals("script_per_dir")) {	     
 	        return new ScriptPerDir(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);			
 	    }
 	    //else if (type.equals("script_per_file")) {	     
@@ -122,56 +122,56 @@ public class StageFactory {
 	    else if (type.equals("mapreduce")) {	 	    	
 	        return new MapReduce(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);					
 	    }
 	    else if (type.equals("mapreduce_stage")) {	 
 	    	return new MapReduceStage(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);					
 	    }
 	    else if (type.equals("sge_stage")) {	 
 	    	return new SGEStage(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);					
 	    }
 	    else if (type.equals("null_stage")) {	 
 	    	return new NullStage(stageNum, name, args, 
 					outputDirectory, compressionFormat, storageTime, 
-					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 					pipeline);					
 	    }
 	    else if (type.equals("find_gsm_overlap")) {	     
 		     return new FindGSMOverlap(stageNum, name, args, 
 						outputDirectory, compressionFormat, storageTime, 
-						localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+						localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 						pipeline);
 	    }
 	    else if (type.equals("find_gsm_overlap_mongodb")) {	     
 		     return new FindGSMOverlapMongoDB(stageNum, name, args, 
 						outputDirectory, compressionFormat, storageTime, 
-						localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+						localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 						pipeline);
 	    }
 	    else if (type.equals("save_filelist")) {	     
 	    	return new SaveFilelist(stageNum, name, args, 
 	    			outputDirectory, compressionFormat, storageTime, 
-	    			localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+	    			localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 	    			pipeline);
 	    }
 	    else if (type.equals("save_filelist_mongodb")) {	     
 	    	return new SaveFilelistMongoDB(stageNum, name, args, 
 	    			outputDirectory, compressionFormat, storageTime, 
-	    			localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+	    			localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 	    			pipeline);
 	    }
 	    /*  Add more stages here
 	     * else if (type.equals("name")) {	     
 	     *    return new Class(stageNum, name, args, 
 		 *			outputDirectory, compressionFormat, storageTime, 
-		 *			localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+		 *			localRootDir, tfsStageMetaDir, tfsStageTmpDir,
 		 *			pipeline);
 	     *	
 	     *}
@@ -189,8 +189,8 @@ public class StageFactory {
 	 * @param stageNum stage number in pipeline.
 	 * @param name name of the stage.
 	 * @param args stage specific arguments.
-	 * @param outputDirectory output directory in HDFS. The directory name is either relative to
-	 * the troilkatt root data directory, or absolute (starts with either "/" or "hdfs:/")
+	 * @param outputDirectory output directory in tfs. The directory name is either relative to
+	 * the troilkatt root data directory, or absolute (starts with either "/" or "hdfs://")
 	 * @param compressionFormat compression to use for output files
 	 * @param storageTime persistent storage time for output files in days. If -1 files
 	 * are stored forever. If zero files are deleted immediately after pipeline execution is done.
@@ -210,12 +210,12 @@ public class StageFactory {
 	    
 		TroilkattProperties troilkattProperties = pipeline.troilkattProperties;
 		String localRootDir = troilkattProperties.get("troilkatt.localfs.dir");
-		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
+		String tfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				OsPath.join("meta", pipeline.name));
-		String hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", stageNum, name));
-		String hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
+		String tfsStageMetaDir = OsPath.join(tfsPipelineMetaDir, String.format("%03d-%s", stageNum, name));
+		String tfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");
 		
-		return newStage(type, stageNum, name, args,	outputDirectory, compressionFormat, storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, pipeline, logger);				
+		return newStage(type, stageNum, name, args,	outputDirectory, compressionFormat, storageTime, localRootDir, tfsStageMetaDir, tfsStageTmpDir, pipeline, logger);				
 	}	
 	
 	/**

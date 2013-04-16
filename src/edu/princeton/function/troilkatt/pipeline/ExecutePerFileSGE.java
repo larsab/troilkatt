@@ -7,7 +7,7 @@ import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 
 /**
  * Execute an external program that takes as input and outputs a file. This is
- * a special version intended for MapReduce jobs,
+ * a special version intended for SGE jobs,
  */
 public class ExecutePerFileSGE extends Stage {
 	/* Command to execute per file*/
@@ -31,11 +31,11 @@ public class ExecutePerFileSGE extends Stage {
 	 */
 	public ExecutePerFileSGE(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String nfsStageMetaDir, String nfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				localRootDir, nfsStageMetaDir, nfsStageTmpDir,
 				pipeline);
 		this.cmd = this.args;
 		
@@ -43,15 +43,14 @@ public class ExecutePerFileSGE extends Stage {
 	}
 	
 	/**
-	 * Function called to connect this stage to the MapReduce task. This is 
+	 * Function called to connect this stage to the SGE task. This is 
 	 * necessary to get access to parameters used to set up the container 
-	 * in which the script is run, and to ensure that progress is reported
-	 * such that the MapReduce task is not killed.
+	 * in which the stage is run.
 	 * 
 	 * @param maxProcs maximum number of containers than can be run simultaneously.
 	 * @param maxHeapSize maximum virtual memory size for the container in bytes.
 	 * @param jobID unique identifier for a job. This values is typically set to 
-	 * the MapReduce job ID.
+	 * the SHE job ID.
 	 */
 	public void registerSGE(int maxProcs, long maxHeapSize, String jobID) {
 		// Convert maxHeapSize to GB
@@ -65,9 +64,6 @@ public class ExecutePerFileSGE extends Stage {
 	
 	/**
 	 * Execute an command that processes all files in the input directory.
-	 * 
-	 * Note! this function is called from the MapReduce mapper directly,
-	 * and not via process2.
 	 * 
 	 * @param inputFiles list of input files to process
 	 * @param metaFiles list of meta files

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -13,30 +12,20 @@ import com.mongodb.MongoClient;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.PclCleanupConsolidation;
 
+/**
+ * Do final cleanup and consolidation for PCL files
+ */
 public class SGEPclCleanupConsolidation {
-	/**
-	 * Helper function to copy a file line by line
-	 * 
-	 * @param br source file
-	 * @param bw destination file
-	 * @return 
-	 * @throws IOException 
-	 */
-	public static void copy(BufferedReader br, BufferedWriter bw) throws IOException {
-		String line;
-		while ((line = br.readLine()) != null) {
-			bw.write(line + "\n");
-		}
-	}
 
 	/**
 	 * @param args [0] inputFilename
 	 *             [1] outputFilename
-	 *             [2] MongoDB server address
+	 *             [2] MongoDB server IP address
+	 *             [3] MongoDB server listen port
 	 */
 	public static void main(String[] args) throws Exception {	
-		if (args.length < 3) {
-			System.err.println("Usage: java PclLogTransform inputFilename outputFilename mongoServerAddress");
+		if (args.length < 4) {
+			System.err.println("Usage: java PclLogTransform inputFilename outputFilename mongoServerIP mongoServerPort");
 			System.exit(2);
 		}
 		
@@ -47,9 +36,10 @@ public class SGEPclCleanupConsolidation {
 		String gid = FilenameUtils.getDsetID(inputFilename);
 		String outputFilename = args[1];		
 		String serverAdr = args[2];
+		int serverPort = Integer.valueOf(args[3]);
 
-		MongoClient mongoClient = new MongoClient(serverAdr);
-		DB db = mongoClient.getDB( "troilkatt" );
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
+		DB db = mongoClient.getDB("troilkatt");
 		DBCollection coll = db.getCollection("geoMeta");
 		// Note! no check on getCollection return value, since these are not specified 
 		// in the documentation

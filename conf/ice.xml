@@ -203,7 +203,39 @@ Troilkatt configuration file for the ice cluster
     	
     </description>
 	</property>
+
+	<property>
+		<name>troilkatt.sge.slots.per.node</name>
+		<value>8</value>
+		<description>
+
+			Number of SGE slots per node. This number is used to calculate the number of slots to request when
+			when submitting SGE jobs to ensure that only M processes are started per node. (M is specified
+			as an argument to SGEStage) 
+    	
+    	</description>
+	</property>
 	
+	<property>
+		<name>troilkatt.mongodb.server.host</name>
+		<value>10.1.1.1</value>
+		<description>
+
+			 IP address for MongoDB server
+    	
+    	</description>
+	</property>
+	
+	<property>
+		<name>troilkatt.mongodb.server.port</name>
+		<value>27017</value>
+		<description>
+
+			 MongoDB server port (required). The default port is 27017 for MongoDB.
+    	
+    	</description>
+	</property>
+		
 	<property>
 		<name>troilkatt.container.bin</name>
 		<value>/home/larsab/troilkatt2/bin/troilkatt_container</value>

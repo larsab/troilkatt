@@ -30,11 +30,11 @@ public class ExecuteSource extends Source {
 	 */
 	public ExecuteSource(String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, 
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir, 
 				pipeline);
 		
 		if (args.contains("TROILKATT.FILE")) {
@@ -55,7 +55,7 @@ public class ExecuteSource extends Source {
 	 * @param metaFiles list of meta files that have been copied to the local FS meta file
 	 * directory.
 	 * @param logFiles list for storing log files produced by the executed program.
-	 * @return list of output files in HDFS
+	 * @return list of output files in tfs
 	 */
 	@Override
 	protected ArrayList<String> retrieve(ArrayList<String> metaFiles, ArrayList<String> logFiles,
@@ -74,17 +74,17 @@ public class ExecuteSource extends Source {
 			throw new StageException("Retrieve program failed");
 		}
 
-		// Get list of output files and save these in HDFS
+		// Get list of output files and save these in tfs
 		ArrayList<String> outputFiles = getOutputFiles();
-		ArrayList<String> hdfsOutputFiles = saveOutputFiles(outputFiles, timestamp);
+		ArrayList<String> tfsOutputFiles = saveOutputFiles(outputFiles, timestamp);
 
 		// Update list of meta files 
 		updateMetaFiles(metaFiles);
 		
 		logger.debug(String.format("Returning (#output, #meta, #log) files: (%d, %d, %d)", 
-				hdfsOutputFiles.size(), metaFiles.size(), logFiles.size()));
+				tfsOutputFiles.size(), metaFiles.size(), logFiles.size()));
 		
-		return hdfsOutputFiles;
+		return tfsOutputFiles;
 	}   
 }
         

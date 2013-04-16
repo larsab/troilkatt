@@ -45,11 +45,11 @@ public class OsCmdsSource extends Source {
 	 */
 	public OsCmdsSource(String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String tfsStageMetaDir, String tfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir, 
+				localRootDir, tfsStageMetaDir, tfsStageTmpDir, 
 				pipeline);
 		
 		if (! OsPath.isfile(this.args)) {
@@ -96,7 +96,7 @@ public class OsCmdsSource extends Source {
 	 * 
 	 * @param metaFiles Not used by this source.
 	 * @param logFiles list for storing log files produced by the executed program.
-	 * @return list of output files in HDFS
+	 * @return list of output files in TFS
 	 */
 	@Override
 	protected ArrayList<String> retrieve(ArrayList<String> metaFiles, ArrayList<String> logFiles,
@@ -127,16 +127,16 @@ public class OsCmdsSource extends Source {
 		// Save files written to the log directory
 		updateLogFiles(logFiles);
 		
-		// Get list of output files and save these in HDFS
+		// Get list of output files and save these in TFS
 		ArrayList<String> outputFiles = getOutputFiles();
-		ArrayList<String> hdfsOutputFiles = saveOutputFiles(outputFiles, timestamp);
+		ArrayList<String> tfsOutputFiles = saveOutputFiles(outputFiles, timestamp);
 
 		// Update list of meta files 
 		updateMetaFiles(metaFiles);
 		
 		logger.debug(String.format("Returning (#output, #meta, #log) files: (%d, %d, %d)", 
-				hdfsOutputFiles.size(), metaFiles.size(), logFiles.size()));
+				tfsOutputFiles.size(), metaFiles.size(), logFiles.size()));
 		
-		return hdfsOutputFiles;
+		return tfsOutputFiles;
 	}   
 }

@@ -29,7 +29,6 @@ import edu.princeton.function.troilkatt.sink.Sink;
 import edu.princeton.function.troilkatt.sink.SinkFactory;
 import edu.princeton.function.troilkatt.source.Source;
 import edu.princeton.function.troilkatt.source.SourceFactory;
-import edu.princeton.function.troilkatt.utils.Utils;
 
 /**
  * Place holder for a Troilkatt pipeline.
@@ -59,7 +58,7 @@ public class Pipeline {
 	 * @param datasetFile filename of XML file with the pipeline specification
 	 * @param troilkattProperties troilkatt properties object
 	 * @param tfs Troilkatt FS handle
-	 * @throws IOException if a directory on the local FS or HDFS could not be created
+	 * @throws IOException if a directory on the local FS or HDFS/NFS could not be created
 	 * @throws PipelineException if pipeline configuration XML file could not be parsed
 	 * @throws TroilkattPropertiesException 
 	 * @throws StageInitException 
@@ -85,21 +84,21 @@ public class Pipeline {
 		String tfsRootDir  = troilkattProperties.get("troilkatt.tfs.root.dir");
 		String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");		
 		
-		// Create directories on HDFS if needed
-		String hdfsDatadir = OsPath.join(tfsRootDir, "data/");		
-		String hdfsLogdir = OsPath.join(tfsRootDir, "log/" + name);
-		String hdfsMetadir = OsPath.join(tfsRootDir, "meta/" + name);
-		String hdfsGlobalMetadir = OsPath.join(tfsRootDir, "global-meta");
+		// Create directories on tfs if needed
+		String tfsDatadir = OsPath.join(tfsRootDir, "data/");		
+		String tfsLogdir = OsPath.join(tfsRootDir, "log/" + name);
+		String tfsMetadir = OsPath.join(tfsRootDir, "meta/" + name);
+		String tfsGlobalMetadir = OsPath.join(tfsRootDir, "global-meta");
 		try {
 			// The tfs.mkdir function will check if a directory exists before the mkdir call.
 			// If a directory exists the function returns without a warning or exceptions
-			tfs.mkdir(hdfsDatadir);
-			tfs.mkdir(hdfsLogdir);
-			tfs.mkdir(hdfsMetadir);
-			tfs.mkdir(hdfsGlobalMetadir);			
+			tfs.mkdir(tfsDatadir);
+			tfs.mkdir(tfsLogdir);
+			tfs.mkdir(tfsMetadir);
+			tfs.mkdir(tfsGlobalMetadir);			
 		} catch (IOException e) {
-			logger.fatal("Could not create HDFS directories: " + e);
-			throw new PipelineException("Could not create HDFS directories");
+			logger.fatal("Could not create tfs directories: " + e);
+			throw new PipelineException("Could not create tfs directories");
 		}
 		
 		if (persistentStorage.equals("hadoop")) {
@@ -219,7 +218,8 @@ public class Pipeline {
 				status.setStatus(s.stageName, timestamp, "done");
 				
 				logger.info("Processed: " + inputFiles.size());
-				Utils.getYesOrNo("Enter to continue", true);
+				//DEBUG
+				//Utils.getYesOrNo("Enter to continue", true);
 			}
 	
 			// Execute sink
@@ -318,24 +318,24 @@ public class Pipeline {
 		ArrayList<String> cleanedDirs = new ArrayList<String>();
 		
 		for (Stage s: pipeline) {
-			if (s.hdfsOutputDir == null) { // stage does not save any output files
+			if (s.tfsOutputDir == null) { // stage does not save any output files
 				continue;
 			}
 			
-			logger.info("Cleanup " + s.hdfsOutputDir);
-			// Cleanup HDFS output files
+			logger.info("Cleanup " + s.tfsOutputDir);
+			// Cleanup tfs output files
 			try {
-				tfs.cleanupDir(s.hdfsOutputDir, timestamp, s.storageTime);
-				cleanedDirs.add(s.hdfsOutputDir);
+				tfs.cleanupDir(s.tfsOutputDir, timestamp, s.storageTime);
+				cleanedDirs.add(s.tfsOutputDir);
 			} catch (IOException e) {
 				logger.error("IOException during cleanup of " + s.getStageID(), e);
 			}			
 			
-			logger.info("Cleanup " + s.hdfsMetaDir);
-			// Cleanup HDFS output files
+			logger.info("Cleanup " + s.tfsMetaDir);
+			// Cleanup tfs output files
 			try {
-				tfs.cleanupMetaDir(s.hdfsMetaDir, timestamp, s.storageTime);
-				cleanedDirs.add(s.hdfsMetaDir);
+				tfs.cleanupMetaDir(s.tfsMetaDir, timestamp, s.storageTime);
+				cleanedDirs.add(s.tfsMetaDir);
 			} catch (IOException e) {
 				logger.error("IOException during cleanup of metadir " + s.getStageID(), e);
 			}
@@ -350,9 +350,8 @@ public class Pipeline {
 	 * Open a single dataset.
 	 *
 	 * @param pipelineFile dataset XML file.
-	 * @param troilkattProperties troilkatt properties dictionary.
-	 * @param hdfsConf hadoop configuration object
-	 * @param hdfs HDFS handle
+	 * @param troilkattProperties troilkatt properties dictionary. 
+	 * @param tfs tfs handle
 	 * @param logger callers logger object
 	 * @return Pipeline object
 	 * @throws PipelineException if configuration file cannot be parsed
@@ -391,8 +390,7 @@ public class Pipeline {
 	 *
 	 * @param datasetFile: file specifying dataset names to be crawled
 	 * @param troilkattProperties: troilkatt properties object
-	 * @param hdfsConf hadoop configuration object
-	 * @param hdfs HDFS handle
+	 * @param tfs tfs handle
 	 * @param logger: callers logger instance
 	 *  
 	 * @return list of pipelines

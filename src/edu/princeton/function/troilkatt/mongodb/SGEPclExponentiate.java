@@ -14,11 +14,15 @@ import edu.princeton.function.troilkatt.tools.FilenameUtils;
 import edu.princeton.function.troilkatt.tools.PclExponentiate;
 
 /**
- * Expoentiate a PCL file
+ * Exponentiate the expression values in a PCL file. If the file has not been
+ * log transformed the file is copied.
  */
 public class SGEPclExponentiate {
 	/**
-	 * Do the log transform
+	 * Exponentiate the samples values
+	 * 
+	 * @param br input file handle
+	 * @param bw output file handle
 	 * @throws IOException 
 	 */
 	static public void process(BufferedReader br, BufferedWriter bw) throws IOException {
@@ -57,13 +61,16 @@ public class SGEPclExponentiate {
 	
 	/**
 	 * @param args command line arguments
-	 * [0] input pcl file
-	 * [1] output pcl file
+	 *   [0] input pcl file
+	 *   [1] output pcl file
+	 *   [2] MongoDB server IP address
+	 *   [3] MongoDB serevr listen port
+	 * 
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length < 3) {
-			System.err.println("Usage: java SGEPclExponentiate inputFilename outputFilename mongoServerAddress");
+		if (args.length < 5) {
+			System.err.println("Usage: java SGEPclExponentiate inputFilename outputFilename mongoServerIP mongoServerPort");
 			System.exit(2);
 		}
 		
@@ -74,8 +81,9 @@ public class SGEPclExponentiate {
 		String gid = FilenameUtils.getDsetID(inputFilename);
 		String outputFilename = args[1];		
 		String serverAdr = args[2];
+		int serverPort = Integer.valueOf(args[3]);
 
-		MongoClient mongoClient = new MongoClient(serverAdr);
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection coll = db.getCollection("geoMeta");
 		// Note! no check on getCollection return value, since these are not specified 

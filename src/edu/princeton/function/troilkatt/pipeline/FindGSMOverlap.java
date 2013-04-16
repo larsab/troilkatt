@@ -26,7 +26,8 @@ import edu.princeton.function.troilkatt.tools.GeoGSMOverlap;
 import edu.princeton.function.troilkatt.tools.ParseException;
 
 /**
- * Find overlapping samples to remove.
+ * Find overlapping samples to remove. Save a list of samples to keep in the geoMeta
+ * Hbase table in column calculated:sampleIDs-overlapRemoved.
  * 
  * Output file format, one line per datasets that has one or more, or all, datasets
  * removed. The line format is for a dataset/series that should be deleted: 

@@ -11,7 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	NullSourceTest.class,
 	ExecuteSourceTest.class, 	
 	FileSourceTest.class,
-	HDFSSourceTest.class,
+	TFSSourceTest.class,
 	ListDirTest.class, 	
 	ListDirDiffTest.class,
 	ListDirNewTest.class,

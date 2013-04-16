@@ -14,35 +14,45 @@ import edu.princeton.function.troilkatt.mongodb.GeoMetaCollection;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 
 /**
-* Save the list of input files retrieved by this stage. Also output the input files
-* without any changes.
+* Save the list of input files retrieved by this stage in MongoDB. All input files are 
+* passed unmodified to the next stage.
 */
 public class SaveFilelistMongoDB extends Stage {
+	// MongoDB server address and port
 	protected String serverAdr;
+	protected int serverPort;
+	// Output filed key
 	protected String filenameField;
 	
 	/**
 	 * The argument specifies the file in where the input file list is written. 
 	 *  
-	 * @param args mongodb.server field.key. Where mongodb.server is the IP address of the machine running the 
-	 * MongoDB server, and field.key is the field where the filenames are stored.
+	 * @param args 
+	 *  0: mongodb.server.ip the IP address of the machine running the MongoDB server
+	 *  1: mongodb.server.port MongoDB server listen port
+	 *  2: field.key. the field where the filenames are stored.
 	 * @param see description for super-class
 	 */
 	public SaveFilelistMongoDB(int stageNum, String name, String args, 
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir, String hdfsStageTmpDir,
+			String localRootDir, String nfsStageMetaDir, String nfsStageTmpDir,
 			Pipeline pipeline) throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, 
 				outputDirectory, compressionFormat, storageTime, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				localRootDir, nfsStageMetaDir, nfsStageTmpDir,
 				pipeline);
 		
 		String[] argsParts = this.args.split(" ");
-		if (argsParts.length != 2) {
+		if (argsParts.length != 3) {
 			throw new StageInitException("Invalid stage arguments: " + args);
 		}
 		serverAdr = argsParts[0];
-		filenameField = argsParts[1];
+		try {
+			serverPort = Integer.valueOf(argsParts[1]);
+		} catch (NumberFormatException e) {
+			throw new StageInitException("Invalid server port: " + argsParts[1]);
+		}
+		filenameField = argsParts[2];
 	}
 	
 	/**
@@ -50,7 +60,7 @@ public class SaveFilelistMongoDB extends Stage {
 	 * meta nor logfiles
 	 */
 	@Override
-	public ArrayList<String> process2(ArrayList<String> inputHDFSFiles, long timestamp) throws StageException {
+	public ArrayList<String> process2(ArrayList<String> inputNFSFiles, long timestamp) throws StageException {
 		logger.debug("Start process2() at " + timestamp);
 		
 		MongoClient mongoClient;
@@ -65,7 +75,7 @@ public class SaveFilelistMongoDB extends Stage {
 		// Note! no check on getCollection return value, since these are not specified 
 		// in the documentation
 		
-		for (String f: inputHDFSFiles) {
+		for (String f: inputNFSFiles) {
 			String dsetID = FilenameUtils.getDsetID(f, true);
 			
 			BasicDBObject entry = GeoMetaCollection.getNewestEntry(coll, dsetID);			
@@ -95,7 +105,7 @@ public class SaveFilelistMongoDB extends Stage {
 		
 		// And return the input files
 		logger.debug("Process2() done at " + timestamp);
-		return inputHDFSFiles;
+		return inputNFSFiles;
 	}
 	
 	/**

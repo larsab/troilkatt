@@ -28,8 +28,7 @@ import edu.princeton.function.troilkatt.pipeline.StageInitException;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 
 /**
- * Retrieves all raw files for an organism
- *
+ * Download all raw files for an organism from the GEO FTP server.s
  */
 public class GeoRawOrg extends GeoGDSMirror {
 	public static final String rawFtpDir = "/pub/geo/DATA/supplementary/series";
@@ -200,7 +199,7 @@ public class GeoRawOrg extends GeoGDSMirror {
 			}				
 
 			// Upload file to HDFS
-			String hdfsFilename = tfs.putLocalFile(outputFilename, hdfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);				
+			String hdfsFilename = tfs.putLocalFile(outputFilename, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);				
 			if (hdfsFilename != null) {
 				outputFiles.add(hdfsFilename);
 				outputIDs.add(i);

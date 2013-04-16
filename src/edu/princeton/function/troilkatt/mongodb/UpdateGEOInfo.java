@@ -15,9 +15,8 @@ import edu.princeton.function.troilkatt.tools.ParseException;
 import edu.princeton.function.troilkatt.tools.Pcl2Info;
 
 /**
- * Calculate info values and save these in a MongoDB collection.
- * 
- * Note that this will create a new entry in MongoDB
+ * Update GEO MongoDB entries with meta-data calculated for the expression values
+ * in a PCL file.  
  */
 public class UpdateGEOInfo {
 	
@@ -26,18 +25,19 @@ public class UpdateGEOInfo {
 	 *  
 	 * @param argv command line arguments. 
 	 *  0: input filename (GSEXXX_family.pcl or GDSXXX.pcl)
-	 *  1: MongoDB server hostname 
-	 *  2: timestamp to add to MongoDB entries
+	 *  1: MongoDB server ip address
+	 *  2: MongoDB server listen port 
 	 * @throws IOException 
 	 * @throws ParseException 
 	 */
 	public static void main(String[] argv) throws ParseException, IOException {
-		if (argv.length < 2) {
-			System.err.println("Usage: java UpdateGEOMeta inputFilename.pcl mongo.server.address");
+		if (argv.length < 3) {
+			System.err.println("Usage: java UpdateGEOInfo inputFilename.pcl mongo.server.ip mongo.server.port");
 			System.exit(2);
 		}
 		String inputFilename = argv[0];		
 		String serverAdr = argv[1];
+		int serverPort = Integer.valueOf(argv[2]);
 		
 		/*
 		 * Do calculation
@@ -56,7 +56,7 @@ public class UpdateGEOInfo {
 		/*
 		 * Update MongoDB entry with calculated meta-data
 		 */	
-		MongoClient mongoClient = new MongoClient(serverAdr);
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection coll = db.getCollection("geoMeta");
 		// Note! no check on getCollection return value, since these are not specified 

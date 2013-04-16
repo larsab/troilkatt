@@ -29,10 +29,26 @@ import edu.princeton.function.troilkatt.hbase.TroilkattTable;
 import edu.princeton.function.troilkatt.tools.FilenameUtils;
 
 
+/**
+ * Split raw file into platform specific files and remove overlapping samples. The overlap 
+ * is calculated before running this tool. Also, meta-data defines how to split the file.
+ */
 public class SGERawRemoveOverlapping {
 	
-	public static void process(String inputFilename, String outputDir, String tmpDir, String serverAdr) throws IOException {
-		MongoClient mongoClient = new MongoClient(serverAdr);
+	/**
+	 * Split a raw file into platform specific parts and remove overlapping samples. The 
+	 * split information and overlapping samples to remove are read  from the MongoDB geoMeta 
+	 * collection
+	 * 
+	 * @param inputFilename input raw filename
+	 * @param outputDir output directory for platform specific output files
+	 * @param tmpDir a directory that may be used to store temporary files.
+	 * @param serverAdr MongoDB server IP address
+	 * @param serverPort MongoDB server listen port
+	 * @return none
+	 */
+	public static void process(String inputFilename, String outputDir, String tmpDir, String serverAdr, int serverPort) throws IOException {
+		MongoClient mongoClient = new MongoClient(serverAdr, serverPort);
 		DB db = mongoClient.getDB( "troilkatt" );
 		DBCollection coll = db.getCollection("geoMeta");
 							
@@ -69,7 +85,8 @@ public class SGERawRemoveOverlapping {
 		
 	/**
 	 * Get platform specific parts for a series
-	 * 
+	 *
+	 * @param coll initialized MongoDB collection handle
 	 * @param seriesID series ID
 	 * @return hash map where the platform-specific series ID is used as key, and 
 	 * the value consist of a list with sample IDs in that platform (with samples
@@ -182,9 +199,10 @@ public class SGERawRemoveOverlapping {
 	 * Helper function to get all input files files that belong to a specific sample 
 	 * 
 	 * @param gsmID sample ID
+	 * @param srcDir directory with input files
 	 * @return list of raw files that belong to this sample
 	 */
-	protected static ArrayList<String> getRawFiles(String gsmID, String srcDir) {
+	protected static ArrayList<String> getRawFiles2(String gsmID, String srcDir) {
 		ArrayList<String> gsmFiles = new ArrayList<String>();
 		String[] files = OsPath.listdirR(srcDir);
 
@@ -205,23 +223,25 @@ public class SGERawRemoveOverlapping {
 	}		
 
 	/**
-	 * Select the CEL files for the specified samples and add these to a tar file in
-	 * the output directory.
+	 * Split CEL files 
 	 * 
 	 * @param seriesID that included the platformID if there are multiple platforms for 
 	 * a sample. The seriesID is used as the filename for the output tar file.
-	 * @param gsms list of samples to add.
+	 * @param gsms sample IDs for whic to add files
+	 * @param inputFiles list of all input files in source tar. The files that corresponds
+	 * to entries in gsms are added to the output file
+	 * @param outputTar filename for output tar file
 	 * @return number of samples added to tar file. Zero if there are no samples to add
 	 * or if all have been deleted due to overlap. -1 if an output tar file could not
 	 * be created.
 	 */
-	protected static int splitCelFiles(String seriesID, ArrayList<String> gsms,  ArrayList<String> inputFiles, String outputTar) {
+	protected static int splitCelFiles(String seriesID,  ArrayList<String> gsms, ArrayList<String> inputFiles, String outputTar) {
 		int nAdded = 0;
 		
 		if (gsms.isEmpty()) {
-			System.err.println("No sample Ids for: " + seriesID);
+			System.err.println("No input files for: " + seriesID);
 			return 0;
-		}
+		}		
 		if (gsms.get(0).equals("none")) {
 			// All samples deleted due to overlap
 			System.err.println("All samples deleted for: " + seriesID);
@@ -233,7 +253,9 @@ public class SGERawRemoveOverlapping {
 			ArchiveOutputStream aos = new ArchiveStreamFactory().createArchiveOutputStream("tar", os);
 			
 			final byte[] buffer = new byte[4096]; // use a 4KB buffer
-			for (String f: inputFiles) {				
+			for (String f: inputFiles) {
+				TODO: match file
+				
 				InputStream is = new FileInputStream(f);								
 				String arName = OsPath.basename(f);
 							
@@ -276,11 +298,12 @@ public class SGERawRemoveOverlapping {
 	 * @param args [0] input filename
 	 *             [1] output directory
 	 *             [2] tmp directory, used to store unpacked files
-	 *             [3] mongoDB server IP addres
+	 *             [3] mongoDB server IP address
+	 *             [4] mongoDB server listen port
 	 */
 	public static void main(String[] args) throws Exception {			
-		if (args.length < 3) {
-			System.err.println("Usage: java SGERawRemoveOverlapping inputFilename outputDir tmpDir mongoDBServerIP");
+		if (args.length < 4) {
+			System.err.println("Usage: java SGERawRemoveOverlapping inputFilename outputDir tmpDir mongoDBServerIP mongoDBServerPort");
 			System.exit(2);
 		}
 		
@@ -288,8 +311,9 @@ public class SGERawRemoveOverlapping {
 		String outputDir = args[1];
 		String tmpDir = args[2];
 		String serverAdr = args[3];	 
+		int serverPort = Integer.valueOf(args[4]);
 		
-		process(inputFilename, outputDir, tmpDir, serverAdr);
+		process(inputFilename, outputDir, tmpDir, serverAdr, serverPort);
 	}
 
 }

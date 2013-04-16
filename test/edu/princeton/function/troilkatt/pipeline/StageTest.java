@@ -86,7 +86,7 @@ public class StageTest extends TestSuper {
 	public void testConstructor() throws TroilkattPropertiesException, StageInitException {				
 		assertEquals("003-unitStage", stage.stageName);
 		assertEquals("foo bar baz", stage.args);
-		assertTrue(stage.hdfsOutputDir.endsWith("test/stage"));		
+		assertTrue(stage.tfsOutputDir.endsWith("test/stage"));		
 		assertEquals("bz2", stage.compressionFormat);
 		assertEquals(10, stage.storageTime);		
 		assertNotNull(stage.globalMetaDir);
@@ -97,8 +97,8 @@ public class StageTest extends TestSuper {
 		assertNotNull(stage.stageOutputDir);
 				
 		assertNotNull(stage.logTable);
-		assertNotNull(stage.hdfsGlobalMetaDir);
-		assertNotNull(stage.hdfsTmpDir);
+		assertNotNull(stage.tfsGlobalMetaDir);
+		assertNotNull(stage.tfsTmpDir);
 		assertEquals(troilkattProperties, stage.troilkattProperties);
 		assertNotNull(stage.logger);
 		assertEquals(tfs, stage.tfs);		
@@ -110,7 +110,7 @@ public class StageTest extends TestSuper {
 				
 		assertEquals("003-unitStage", stage.stageName);		
 		assertEquals("foo bar baz", stage.args);
-		assertNull(stage.hdfsOutputDir);		
+		assertNull(stage.tfsOutputDir);		
 		assertNull(stage.compressionFormat);		
 		assertNotNull(stage.globalMetaDir);
 		
@@ -120,8 +120,8 @@ public class StageTest extends TestSuper {
 		assertNotNull(stage.stageOutputDir);
 		
 		assertNotNull(stage.logTable);
-		assertNotNull(stage.hdfsGlobalMetaDir);
-		assertNotNull(stage.hdfsTmpDir);
+		assertNotNull(stage.tfsGlobalMetaDir);
+		assertNotNull(stage.tfsTmpDir);
 		assertEquals(troilkattProperties, stage.troilkattProperties);
 		assertNotNull(stage.logger);
 		assertEquals(tfs, stage.tfs);
@@ -217,12 +217,12 @@ public class StageTest extends TestSuper {
 	@Test
 	public void testSetHDFSDirs() throws IOException, TroilkattPropertiesException, StageInitException {		
 		assertTrue(tfs.isdir(OsPath.join(hdfsRoot, "data/test/stage")));				
-		assertNotNull(stage.hdfsMetaDir);
-		assertNotNull(stage.hdfsTmpDir);		
-		assertEquals(OsPath.join(hdfsRoot, "meta/unitPipeline/003-unitStage"), stage.hdfsMetaDir);
-		assertEquals(OsPath.join(hdfsRoot, "tmp"), stage.hdfsTmpDir);		
-		assertTrue(tfs.isdir(stage.hdfsMetaDir));
-		assertTrue(tfs.isdir(stage.hdfsTmpDir));
+		assertNotNull(stage.tfsMetaDir);
+		assertNotNull(stage.tfsTmpDir);		
+		assertEquals(OsPath.join(hdfsRoot, "meta/unitPipeline/003-unitStage"), stage.tfsMetaDir);
+		assertEquals(OsPath.join(hdfsRoot, "tmp"), stage.tfsTmpDir);		
+		assertTrue(tfs.isdir(stage.tfsMetaDir));
+		assertTrue(tfs.isdir(stage.tfsTmpDir));
 	}
 	
 	// Invalid hdfsStageMetaDir
@@ -290,7 +290,7 @@ public class StageTest extends TestSuper {
 	// This test will fail with AssertionException (and not StageException) when HDFS run in pesudo mode
 	@Test(expected=StageException.class)
 	public void testDownloadMetaFiles2() throws StageException {
-		stage.hdfsMetaDir = "/foo/bar";
+		stage.tfsMetaDir = "/foo/bar";
 		assertNull(stage.downloadMetaFiles());
 	}
 
@@ -404,7 +404,7 @@ public class StageTest extends TestSuper {
 		assertTrue(OsPath.isdir(OsPath.join(tmpDir, "003-unitStage/output")));
 		assertTrue(OsPath.isdir(OsPath.join(tmpDir, "003-unitStage/meta")));
 		assertTrue(OsPath.isdir(OsPath.join(tmpDir, "003-unitStage/tmp")));
-		assertTrue(tfs.isdir(stage.hdfsTmpDir));
+		assertTrue(tfs.isdir(stage.tfsTmpDir));
 		
 		stage.cleanupLocalDirs();
 		assertEquals(0, OsPath.listdir(OsPath.join(tmpDir, "003-unitStage/input"), testLogger).length);
@@ -413,9 +413,9 @@ public class StageTest extends TestSuper {
 		assertEquals(0, OsPath.listdir(OsPath.join(tmpDir, "003-unitStage/meta"), testLogger).length);
 		assertEquals(0, OsPath.listdir(OsPath.join(tmpDir, "003-unitStage/tmp"), testLogger).length);
 		
-		assertTrue(tfs.isdir(stage.hdfsTmpDir));
-		stage.cleanupHDFSDirs();
-		assertNull(tfs.listdir(stage.hdfsTmpDir));
+		assertTrue(tfs.isdir(stage.tfsTmpDir));
+		stage.cleanupTFSDirs();
+		assertNull(tfs.listdir(stage.tfsTmpDir));
 	}
 
 	@Test

@@ -25,7 +25,9 @@ import edu.princeton.function.troilkatt.tools.GeoGSMOverlap;
 import edu.princeton.function.troilkatt.tools.ParseException;
 
 /**
- * Find overlapping samples to remove.
+ * Find overlapping samples to remove. For each dataset/series the samples to keep
+ * are stored in the calculated:sampleIDs-overlapRemoved field in the geoMeta 
+ * MongoDB collection.
  * 
  * Output file format, one line per datasets that has one or more, or all, datasets
  * removed. The line format is for a dataset/series that should be deleted: 
@@ -66,25 +68,24 @@ public class FindGSMOverlapMongoDB extends Stage {
 	 *             [2] maximum number of overlapping samples in a series/dataset
 	 *             [3] list of all series/dataset files for which overlap has been calculated
 	 *             [4] MongoDB server IP address
-	 * @param outputDirectory output directory in HDFS. The directory name is either relative to
-	 * the troilkatt root data directory, or absolute (starts with either "/" or "hdfs:/")
+	 * @param outputDirectory output directory in NFS.
 	 * @param compressionFormat compression to use for output files
 	 * @param storageTime persistent storage time for output files in days. If -1 files
 	 * are stored forever. If zero files are deleted immediately after pipeline execution is done.
 	 * @param localRootDir directory on local FS used as root for saving temporal files
-	 * @param hdfsStageMetaDir meta file directory for this stage in HDFS.
-	 * @param hdfsStageTmpDir tmp directory for this stage in HDFS  (can be null).
+	 * @param nfsStageMetaDir meta file directory for this stage in NFS.
+	 * @param nfsStageTmpDir tmp directory for this stage in NFS  (can be null).
 	 * @param pipeline reference to the pipeline this stage belongs to.
 	 * @throws TroilkattPropertiesException if there is an error in the Troilkatt configuration file
 	 * @throws StageInitException if the stage cannot be initialized
 	 */
 	public FindGSMOverlapMongoDB(int stageNum, String name, String args,
 			String outputDirectory, String compressionFormat, int storageTime,
-			String localRootDir, String hdfsStageMetaDir,
-			String hdfsStageTmpDir, Pipeline pipeline)
+			String localRootDir, String nfsStageMetaDir,
+			String nfsStageTmpDir, Pipeline pipeline)
 			throws TroilkattPropertiesException, StageInitException {
 		super(stageNum, name, args, outputDirectory, compressionFormat,
-				storageTime, localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				storageTime, localRootDir, nfsStageMetaDir, nfsStageTmpDir,
 				pipeline);
 		
 		logger.info("args: " + this.args);

@@ -129,7 +129,7 @@ public class ExecuteStageTest extends TestSuperNFS {
 		assertEquals(nfsTmpOutputDir, es.nfsOutputDir);		
 		assertEquals(sges.compressionFormat, es.compressionFormat);
 		assertEquals(sges.storageTime, es.storageTime);			
-		assertEquals(sges.hdfsMetaDir, es.nfsMetaDir);	
+		assertEquals(sges.tfsMetaDir, es.nfsMetaDir);	
 		assertEquals(nfsTmpLogDir, es.nfsLogDir);
 		String localSgeDir = troilkattProperties.get("troilkatt.localfs.sge.dir");
 		assertEquals(OsPath.join(localSgeDir, "pipeline"), es.localFSPipelineDir);
@@ -149,7 +149,7 @@ public class ExecuteStageTest extends TestSuperNFS {
 		assertTrue(es.stage instanceof ExecutePerFileSGE);
 		assertTrue(es.stage.args.startsWith("/usr/bin/python /home/larsab/troilkatt2/test-data/bin/executePerFileTest.py"));
 		assertEquals(OsPath.join(es.localFSPipelineDir, "007-sgestage-task_0/input"), es.stage.stageInputDir);
-		assertEquals(nfsTmpOutputDir,  es.stage.hdfsOutputDir);
+		assertEquals(nfsTmpOutputDir,  es.stage.tfsOutputDir);
 	}
 
 	@Test
