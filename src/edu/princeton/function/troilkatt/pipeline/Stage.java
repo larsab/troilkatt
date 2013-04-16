@@ -663,8 +663,8 @@ public class Stage {
 				OsPath.normPath(prop.get("troilkatt.localfs.scripts.dir"), log));
 		newStr = newStr.replace("TROILKATT.JAR", prop.get("troilkatt.jar"));
 		newStr = newStr.replace("TROILKATT.CLASSPATH", prop.get("troilkatt.classpath"));
-		newStr = newStr.replace("TROILKATT.MONGODB_SERVER_HOST", prop.get("troilkatt.troilkatt.mongodb.server.host"));
-		newStr = newStr.replace("TROILKATT.MONGODB_SERVER_PORT", prop.get("troilkatt.troilkatt.mongodb.server.port"));
+		newStr = newStr.replace("TROILKATT.MONGODB_SERVER_HOST", prop.get("troilkatt.mongodb.server.host"));
+		newStr = newStr.replace("TROILKATT.MONGODB_SERVER_PORT", prop.get("troilkatt.mongodb.server.port"));
 
 		// Command line argument helpers
 		newStr = newStr.replace("TROILKATT.REDIRECT_OUTPUT", ">");
