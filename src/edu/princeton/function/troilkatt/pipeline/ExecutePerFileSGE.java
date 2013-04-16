@@ -85,7 +85,7 @@ public class ExecutePerFileSGE extends Stage {
 			 * 
 			 * Note that the output and error messages are not logged unless specified by the
 			 * arguments string */
-			if (Stage.executeCmd(fileCmd, logger) != 0) {
+			if (Stage.executeCmd(containerCmd + fileCmd, logger) != 0) {
 				logger.fatal("Failed to execute program for file: " + tf);
 				// Execution is thrown when log files have been saved
 				cmdFailed = true;

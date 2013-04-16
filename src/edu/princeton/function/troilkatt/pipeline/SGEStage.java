@@ -42,6 +42,9 @@ public class SGEStage extends Stage {
 	// Number of slots to request for each SGE task (slotsPerNode / maxProcs)
 	protected int sgePESlots;
 	
+	// Memory allocated for task specific stripped down troilkatt process
+	protected static final int troilkattVMSize = 2048; // in MB
+	
 	/**
 	 * Constructor.
 	 * 
@@ -177,7 +180,7 @@ public class SGEStage extends Stage {
 			 * Command to execute
 			 */
 			// java command									
-			out.write("java -Xmx2048m -classpath " + classPath + " edu.princeton.function.troilkatt.sge.ExecuteStage ");
+			out.write(String.format("java -Xmx%dm -classpath " + classPath + " edu.princeton.function.troilkatt.sge.ExecuteStage ", troilkattVMSize));
 			// 1st argument: arguments file location
 			out.write(argsFilename);
 			// 2nd argument: task ID
@@ -394,7 +397,9 @@ public class SGEStage extends Stage {
 	 */
 	protected String getCmd(int nInputFiles, String outputLogfile, String errorLogfile, String tmpLogdir) {
 		// Note SGE task ID indexes starts from one (and not zero), and range includes last index
-		return String.format("qsub -sync y -l h_vmem=%dM -pe mpi %d -wd %s -t %d-%d %s > %s 2> %s", maxVMSize, sgePESlots, tmpLogdir, 1, nInputFiles, scriptFilename, outputLogfile, errorLogfile);
+		return String.format("qsub -sync y -l h_vmem=%dM -pe mpi %d -wd %s -t %d-%d %s > %s 2> %s", 
+				maxVMSize + troilkattVMSize, 
+				sgePESlots, tmpLogdir, 1, nInputFiles, scriptFilename, outputLogfile, errorLogfile);
 	}
 	
 }
