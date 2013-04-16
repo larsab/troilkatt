@@ -42,6 +42,15 @@
    	    <storage-time>-1</storage-time>
 	    <description>Convert all downloaded SOFT files to the PCL format and keep them forever.</description>
 	 </stage>
+		<stage>
+			<name>save_filenames</name>
+			<type>save_filelist_mongodb</type>
+			<arguments>10.1.1.1 files:pclFilename</arguments>
+			<output-directory></output-directory>
+			<compression-format></compression-format>
+			<storage-time>-1</storage-time>
+			<description>Save PCL filenames in MongoDB.</description>						
+		</stage>
          <stage>
 	    <name>pcl2info</name>
 	    <type>sge_stage</type>
