@@ -37,7 +37,7 @@
 		<stage>
 			<name>save_filenames</name>
 			<type>save_filelist_mongodb</type>
-			<arguments>10.1.1.1 files:pclFilename</arguments>
+			<arguments>TROILKATT.MONGODB_SERVER_HOST TROILKATT.MONGODB_SERVER_PORT files:pclFilename</arguments>
 			<output-directory></output-directory>
 			<compression-format></compression-format>
 			<storage-time>-1</storage-time>
@@ -46,7 +46,7 @@
 		<stage>
 			<name>pcl2info</name>
 			<type>sge_stage</type>
-			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.UpdateGEOInfo TROILKATT.INPUT_DIR/TROILKATT.FILE 10.1.1.1 > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.info 2> TROILKATT.LOG_DIR/TROILKATT.FILE.pcl2info.error</arguments>
+			<arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.UpdateGEOInfo TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.MONGODB_SERVER_HOST TROILKATT.MONGODB_SERVER_PORT > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.info 2> TROILKATT.LOG_DIR/TROILKATT.FILE.pcl2info.error</arguments>
 			<output-directory>geo/gds/info</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>
