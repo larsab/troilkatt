@@ -43,7 +43,8 @@ public class SGEStage extends Stage {
 	protected int sgePESlots;
 	
 	// Memory allocated for task specific stripped down troilkatt process
-	protected static final int troilkattVMSize = 2048; // in MB
+	// Note! This value should inclide 1GB that is reserved for the binary, stack, ...
+	protected static final int troilkattVMSize = 3096; // in MB
 	
 	/**
 	 * Constructor.
@@ -180,7 +181,7 @@ public class SGEStage extends Stage {
 			 * Command to execute
 			 */
 			// java command									
-			out.write(String.format("java -Xmx%dm -classpath " + classPath + " edu.princeton.function.troilkatt.sge.ExecuteStage ", troilkattVMSize));
+			out.write(String.format("java -Xmx%dm -classpath %s edu.princeton.function.troilkatt.sge.ExecuteStage ", troilkattVMSize - 1024, classPath));
 			// 1st argument: arguments file location
 			out.write(argsFilename);
 			// 2nd argument: task ID
@@ -283,8 +284,11 @@ public class SGEStage extends Stage {
 	}
 	
 	/**
-	 * Move SGE job log files to a local directory. This function is called befor compressing
+	 * Move SGE job log files to a local directory. This function is called before compressing
 	 * the data.
+	 * 
+	 * Files that are not included:
+	 *   - core.*: since these sometimes cannot be moved
 	 * 
 	 * @param nfsTmpOutputDir output directory for MapReduce job
 	 * @param timestamp timestamp to add to output files
@@ -304,7 +308,12 @@ public class SGEStage extends Stage {
 			return;
 		}
 		
-		for (String f: tmpFiles) {			
+		for (String f: tmpFiles) {	
+			String basename = OsPath.basename(f);
+			if (basename.startsWith("core.")) {
+				// skip core dumps
+				continue;
+			}
 			String relName = OsPath.absolute2relative(f, nfsTmpLogDir);
 			String newName = OsPath.join(stageLogDir, relName);
 			String dirName = OsPath.dirname(newName);
@@ -398,10 +407,8 @@ public class SGEStage extends Stage {
 	protected String getCmd(int nInputFiles, String outputLogfile, String errorLogfile, String tmpLogdir) {
 		// Note SGE task ID indexes starts from one (and not zero), and range includes last index
 		return String.format("qsub -sync y -l h_vmem=%dM -pe mpi %d -wd %s -t %d-%d %s > %s 2> %s", 
-				maxVMSize + troilkattVMSize, 
+				maxVMSize + troilkattVMSize,				
 				sgePESlots, tmpLogdir, 1, nInputFiles, scriptFilename, outputLogfile, errorLogfile);
 	}
 	
 }
-        
-        

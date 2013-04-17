@@ -1,6 +1,3 @@
-/**
- * Main loop for troilkatt
- */
 package edu.princeton.function.troilkatt;
 
 import java.io.IOException;
@@ -20,6 +17,9 @@ import edu.princeton.function.troilkatt.utils.Utils;
 
 import gnu.getopt.Getopt;
 
+/**
+ * Class with main loop for troilkatt
+ */
 public class Troilkatt {
 	public Map<String, String> DEFAULT_ARGS = new HashMap<String, String>();	
 	
@@ -131,6 +131,7 @@ public class Troilkatt {
 		try {
 			troilkattProperties = new TroilkattProperties(filename);
 		} catch (TroilkattPropertiesException e) {
+			e.printStackTrace();
 			System.err.println(e.getMessage());
 			throw new RuntimeException("Failed to create troilkatt properties object");
 		}
@@ -185,8 +186,8 @@ public class Troilkatt {
 			}			
 			
 		} catch (IOException e1) {
-			System.err.println("Could not get handle for TFS" + e1.toString());
 			e1.printStackTrace();
+			System.err.println("Could not get handle for TFS" + e1.toString());			
 			System.exit(-1);
 		}	
 	
@@ -371,7 +372,7 @@ public class Troilkatt {
 		}
 		
 		if (files == null) {
-			logger.error("Could not list directory: " + curDir);
+			logger.error("Could not list directory (null): " + curDir);
 			return;
 		}
 		
@@ -465,8 +466,8 @@ public class Troilkatt {
 					tfs,
 					logger);
 		} catch (PipelineException e) {
-			logger.fatal("Could not create pipelines");			
-			throw new RuntimeException("Pipeline parse configuration error: ",  e);			
+			logger.fatal("Could not create pipelines: " + e);			
+			throw new RuntimeException("Pipeline parse configuration error: " +  e);			
 		}		
 
 						

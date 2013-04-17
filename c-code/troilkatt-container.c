@@ -17,14 +17,14 @@
  * Usage: "./troilkatt-container maxSize maxTime program <args>", where
  * [1] maxSize:  the maximum allowed virtual memory size in GB. If -1 the
  *               operating systems default is used instead.
- * [2]Â maxTime:  the maximum allowed CPU time in seconds. If -1 the program
+ * [2] maxTime:  the maximum allowed CPU time in seconds. If -1 the program
  *               can run indefinitely.
- * [3]Â maxProcs: maximum number of processes that can run at once. If maxProcs
+ * [3] maxProcs: maximum number of processes that can run at once. If maxProcs
  *               is N, and N containers are already running, then this container
  *               will not start.
- * [4]Â jobID:    a unique ID for a job. Container processes belonging to a job
+ * [4] jobID:    a unique ID for a job. Container processes belonging to a job
  *               with a lower (as reported by strncmp) will be killed.
- * [5]Â program:  the executable of the external program to run.
+ * [5] program:  the executable of the external program to run.
  * [6...]:       optional arguments passed to the program.
  *
  * The program exits with a zero return value on success, and 2 in case of an
@@ -157,7 +157,6 @@ int killPrevious(char *jobID)
 	proc_t proc_info;
 	memset(&proc_info, 0, sizeof(proc_info));
 	while (readproc(proc, &proc_info) != NULL) { // more processes to parse
-
 
 		/*
 		 * Traverse command line arguments

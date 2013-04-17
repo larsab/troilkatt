@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 
-
 /**
  * Troilkatt file system wrapper superclass.
  * 
@@ -333,7 +332,7 @@ public class TroilkattFS {
 		try {
 			os = new FileOutputStream(compressedFilename);
 		} catch (FileNotFoundException e1) {
-			logger.fatal("Could not open output stream: " + e1);
+			logger.fatal("Could not open output stream: ", e1);
 			return null;
 		}
 		CompressorOutputStream cos = null;
@@ -379,7 +378,7 @@ public class TroilkattFS {
 			try {
 				is = new FileInputStream(uncompressedFilename);
 			} catch (FileNotFoundException e) {
-				logger.error("Could not open local file: " + uncompressedFilename + ": " + e);
+				logger.error("Could not open local file: " + uncompressedFilename + ": ", e);
 				return null;
 			}
 
@@ -399,14 +398,14 @@ public class TroilkattFS {
 				cos.close();
 				is.close();
 			} catch (IOException e) {
-				logger.error("IOException during file copy: " + e);
+				logger.error("IOException during file copy: ", e);
 				try {
 					cos.close();
 					if (OsPath.delete(compressedFilename)) {
 						logger.error("Could not delete output file: " + compressedFilename);
 					}
 				} catch (IOException e1) {
-					logger.error("Could not close output stream: " + e);					
+					logger.error("Could not close output stream: ", e);					
 				}
 				return null;
 			}
@@ -432,7 +431,7 @@ public class TroilkattFS {
 		try {
 			is = new FileInputStream(compressedName);
 		} catch (FileNotFoundException e1) {
-			logger.error("Could not open compressed file: " + compressedName);
+			logger.error("Could not open compressed file: " + compressedName, e1);
 			return false;
 		}
 		CompressorInputStream cin = null;
@@ -452,7 +451,7 @@ public class TroilkattFS {
 			try {
 				is.close();
 			} catch (IOException e) {
-				logger.warn("Could not close input stream" + e);
+				logger.warn("Could not close input stream: ",  e);
 				// Attempt to continue
 			}
 
@@ -474,7 +473,7 @@ public class TroilkattFS {
 			try {
 				out = new FileOutputStream(uncompressedName);
 			} catch (FileNotFoundException e) {
-				logger.warn("Could not open uncompressed file stream: " + e);
+				logger.warn("Could not open uncompressed file stream: ", e);
 				return false;
 			}
 
@@ -495,7 +494,7 @@ public class TroilkattFS {
 				out.close();
 				cin.close();
 			} catch (IOException e) {
-				logger.warn("IOException when uncompress file: " + e);
+				logger.warn("IOException when uncompress file: ", e);
 				OsPath.delete(uncompressedName);
 			}
 		}	
@@ -517,48 +516,6 @@ public class TroilkattFS {
 			logger.warn("Not a directory on the local file system: " + inputDir);
 			return null;
 		}		
-		
-		/*
-		String basename = OsPath.basename(localDir);
-		String cmd = null;
-		String compressedDir = null;		
-		
-		if (compression.equals("tar.gz")) {
-			compressedDir = OsPath.join(outDir, basename + ".tar.gz");
-			cmd = String.format("cd %s; tar cvzf %s . > %s 2> %s",
-					localDir,
-					compressedDir,					
-					OsPath.join(logDir, "tar." + basename + ".output"),
-					OsPath.join(logDir, "tar." + basename + ".error"));				
-		}
-		else if (compression.equals("tar.bz2")) {
-			compressedDir = OsPath.join(outDir, basename + ".tar.bz2");
-			cmd = String.format("cd %s; tar cvjf %s . > %s 2> %s",
-					localDir,
-					compressedDir,					
-					OsPath.join(logDir, "tar." + basename + ".output"),
-					OsPath.join(logDir, "tar." + basename + ".error"));               
-		}  
-		else if (compression.equals("tar")) {
-			compressedDir = OsPath.join(outDir, basename + ".tar");
-			cmd = String.format("cd %s; tar cvf %s . > %s 2> %s",
-					localDir,
-					compressedDir,
-					OsPath.join(logDir, "tar." + basename + ".output"),
-					OsPath.join(logDir, "tar." + basename + ".error"));               
-		}  
-		else {
-			logger.fatal("Unknown compression format: " + compression);
-			return null;
-		}
-		
-		int rv = Stage.executeCmd(cmd, logger);
-		if (rv != 0) {
-			return null;
-		}
-		
-		return compressedDir;
-		*/
 		
 		final byte[] buffer = new byte[4096]; // use a 4KB buffer
 		
@@ -584,7 +541,7 @@ public class TroilkattFS {
 			// This is expected, for example if compression should not be used
 			logger.warn("Unknown compression format: " + compressionFormat);			
 		} catch (FileNotFoundException e) {
-			logger.error("Could not open output stream to file: " + compressedName);
+			logger.error("Could not open output stream to file: " + compressedName, e);
 			return null;
 		}
 
@@ -618,7 +575,7 @@ public class TroilkattFS {
 				try {
 					aos.close();
 				} catch (IOException e) {
-					logger.warn("Could not close archvie in exception clause: " + e);
+					logger.warn("Could not close archvie in exception clause: ", e);
 				}
 				if (OsPath.delete(compressedName) == false) {
 					logger.warn("Could not delete archive file in exception clause: " + compressedName);
@@ -664,11 +621,11 @@ public class TroilkattFS {
 			
 				aos.close();			
 			} catch (IOException e1) {
-				logger.error("Could not add file to archive: " + e1);
+				logger.error("Could not add file to archive: ", e1);
 				try {
 					aos.close();
 				} catch (IOException e2) {
-					logger.warn("Could not close archvie in exception clause: " + e2);
+					logger.warn("Could not close archvie in exception clause: ", e2);
 				}
 				if (OsPath.delete(compressedName) == false) {
 					logger.warn("Could not delete archive file in exception clause: " + compressedName);
@@ -711,7 +668,7 @@ public class TroilkattFS {
 		try {
 			is = new FileInputStream(compressedDir);
 		} catch (FileNotFoundException e1) {
-			logger.warn("Could not open: " + compressedDir + ": " + e1);
+			logger.warn("Could not open: " + compressedDir + ": ", e1);
 			return null;
 		}
 		CompressorInputStream cin = null;
@@ -778,59 +735,16 @@ public class TroilkattFS {
 				dirContent.add(outputFilename);
 			}
 		} catch (IOException e1) {
-			logger.error("Could not unpack archive entry: " + e1);
+			logger.error("Could not unpack archive entry: ", e1);
 			try {
 				ain.close();
 			} catch (IOException e2) {
-				logger.warn("Could not close archive in exception clause: " + e2);
+				logger.warn("Could not close archive in exception clause: ", e2);
 			}
 			return null;
 		}
 		
 		return dirContent;
-			
-		
-		/*
-		String cmd = null;
-		if (compression.equals("tar.gz")) {
-			cmd = String.format("tar xvzf %s -C %s > %s 2> %s",
-					compressedDir,
-					dstDir,
-					OsPath.join(logDir, "untar." + basename + ".output"),
-					OsPath.join(logDir, "untar." + basename + ".error"));
-		}
-		else if (compression.equals("tar.bz2")) {
-			cmd = String.format("tar xvjf %s -C %s > %s 2> %s",
-					compressedDir,
-					dstDir,
-					OsPath.join(logDir, "untar." + basename + ".output"),
-					OsPath.join(logDir, "untar." + basename + ".error"));
-		}
-		else if (compression.equals("tar")) {
-			cmd = String.format("tar xvf %s -C %s > %s 2> %s",
-					compressedDir,
-					dstDir,
-					OsPath.join(logDir, "untar." + basename + ".output"),
-					OsPath.join(logDir, "untar." + basename + ".error"));
-		}		
-		else {
-			logger.warn("Unknown extension for compressed directory: " + basename);
-			return null;
-		}
-		
-		int rv = Stage.executeCmd(cmd, logger);
-		if (rv != 0) {
-			return null;
-		}
-				
-		String[] files = OsPath.listdirR(dstDir, logger);
-		
-		ArrayList<String> dirContent = new ArrayList<String>();
-		for (String f: files) {
-			dirContent.add(f);
-		}
-		return dirContent;
-		*/	
 	}
 
 	/**
@@ -1075,7 +989,7 @@ public class TroilkattFS {
 			return Long.valueOf(parts[parts.length - 2]);
 		}
 		catch (NumberFormatException e) {
-			logger.fatal("Invalid tfs filename: " + tfsName);
+			logger.fatal("Invalid tfs filename: timestamp is not a number: " + tfsName, e);
 			return -1;
 		}
 	}
@@ -1129,7 +1043,7 @@ public class TroilkattFS {
 			return Long.valueOf(timestampString);
 		}
 		catch (NumberFormatException e) {
-			logger.fatal("Invalid tfs directory: " + tfsName);
+			logger.fatal("Invalid tfs directory: timestmap is not a number" + tfsName, e);
 			return -1;
 		}
 	}

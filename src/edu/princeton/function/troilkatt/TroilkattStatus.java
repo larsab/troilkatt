@@ -100,7 +100,7 @@ public class TroilkattStatus {
 		try {
 			date = dfm.parse(timestr);
 		} catch (ParseException e) {
-			logger.fatal("Could not parse time string: " + timestr);
+			logger.fatal("Could not parse time string: " + timestr, e);
 			throw new RuntimeException(e);
 		}
 
@@ -159,7 +159,7 @@ public class TroilkattStatus {
 				try {
 					ts = Long.valueOf(parts[0]);
 				} catch (NumberFormatException e) {
-					logger.warn("Invalid line in status file: " + l);
+					logger.warn("Invalid line in status file: " + l, e);
 					continue;
 				}
 				
@@ -170,7 +170,7 @@ public class TroilkattStatus {
 			inputStream.close();
 		} 
 		catch (IOException e) { 			
-			logger.fatal("Could not read status file: " + e.toString());
+			logger.fatal("Could not read status file: ", e);
 			throw e;
 		}
 
@@ -196,7 +196,7 @@ public class TroilkattStatus {
 			try {
 				return Long.valueOf(parts[0]);
 			} catch (NumberFormatException e) {
-				logger.fatal("Invalid timestamp in status file: " + parts[0]);
+				logger.fatal("Invalid timestamp in status file: " + parts[0], e);
 				return -1;
 			}
 		}
@@ -217,7 +217,7 @@ public class TroilkattStatus {
 			statusFile.printf("%d:%s:%s\n", timestamp, stageID, newStatus);
 			statusFile.close();
 		} catch (IOException e) {
-			logger.fatal("Could not update status file: " + e.toString());
+			logger.fatal("Could not update status file: ", e);
 			throw e;
 		}	
 	}
@@ -271,7 +271,7 @@ public class TroilkattStatus {
 			inputStream.close();
 		} 
 		catch (IOException e) { 			
-			logger.fatal("Could not read status file: " + e.toString());
+			logger.fatal("Could not read status file: ", e);
 			throw e;
 		}
 	

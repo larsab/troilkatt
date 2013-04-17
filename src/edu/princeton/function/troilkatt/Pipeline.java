@@ -97,7 +97,7 @@ public class Pipeline {
 			tfs.mkdir(tfsMetadir);
 			tfs.mkdir(tfsGlobalMetadir);			
 		} catch (IOException e) {
-			logger.fatal("Could not create tfs directories: " + e);
+			logger.fatal("Could not create tfs directories: ", e);
 			throw new PipelineException("Could not create tfs directories");
 		}
 		
@@ -231,8 +231,7 @@ public class Pipeline {
 			
 			return true;
 		} catch (StageException e) {
-			logger.error("Could not process a pipeline stage: " + e.toString());	
-			e.printStackTrace();
+			logger.error("Could not process a pipeline stage: " + e);			
 			return false;
 		} 
 	}
@@ -302,7 +301,7 @@ public class Pipeline {
 			logger.info("Sunk during recovery: " + inputFiles.size());
 			return true;
 		} catch (StageException e) {
-			logger.error("Could not process a pipeline stage", e);					
+			logger.error("Could not process a pipeline stage: " + e);					
 			return false;
 		}
 	}
@@ -378,7 +377,7 @@ public class Pipeline {
 					troilkattProperties,				
 					tfs);
 		} catch (StageInitException e) {
-			logger.fatal("Could not create a stage in pipeline");
+			logger.fatal("Could not create a stage in pipeline: " + e);
 			throw new PipelineException("Could not create a stage in pipeline");
 		}
 		return p;
@@ -428,7 +427,7 @@ public class Pipeline {
 				try {
 					name = OsPath.basename(pipelineFile).split("\\.")[0];
 				} catch (ArrayIndexOutOfBoundsException e) {
-					logger.fatal("Could not parse dataset name: " + pipelineFile);
+					logger.fatal("Could not parse dataset name: " + pipelineFile, e);
 					throw new PipelineException("Pipeline name error: " + pipelineFile);
 				}
 				logger.info("Create pipeline: " + name);
@@ -441,16 +440,15 @@ public class Pipeline {
 							tfs);
 					datasets.add(p);
 				} catch (StageInitException e) {
-					logger.fatal("Could not create a stage in pipeline: " + e.getMessage());
+					logger.fatal("Could not create a stage in pipeline: " + e);
 					throw new PipelineException("Could not create a stage in pipeline");
 				}
 					
 			}			
 			inputStream.close();
 		} catch (IOException e) {
-			logger.fatal("Could not parse dataset file: " + datasetFile);
-			logger.fatal(e.toString());
-			throw new PipelineException("Could not parse dataset file");
+			logger.fatal("Could not parse dataset file: " + datasetFile, e);			
+			throw new PipelineException("Could not parse dataset file: " + datasetFile);
 		}
 	
 		return datasets;
@@ -474,7 +472,7 @@ public class Pipeline {
 		try {
 			builder = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			logger.fatal("Failed to create XML document builder: " + e.toString());
+			logger.fatal("Failed to create XML document builder: ", e);
 			throw new PipelineException("XML initialization failed");
 		}		
 		Document xmldoc = null;
@@ -482,12 +480,11 @@ public class Pipeline {
 			try {
 				xmldoc = builder.parse(datasetFile);
 			} catch (IOException e) {
-				logger.fatal("Could not parse dataset file: " + e);
+				logger.fatal("Could not parse dataset file: ", e);
 				throw new PipelineException("Could not parse dataset file: " + datasetFile);
 			}
 		} catch (SAXException e) {
-			logger.fatal("Configuration file parsing failed for file: " + datasetFile);
-			logger.fatal(e.toString());
+			logger.fatal("Configuration file parsing failed for file: " + datasetFile, e);			
 			throw new PipelineException("Configuration file parsing failed");
 		} 
 
@@ -558,6 +555,7 @@ public class Pipeline {
 			try {
 				storageTime = Integer.valueOf(parseElementText(s, "storage-time"));
 			} catch (NumberFormatException e) {
+				logger.fatal("Invalid storage time for source: " + nameText, e);
 				throw new PipelineException("Invalid storage time for source: " + nameText);
 			}
 		}
@@ -599,6 +597,7 @@ public class Pipeline {
 			try {
 				storageTime = Integer.valueOf(parseElementText(s, "storage-time"));
 			} catch (NumberFormatException e) {
+				logger.fatal("Invalid storage time for source: " + nameText, e);
 				throw new PipelineException("Invalid storage time for stage: " + nameText);
 			}
 		}	

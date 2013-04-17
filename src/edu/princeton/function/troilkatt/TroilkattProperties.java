@@ -60,17 +60,20 @@ public class TroilkattProperties {
 		try {
 			builder = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			System.err.println("Could not parse Troilkatt configuration file: " + e.toString());
+			e.printStackTrace();
+			System.err.println("Could not parse Troilkatt configuration file");
 			throw new TroilkattPropertiesException("Could not parse Troilkatt configuration file");
 		}		
 		Document xmldoc;
 		try {
 			xmldoc = builder.parse(filename);
 		} catch (SAXException e) {			
-			System.err.println("Could not parse Troilkatt configuration file: " + e.toString());
+			e.printStackTrace();
+			System.err.println("Could not parse Troilkatt configuration file");
 			throw new TroilkattPropertiesException("Could not parse Troilkatt configuration file");
 		} catch (IOException e) {
-			System.err.println("Could not read Troilkatt configuration file: " + e.toString());
+			e.printStackTrace();
+			System.err.println("Could not read Troilkatt configuration file");
 			throw new TroilkattPropertiesException("Could not read Troilkatt configuration file");
 		}
     

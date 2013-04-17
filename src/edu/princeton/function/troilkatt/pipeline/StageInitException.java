@@ -9,5 +9,4 @@ public class StageInitException extends Exception {
 	public StageInitException(String msg) {
 		super(msg);
 	}
-
 }

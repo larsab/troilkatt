@@ -188,7 +188,7 @@ public class TroilkattHDFS extends TroilkattFS {
 				in = codec.createInputStream(hdfs.open(inputPath));
 				out = new FileOutputStream(finalName);
 			} catch (FileNotFoundException e) {
-				logger.warn("File not found: " + e.getMessage());
+				logger.warn("File not found: ", e);
 				return null;
 			}
 			
@@ -369,10 +369,10 @@ public class TroilkattHDFS extends TroilkattFS {
 				
 				logger.debug("File added to HDFS (using codec): " + outputPath.toString());*/
 			} catch (FileNotFoundException e) {
-				logger.fatal("Could not open input file: " + localFilename + ": " + e.getMessage());
+				logger.fatal("Could not open input file: " + localFilename + ": ", e);
 				return null;
 			} catch (IOException e) {
-				logger.fatal("Could not write file to HDFS: IOException: " + e.getMessage());
+				logger.fatal("Could not write file to HDFS: IOException: ", e);
 				return null;
 			} 
 		}
@@ -439,10 +439,10 @@ public class TroilkattHDFS extends TroilkattFS {
 				CompressionOutputStream out = codec.createOutputStream(hdfs.create(outputPath));
 				IOUtils.copyBytes(in, out, conf); // also closes streams at the end
 			} catch (FileNotFoundException e) {
-				logger.fatal("Could not open input file: " + localFilename + ": " + e.getMessage());
+				logger.fatal("Could not open input file: " + localFilename + ": ", e);
 				return null;
 			} catch (IOException e) {
-				logger.fatal("Could not write file to HDFS: IOException: " + e.getMessage());
+				logger.fatal("Could not write file to HDFS: ", e);
 				return null;
 			} 
 		}
@@ -878,7 +878,7 @@ public class TroilkattHDFS extends TroilkattFS {
 					logger.info("Status file not in local FS nor HDFS");
 				}
 			} catch (IOException e1) {
-				logger.fatal("Could not copy status file from HDFS to local FS" + e1.toString());
+				logger.fatal("Could not copy status file from HDFS to local FS", e1);
 				throw e1;
 			}									
 			
@@ -891,13 +891,14 @@ public class TroilkattHDFS extends TroilkattFS {
 						throw new RuntimeException("Status file already exists");						
 					}
 				} catch (IOException e) {
-					logger.fatal("Could not create new status file: " + e);
+					logger.fatal("Could not create new status file: ", e);
 					throw e;
 				}	
 				// Attempt to save new status file to verify that the HDFS path is valid
 				try {
 					saveStatusFile(localFilename, hdfsFilename);
 				} catch (IOException e) {
+					logger.fatal("Could not save status file", e);
 					throw new TroilkattPropertiesException("Invalid HDFS status filename: " + hdfsFilename);
 				}
 			}
@@ -1002,7 +1003,7 @@ public class TroilkattHDFS extends TroilkattFS {
 				throw new IOException("HDFS copy failed");
 			}	
 		} catch (IOException e1) {
-			logger.fatal("Could not copy from local FS to HDFS: " + e1.toString());
+			logger.fatal("Could not copy from local FS to HDFS: ", e1);
 			logger.fatal("Local filename: " + localName);
 			logger.fatal("HDFS filename: " + hdfsName);
 			return false;				
@@ -1030,7 +1031,7 @@ public class TroilkattHDFS extends TroilkattFS {
 			logger.debug(String.format("Copy HDFS file %s to local file %s\n", hdfsName, localName));			
 			hdfs.copyToLocalFile(hdfsPath, localPath);			
 		} catch (IOException e1) {
-			logger.fatal("Could not copy from HDFS to local FS: " + e1.toString());
+			logger.fatal("Could not copy from HDFS to local FS: ", e1);
 			logger.fatal("Local filename: " + localName);
 			logger.fatal("HDFS filename: " + hdfsName);
 			return false;			

@@ -78,7 +78,7 @@ public class LogTableHbase extends LogTable {
 			table = schema.openTable(hbConfig, true);
 		} catch (HbaseException e2) {
 			logger.fatal("Could not open table: ", e2);
-			throw new PipelineException("Could not open table: " + e2.toString());
+			throw new PipelineException("Could not open table: " + e2);
 		}
 	}
 	
@@ -158,8 +158,8 @@ public class LogTableHbase extends LogTable {
 			logger.info("Get row " + rowKey + " in table " + tableName);
 			result = table.get(rowGet);
 		} catch (IOException e) {
-			logger.fatal("Could not get row: " + rowKey + ": " + e.toString());
-			throw new StageException("Could not get row: " + rowKey + ": " + e.toString());
+			logger.fatal("Could not get row: " + rowKey + ": ", e);
+			throw new StageException("Could not get row: " + rowKey + ": " + e);
 		}
 		return getRowLogFiles(result, localDir);
 	}
@@ -197,7 +197,7 @@ public class LogTableHbase extends LogTable {
 		try {
 			stageNum = Integer.valueOf(parts[0]);
 		} catch(NumberFormatException e) {
-			throw new RuntimeException("Invalid stageName (first part not a number): " + stageName);
+			throw new RuntimeException("Invalid stageName (first part not a number): " + stageName, e);
 		}
 		// Last key is the first row for the next stage
 		String rowEndKey = String.format("%03d-", stageNum + 1);
@@ -214,8 +214,8 @@ public class LogTableHbase extends LogTable {
 		try {
 			scanner = table.getScanner(scan);
 		} catch (IOException e) {
-			logger.warn("Could not create Hbase table scanner " + e.getMessage());
-			throw new StageException("Could not create Hbase table scanner " + e.getMessage());
+			logger.warn("Could not create Hbase table scanner ", e);
+			throw new StageException("Could not create Hbase table scanner " + e);
 		}
 		
 		// Iterate over all returned rows		
@@ -265,8 +265,8 @@ public class LogTableHbase extends LogTable {
 		try {
 			result = table.exists(cellGet);
 		} catch (IOException e) {
-			logger.fatal("Could not test row: " + rowKey + ": " + e.toString());
-			throw new StageException("Could not test row: " + rowKey + ": " + e.toString());
+			logger.fatal("Could not test row: " + rowKey + ": ", e);
+			throw new StageException("Could not test row: " + rowKey + ": " + e);
 		}
 		return result;
 	}
@@ -292,8 +292,8 @@ public class LogTableHbase extends LogTable {
 		try {
 			result = table.exists(cellGet);
 		} catch (IOException e) {
-			logger.fatal("Could not test row: " + rowKey + ": " + e.toString());
-			throw new StageException("Could not test row: " + rowKey + ": " + e.toString());
+			logger.fatal("Could not test row: " + rowKey + ": ", e);
+			throw new StageException("Could not test row: " + rowKey + ": " + e);
 		}
 		return result;
 	}
@@ -343,7 +343,7 @@ public class LogTableHbase extends LogTable {
 				}
 				saved++;
 			} catch (IOException e) {
-				logger.warn("Could not read logfile: " + f + ": " + e.getMessage());				
+				logger.warn("Could not read logfile: " + f + ": ", e);				
 			}								
 		}
 		
@@ -355,12 +355,12 @@ public class LogTableHbase extends LogTable {
 		try {
 			table.put(update);
 		} catch (IOException e) {
-			logger.fatal("Could not save log files in Hbase: " + e.getMessage());
+			logger.fatal("Could not save log files in Hbase: ", e);
 			System.err.println("Could not save log files in Hbase: " + e.getMessage());
 				throw new StageException("Could not save log files in Hbase: " + e.getMessage());
 		} catch (IllegalArgumentException e) {
 			// The log file was probably to large to be saved
-			logger.fatal("Could not save log files in Hbase: " + e.getMessage());
+			logger.fatal("Could not save log files in Hbase: ", e);
 			System.err.println("Could not save log files in Hbase: " + e.getMessage());
 			//throw new StageException("Could not save log files in Hbase: " + e.getMessage());
 		}
@@ -404,7 +404,7 @@ public class LogTableHbase extends LogTable {
 				try {
 					FSUtils.writeFile(outputFilename, value);
 				} catch (IOException e) {
-					logger.fatal("Could not write logfile to local FS: " + e.toString());
+					logger.fatal("Could not write logfile to local FS: ", e);
 					throw new StageException("Could not write logfile to local FS: " + e.toString());
 				}
 				logFiles.add(outputFilename);

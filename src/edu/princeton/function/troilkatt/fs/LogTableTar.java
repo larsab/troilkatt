@@ -43,17 +43,13 @@ public class LogTableTar extends LogTable {
 	/**
 	 * Constructor.
 	 * 
-	 * Note! creating a Hbase Table is expensive, so it should only be done once. In addition,
-	 * there should be one instance per thread.
-	 * 
 	 * @param tfs TroilkattFS handle
 	 * @param logRooteDir root directory on NFS for log files. This is where log files will be put).
 	 * @param pipelineName
 	 * @param logDir logfile directory to be used by this class
 	 * @param tmpDir directory for temporary files needed while saving packing log files
 	 * 
-	 * @throws PipelineException 
-	 * 
+	 * @throws PipelineException
 	 */
 	public LogTableTar(String pipelineName, TroilkattFS tfs, String logRootDir, String logDir, String tmpDir) throws PipelineException {	
 		super(pipelineName);
@@ -70,7 +66,7 @@ public class LogTableTar extends LogTable {
 				tfs.mkdir(pipelineLogDir);				
 			}
 		} catch (IOException e) {
-			logger.fatal("Could not check or create pipelien logdir: " + e);
+			logger.fatal("Could not check or create pipelien logdir: ", e);
 			throw new PipelineException("Failed to initialize log directory");
 		}
 	}
@@ -195,7 +191,7 @@ public class LogTableTar extends LogTable {
 		try {
 			is = new FileInputStream(subDir);
 		} catch (FileNotFoundException e1) {
-			logger.fatal("Could not open: " + subDir + ": " + e1);
+			logger.fatal("Could not open: " + subDir + ": ", e1);
 			return false;
 		}
 		CompressorInputStream cin = null;
@@ -204,14 +200,14 @@ public class LogTableTar extends LogTable {
 		try {
 			cin = new CompressorStreamFactory().createCompressorInputStream("bzip2", is);
 		} catch (CompressorException e) { // This is expected, for example for the "none" format
-			logger.fatal("Unknwon compression format");
+			logger.fatal("Unknwon compression format: ", e);
 			throw new RuntimeException("Unknwon compression format");
 		}
 		
 		try {
 			ain = new ArchiveStreamFactory().createArchiveInputStream("tar", cin);
 		} catch (ArchiveException e) { // This is expected, for example for the "none" format
-			logger.warn("Unknwon archive format");
+			logger.warn("Unknwon archive format", e);
 			throw new RuntimeException("Unknwon archive format");
 		}
 			
@@ -230,7 +226,7 @@ public class LogTableTar extends LogTable {
 			}
 						
 		} catch (IOException e1) {
-			logger.error("Could not unpack archive entry: " + e1);
+			logger.error("Could not unpack archive entry: ", e1);
 			try {
 				ain.close();
 			} catch (IOException e2) {
@@ -242,7 +238,7 @@ public class LogTableTar extends LogTable {
 	}
 	
 	/**
-	 * 
+	 * Get sub directory name
 	 * 
 	 * @param stageName
 	 * @param timestamp
@@ -253,8 +249,7 @@ public class LogTableTar extends LogTable {
 	}
 	
 	/**
-	 * 
-	 * 
+	 * Get sub directory name without the compression format extension
 	 * 
 	 * @param stageName
 	 * @param timestamp

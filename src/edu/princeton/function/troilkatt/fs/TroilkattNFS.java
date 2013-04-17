@@ -215,7 +215,7 @@ public class TroilkattNFS extends TroilkattFS {
 				return null;
 			}
 		} catch (IOException e1) {
-			logger.fatal("Could not check if argument is a file: " + e1);
+			logger.fatal("Could not check if argument is a file: ", e1);
 			return null; 
 		}
 		
@@ -275,7 +275,7 @@ public class TroilkattNFS extends TroilkattFS {
 				mkdir(nfsOutputDir);
 			}			
 		} catch (IOException e1) {
-			logger.fatal("Could not check if argument is a file: " + e1);
+			logger.fatal("Could not check if argument is a file: ", e1);
 			return null; 
 		}
 		if (! isValidCompression(compression)) {
@@ -314,7 +314,7 @@ public class TroilkattNFS extends TroilkattFS {
 				return false;
 			}
 		} catch (IOException e) {
-			logger.fatal("Could not check NFS directory: " + nfsDir);
+			logger.fatal("Could not check NFS directory: " + nfsDir, e);
 			return false;
 		}
 		if (timestamp < 0) {
@@ -595,13 +595,14 @@ public class TroilkattNFS extends TroilkattFS {
 						throw new RuntimeException("Status file already exists");						
 					}
 				} catch (IOException e) {
-					logger.fatal("Could not create new status file: " + e);
+					logger.fatal("Could not create new status file: ", e);
 					throw e;
 				}	
 				// Attempt to save new status file to verify that the NFS path is valid
 				try {
 					saveStatusFile(localFilename, nfsFilename);
 				} catch (IOException e) {
+					logger.fatal("Could not save status file: ", e);
 					throw new TroilkattPropertiesException("Invalid NFS status filename: " + nfsFilename);
 				}
 			}

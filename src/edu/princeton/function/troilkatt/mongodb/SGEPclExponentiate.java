@@ -69,7 +69,7 @@ public class SGEPclExponentiate {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length < 5) {
+		if (args.length < 4) {
 			System.err.println("Usage: java SGEPclExponentiate inputFilename outputFilename mongoServerIP mongoServerPort");
 			System.exit(2);
 		}
