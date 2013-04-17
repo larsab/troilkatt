@@ -100,6 +100,7 @@ public class FindGSMOverlapMongoDB extends Stage {
 			minSamples = Integer.valueOf(argsParts[1]);
 			maxOverlap = Integer.valueOf(argsParts[2]);
 		} catch (NumberFormatException e) {			
+			logger.fatal("Number format exception: ", e);
 			throw new StageInitException("Invalid arguments, one of these is not an integer: " + argsParts[1] + " or " + argsParts[2]);
 		}
 		
@@ -131,7 +132,7 @@ public class FindGSMOverlapMongoDB extends Stage {
 		try {
 			mongoClient = new MongoClient(serverAdr);
 		} catch (UnknownHostException e1) {
-			logger.fatal("Could not connect to MongoDB server: " + e1);
+			logger.fatal("Could not connect to MongoDB server: ", e1);
 			throw new StageException("Could not connect to MongoDB server: " + e1.getMessage());
 		}
 		DB db = mongoClient.getDB( "troilkatt" );
@@ -207,7 +208,7 @@ public class FindGSMOverlapMongoDB extends Stage {
 		try {
 			allSoftFiles = FSUtils.readTextFile(listFilename);
 		} catch (IOException e) {
-			logger.error("Could not read from list file: " + listFilename);
+			logger.error("Could not read from list file: " + listFilename, e);
 			throw new StageException("Could not update Hbase meta table");
 		}
 		
@@ -251,7 +252,8 @@ public class FindGSMOverlapMongoDB extends Stage {
 					
 			}
 		} catch (IOException e) {
-			throw new StageException("Could not update Hbase meta table");
+			logger.fatal("Could not update MondoFB collection", e);
+			throw new StageException("Could not update MondoFB collection");
 		}
 		
 		mongoClient.close();

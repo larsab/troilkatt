@@ -100,6 +100,7 @@ public class FindGSMOverlap extends Stage {
 			minSamples = Integer.valueOf(argsParts[1]);
 			maxOverlap = Integer.valueOf(argsParts[2]);
 		} catch (NumberFormatException e) {			
+			logger.fatal("Number format exception: ", e);
 			throw new StageInitException("Invalid arguments, one of these is not an integer: " + argsParts[1] + " or " + argsParts[2]);
 		}
 		
@@ -203,7 +204,7 @@ public class FindGSMOverlap extends Stage {
 		try {
 			allSoftFiles = FSUtils.readTextFile(listFilename);
 		} catch (IOException e) {
-			logger.error("Could not read from list file: " + listFilename);
+			logger.error("Could not read from list file: " + listFilename, e);
 			throw new StageException("Could not update Hbase meta table");
 		}
 		
@@ -247,6 +248,7 @@ public class FindGSMOverlap extends Stage {
 					
 			}
 		} catch (IOException e) {
+			logger.fatal("Could not update meta data collection", e);
 			throw new StageException("Could not update Hbase meta table");
 		}
 		

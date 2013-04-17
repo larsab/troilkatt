@@ -35,7 +35,7 @@ public class Filter extends Stage {
 		try {
 			this.pattern = Pattern.compile(this.args);
 		} catch (PatternSyntaxException e) {
-			logger.fatal("Invalid filter pattern: " + args);
+			logger.fatal("Invalid filter pattern: " + args, e);
 			throw new StageInitException("Invalid filter pattern: " + args);
 		}
 	}

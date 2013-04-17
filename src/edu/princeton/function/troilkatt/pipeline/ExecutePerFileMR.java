@@ -177,14 +177,13 @@ public class ExecutePerFileMR extends Stage {
 			
 			return exitValue;
 		} catch (IOException e) {
-			logger.warn(String.format("Failed to execute: %s %s %s", cmdV[0], cmdV[1], cmdV[2]));
-			logger.warn(e.toString());
+			logger.warn("IOExcpetion: ", e);
+			logger.warn(String.format("Failed to execute: %s %s %s", cmdV[0], cmdV[1], cmdV[2]));			
 			// User scripts may fail, but the processing should continue
 			//throw new RuntimeException("Failed to execute command");			
 		} catch (InterruptedException e) {
-			logger.warn("Wait for child to complete was interrupted");
-			logger.warn(e.toString());
-			logger.warn(e.getStackTrace().toString());
+			logger.warn("Interrupted: ", e);
+			logger.warn("Wait for child to complete was interrupted");		
 		}
 		
 		return -1;

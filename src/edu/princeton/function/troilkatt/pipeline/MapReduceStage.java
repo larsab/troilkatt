@@ -113,7 +113,7 @@ public class MapReduceStage extends MapReduce {
 		try {
 			tmpFiles = tfs.listdir(hdfsTmpOutputDir);		
 		} catch (IOException e) {
-			logger.fatal("Could not read list of outputfiles in HDFS: " + e.toString());
+			logger.fatal("Could not read list of outputfiles in HDFS: ", e);
 			throw new StageException("Could not read list of outputfiles in HDFS");
 		}
 		
@@ -142,7 +142,7 @@ public class MapReduceStage extends MapReduce {
 					outputFiles.add(dstName);
 				}
 			} catch (IOException e) {
-				logger.warn("Could not move file: " + basename + ": IOException: " + e.getMessage() );
+				logger.warn("Could not move file: " + basename + ": IOException: ", e);
 			}
 		}
 		

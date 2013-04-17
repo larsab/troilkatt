@@ -151,7 +151,7 @@ public class MapReduce extends Stage {
 			try {
 				mapreduceDir = troilkattProperties.get("troilkatt.localfs.mapreduce.dir");
 			} catch (TroilkattPropertiesException e) {
-				logger.fatal("Invalid properies file: " + e.getMessage());
+				logger.fatal("Invalid properies file: " + e);
 				throw new StageException("Could not create input arguments file");
 			}
 			out.println("mapred.input.dir = " + OsPath.join(mapreduceDir, "input"));
@@ -200,7 +200,7 @@ public class MapReduce extends Stage {
 			out.println("input.files.end");
 			out.close();
 		} catch (IOException e1) {
-			logger.fatal("Could not create input arguments file: " + e1.getMessage());
+			logger.fatal("Could not create input arguments file: ", e1);
 			throw new StageException("Could not create input arguments file");
 		}
 	}
@@ -232,7 +232,7 @@ public class MapReduce extends Stage {
 		try {
 			tmpFiles = tfs.listdir(hdfsTmpOutputDir);		
 		} catch (IOException e) {
-			logger.fatal("Could not read list of outputfiles in HDFS: " + e.toString());
+			logger.fatal("Could not read list of outputfiles in HDFS: ", e);
 			throw new StageException("Could not read list of outputfiles in HDFS");
 		}
 		
@@ -253,7 +253,7 @@ public class MapReduce extends Stage {
 			try {
 				dstName = tfs.putTFSFile(f, tfsOutputDir, stageTmpDir, stageLogDir, compressionFormat, timestamp);
 			} catch (IOException e) {
-				logger.warn("Could not move file: " + f + ": IOException: " + e.getMessage());
+				logger.warn("Could not move file: " + f + ": IOException: ", e);
 			}
 			if (dstName == null) {
 				logger.warn("Could not move file: " + f);

@@ -52,6 +52,7 @@ public class GeoGSESplit extends GeoGSE2Pcl {
 			ins.close();		
 			System.out.println("Stage 1 done");
 		} catch (IOException e) {
+			e.printStackTrace();
 			System.err.println("Could not parse GSE file, I/O excpetion:" + e);
 			if (ins != null) {
 				try {
@@ -62,6 +63,7 @@ public class GeoGSESplit extends GeoGSE2Pcl {
 			}			
 			return;
 		} catch (ParseException e) {
+			e.printStackTrace();
 			System.err.println("Could not parse GSE file, parse excpetion:" + e);
 			if (ins != null) {
 				try {
@@ -103,6 +105,7 @@ public class GeoGSESplit extends GeoGSE2Pcl {
 				bw.close();
 				System.out.println("Outputfile written: " + outputFilename);
 			} catch (IOException e) {
+				e.printStackTrace();
 				System.err.println("Could not write output files, I/O excpetion:" + e);				
 				try {
 					bw.close();
@@ -111,6 +114,7 @@ public class GeoGSESplit extends GeoGSE2Pcl {
 					// Do nothing
 				}
 			} catch (ParseException e) {
+				e.printStackTrace();
 				System.err.println("Could not write output files, parse error:" + e);
 				try {
 					bw.close();

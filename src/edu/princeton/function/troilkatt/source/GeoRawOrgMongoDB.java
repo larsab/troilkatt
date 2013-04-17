@@ -64,7 +64,7 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 			orgPattern = Pattern.compile(argsParts[0]);
 			logger.info("Organism: " + argsParts[0]);
 		} catch (PatternSyntaxException e) {
-			logger.fatal("Invalid filter pattern: " + argsParts[0]);
+			logger.fatal("Invalid filter pattern: " + argsParts[0], e);
 			throw new StageInitException("Invalid filter pattern: " + argsParts[0]);
 		}		
 		
@@ -113,7 +113,7 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 		try {
 			mongoClient = new MongoClient(serverAdr);
 		} catch (UnknownHostException e1) {
-			logger.fatal("Could not connect to MongoDB server: " + e1);
+			logger.fatal("Could not connect to MongoDB server: ", e1);
 			throw new StageException("Could not connect to MongoDB server: " + e1.getMessage());
 		}
 		DB db = mongoClient.getDB("troilkatt");
@@ -186,10 +186,10 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 	    		throw new StageException("Could not connect to GEO FTP server");
 	    	}			
 		} catch (SocketException e) {
-			logger.fatal("Could not connect to GEO FTP server: " + e);
+			logger.fatal("Could not connect to GEO FTP server: ", e);
 			throw new StageException("Could not connect to GEO FTP server");
 		} catch (IOException e) {
-			logger.fatal("Could not connect to GEO FTP server: " + e);
+			logger.fatal("Could not connect to GEO FTP server: ", e);
 			throw new StageException("Could not connect to GEO FTP server");
 		}
 		

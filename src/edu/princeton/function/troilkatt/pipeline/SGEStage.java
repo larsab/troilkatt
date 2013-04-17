@@ -150,7 +150,7 @@ public class SGEStage extends Stage {
 					throw new StageException("Could not move output file to: " + newName);
 				}
 			} catch (IOException e) {
-				logger.error("Could not move tmp output files to persistent output directory");
+				logger.error("Could not move tmp output files to persistent output directory", e);
 				throw new StageException("Could not move output file to: " + newName);
 			}
 			
@@ -203,7 +203,7 @@ public class SGEStage extends Stage {
 			
 			out.close();
 		} catch (IOException e1) {
-			logger.fatal("Could not create input SGE scripts file: " + e1.getMessage());
+			logger.fatal("Could not create input SGE scripts file: ", e1);
 			throw new StageException("Could not create SGE scripts file");
 		}
 	}
@@ -238,7 +238,7 @@ public class SGEStage extends Stage {
 			try {
 				localSgeDir = troilkattProperties.get("troilkatt.localfs.sge.dir");
 			} catch (TroilkattPropertiesException e) {
-				logger.fatal("Invalid properies file: " + e.getMessage());
+				logger.fatal("Invalid properies file: " + e);
 				throw new StageException("Could not create input arguments file");
 			}
 			out.println("sge.pipeline.dir = " + OsPath.join(localSgeDir, "pipeline"));
@@ -278,7 +278,7 @@ public class SGEStage extends Stage {
 			out.println("input.files.end");
 			out.close();			
 		} catch (IOException e1) {
-			logger.fatal("Could not create input arguments file: " + e1.getMessage());
+			logger.fatal("Could not create input arguments file: ", e1);
 			throw new StageException("Could not create input arguments file");
 		}
 	}
@@ -300,7 +300,7 @@ public class SGEStage extends Stage {
 		try {
 			tmpFiles = tfs.listdirR(nfsTmpLogDir);			
 		} catch (IOException e) {
-			logger.fatal("Could not read list of outputfiles in NFS: " + e.toString());
+			logger.fatal("Could not read list of outputfiles in NFS: ", e);
 			throw new StageException("Could not read list of outputfiles in MFS");
 		}
 		
@@ -329,7 +329,7 @@ public class SGEStage extends Stage {
 					continue;
 				}
 			} catch (IOException e) {
-				logger.error("Could not move local log files to shared logfile directory");
+				logger.error("Could not move local log files to shared logfile directory", e);
 			}
 			
 			logFiles.add(newName);			
@@ -393,7 +393,7 @@ public class SGEStage extends Stage {
 		try {
 			return tfs.listdir(nfsTmpOutputDir);
 		} catch (IOException e) {
-			logger.error("Could not list output dir" + e);
+			logger.error("Could not list output dir", e);
 			throw new StageException("Could not list output dir");
 		}
 	}

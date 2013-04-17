@@ -112,7 +112,7 @@ public class ExecuteStage {
 		try {
 			stageNum = Integer.valueOf(parts[0]);
 		} catch (NumberFormatException e) {
-			logger.fatal("Invalid number in stagename " + stageName + ": " + parts[0]);
+			logger.fatal("Invalid number in stagename " + stageName + ": " + parts[0], e);
 			throw new RuntimeException("Invalid number in stagename " + stageName + ": " + parts[0]);
 		}		
 		// The stage name contains the task id, but not the stage number 
@@ -195,7 +195,7 @@ public class ExecuteStage {
 			// Save output, log, and meta files in NFS						
 			stage.saveOutputFiles(outputFiles, timestamp);				
 		} catch (StageException e) {
-			logger.warn("Stage exceution failed: ", e);				
+			logger.warn("Stage exceution failed: " + e);				
 			// Do not throw exception until log files have been saved and local directories 
 			// has been cleaned
 			//eThrown = e;
@@ -215,7 +215,7 @@ public class ExecuteStage {
 				}
 			}
 		} catch (IOException e) {
-			logger.error("IOException during log file save: " + e);
+			logger.error("IOException during log file save: ", e);
 		}
 
 		// Cleanup after each map
@@ -283,7 +283,8 @@ public class ExecuteStage {
 			}
 			ib.close();
 		} catch (IOException e1) {			
-			throw new StageInitException("Could not read arguments file: " + e1.getMessage());
+			e1.printStackTrace();
+			throw new StageInitException("Could not read arguments file: " + e1);
 		}
 		return inputFiles;
 	}

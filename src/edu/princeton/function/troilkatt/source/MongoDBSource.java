@@ -66,7 +66,7 @@ public class MongoDBSource extends Source {
 			// All checks are for lowercase valuess
 			wherePattern = Pattern.compile(argsParts[3].toLowerCase());
 		} catch (PatternSyntaxException e) {
-			logger.fatal("Invalid filter pattern: " + args);
+			logger.fatal("Invalid filter pattern: " + args, e);
 			throw new StageInitException("Invalid filter pattern: " + args);
 		}
 		
@@ -153,7 +153,7 @@ public class MongoDBSource extends Source {
 		try {
 			mongoClient = new MongoClient(serverAdr, serverPort);
 		} catch (UnknownHostException e1) {
-			logger.fatal("Could not connect to MongoDB server: " + e1);
+			logger.fatal("Could not connect to MongoDB server: ", e1);
 			throw new StageException("Could not connect to MongoDB server: " + e1.getMessage());
 		}
 		DB db = mongoClient.getDB("troilkatt");

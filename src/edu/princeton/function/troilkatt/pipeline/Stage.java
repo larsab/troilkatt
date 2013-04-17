@@ -133,6 +133,7 @@ public class Stage {
 			try {
 				tfs.mkdir(this.tfsOutputDir);
 			} catch (IOException e) {
+				logger.fatal("Could not create output directory: ", e);
 				throw new StageInitException("Could not create output directory for stage: " + this.tfsOutputDir);
 			}
 						
@@ -193,7 +194,7 @@ public class Stage {
 		try {
 			setCreateTFSDirs(tfsStageMetaDir, tfsStageTmpDir);
 		} catch (IOException e) {
-			logger.fatal("Could not set (or create) TFS directories: " + e);
+			logger.fatal("Could not set (or create) TFS directories: ", e);
 			throw new StageInitException("Could not set or create TFS directories for stage");
 		}
 		
@@ -371,7 +372,7 @@ public class Stage {
 			try {
 				ln = tfs.getFile(f, stageInputDir, stageTmpDir, stageLogDir);
 			} catch (IOException e) {
-				logger.fatal("Could not download file: " + e.toString());
+				logger.fatal("Could not download file: ", e);
 				throw new StageException("Could not download file: " + f);
 			}
 			if (ln == null) {
@@ -405,7 +406,7 @@ public class Stage {
 				return metaFiles;
 			}
 		} catch (IOException e) {
-			logger.fatal("Could not download meta file for stage: " + e.toString());
+			logger.fatal("Could not download meta file for stage: ", e);
 			throw new StageException("Could not download meta file for stage");
 		}	
 	}
@@ -534,7 +535,7 @@ public class Stage {
 				}
 			}
 		} catch (IOException e) {
-			logger.warn("Could not delete TFS directory: " + e.toString());
+			logger.warn("Could not delete TFS directory: ", e);
 			throw new StageException("Cleanup failed: I/O Exception while deleting tFS directory: " + tfsTmpDir);
 		}
 	}
@@ -748,14 +749,13 @@ public class Stage {
 			
 			return exitValue;
 		} catch (IOException e) {
-			logger.warn(String.format("Failed to execute: %s %s %s", cmdV[0], cmdV[1], cmdV[2]));
-			logger.warn(e.toString());
+			logger.warn(e);
+			logger.warn(String.format("Failed to execute: %s %s %s", cmdV[0], cmdV[1], cmdV[2]));			
 			// User scripts may fail, but the processing should continue
 			//throw new RuntimeException("Failed to execute command");			
 		} catch (InterruptedException e) {
-			logger.warn("Wait for child to complete was interrupted");
-			logger.warn(e.toString());
-			logger.warn(e.getStackTrace().toString());
+			logger.warn(e);
+			logger.warn("Wait for child to complete was interrupted");			
 		}
 		
 		return -1;

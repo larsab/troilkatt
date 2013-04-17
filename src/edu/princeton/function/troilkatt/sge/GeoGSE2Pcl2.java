@@ -47,11 +47,12 @@ public class GeoGSE2Pcl2 extends GeoGSE2Pcl {
 			readStage1Results(ser);
 			ser.close();
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 			System.err.println("Could not read stage 1 results from file: " + serFilename);
 			return false;
 		} catch (FileNotFoundException e) {
-			System.err.println("File not found: " + serFilename);
 			e.printStackTrace();
+			System.err.println("File not found: " + serFilename);			
 			try {
 				if (ser != null) {
 					ser.close();
@@ -61,8 +62,8 @@ public class GeoGSE2Pcl2 extends GeoGSE2Pcl {
 			} 
 			return false;
 		} catch (IOException e) {
-			System.err.println("IOException when reading ser file");
 			e.printStackTrace();
+			System.err.println("IOException when reading ser file");			
 			try {
 				if (ser != null) {
 					ser.close();
