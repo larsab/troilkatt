@@ -51,5 +51,4 @@ public class ScriptPerFileSGE extends ExecutePerFileSGE {
 		
 		cmd = setTroilkattSymbols(newCmd);
 	}
-
 }

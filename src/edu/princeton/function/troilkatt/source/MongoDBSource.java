@@ -81,7 +81,7 @@ public class MongoDBSource extends Source {
 	 * 
 	 * @param sk selectKey: field to return
 	 * @param wk whereKey: field to check
-	 * @param wre whereRegExp: regexp to use for the check
+	 * @param wre whereRegExp: regexp to use for the check. NOTE! must be in lower case.
 	 * @param l optional Logger. null if no logger should be used
 	 * return value list with strings for the select field
 	 */

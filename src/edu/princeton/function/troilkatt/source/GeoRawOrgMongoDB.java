@@ -40,7 +40,8 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 	protected String serverAdr;
 	protected String collectionName;
 	
-	private HashSet<String> currentIDList;
+	// Debug
+	//private HashSet<String> currentIDList;
 	
 	/**
 	 * Constructor
@@ -61,7 +62,7 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 		/* setup regexp used to find organism names */
 		String[] argsParts = splitArgs(this.args);
 		try {
-			orgPattern = Pattern.compile(argsParts[0]);
+			orgPattern = Pattern.compile(argsParts[0].toLowerCase());
 			logger.info("Organism: " + argsParts[0]);
 		} catch (PatternSyntaxException e) {
 			logger.fatal("Invalid filter pattern: " + argsParts[0], e);
@@ -125,7 +126,6 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 		// sort in descending order according to timestamp
 		cursor.sort(new BasicDBObject("timestamp", -1));
 				
-	
 		/*
 		 *  Get list of files that have been previously downloaded
 		 */
@@ -145,7 +145,22 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 		 *  Get a list of datset IDs for an organism from the geo-meta data table
 		 */
 		ArrayList<String> inputIDsList = MongoDBSource.scanMongoDB(cursor, "key", "meta:organisms", orgPattern, logger);
-		HashSet<String> inputIDs = new HashSet<String>(inputIDsList);
+		HashSet<String> inputIDs = new HashSet<String>();
+		for (String k: inputIDsList) {
+			// ignore GDS entries
+			if (k.startsWith("GDS")) {
+				continue;
+			}
+			// make sure keys do not include platform specific part
+			if (k.contains("GPL")) {
+				k = k.split("-")[0];
+			}
+			// check for duplicates and add if unique
+			if (! inputIDs.contains(k)) {				
+				inputIDs.add(k);
+			}
+		}
+		logger.info("Organism specific IDs: " + inputIDs.size());
 		
 		// Create log file with input IDs
 		String inputLog = OsPath.join(stageLogDir, "input");
@@ -162,7 +177,9 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 		 */
 		ArrayList<String> newIDs = new ArrayList<String>();
 		for (String i: inputIDs) {
-			if (! oldIDs.contains(i) && currentIDList.contains(i)) {
+			// Debug
+			//if (! oldIDs.contains(i) && currentIDList.contains(i)) {
+			if (! oldIDs.contains(i)) {
 				newIDs.add(i);
 			}
 		}
