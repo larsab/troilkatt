@@ -50,7 +50,7 @@ public class TFSSource extends Source {
 		} catch (StageException e) {
 			// Delay exception until log files have been saved
 			eThrown = e;
-			logger.warn("Warning: retrieve failed");
+			logger.warn("Retrieve failed" + e);
 		}
 		
 		// Always save logfiles and do cleanup

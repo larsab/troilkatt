@@ -76,8 +76,8 @@ public class BatchPcl2Info extends PerFile {
 			try {
 				table = geoMetaTable.openTable(hbConf, true);
 			} catch (HbaseException e) {
-				mapLogger.fatal("HbaseException", e);				
-				throw new IOException("HbaseException: " + e.getMessage());
+				mapLogger.fatal("Could not open table", e);				
+				throw new IOException("Could not open table: " + e);
 			}
 		}			
 	
@@ -116,9 +116,8 @@ public class BatchPcl2Info extends PerFile {
 			HashMap<String, String> results;
 			try {
 				results = parser.calculate(lin);
-			} catch (ParseException e1) {
-				mapLogger.warn(e1.getStackTrace());
-				mapLogger.warn("Could not parse file");
+			} catch (ParseException e1) {				
+				mapLogger.warn("Could not parse file", e1);
 				readErrors.increment(1);
 				return;
 			}			
@@ -153,7 +152,7 @@ public class BatchPcl2Info extends PerFile {
 				table.put(update);			
 			} catch (IOException e) {
 				updateErrors.increment(1);
-				mapLogger.warn("Could not save updated row in Hbase: " + e.getMessage());				
+				mapLogger.warn("Could not save updated row in Hbase: ", e);				
 			}  
 			rowsUpdated.increment(1);
 		}
@@ -171,7 +170,8 @@ public class BatchPcl2Info extends PerFile {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 		
@@ -184,7 +184,7 @@ public class BatchPcl2Info extends PerFile {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 		
@@ -215,10 +215,10 @@ public class BatchPcl2Info extends PerFile {
 			}
 			setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed: ", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}	
 		

@@ -103,7 +103,7 @@ public class BatchGeoGDS2Pcl extends PerFile {
 					bw.close();	
 				} catch (ParseException e) {
 					parserExceptions.increment(1);
-					mapLogger.warn("Failed to convert file due to parser error: " + e.getMessage());
+					mapLogger.warn("Failed to convert file due to parser error: ", e);
 					closeDeleteBufferedWriter(bw, outputBasename, compressionFormat, context);
 					return;
 				}							
@@ -117,12 +117,12 @@ public class BatchGeoGDS2Pcl extends PerFile {
 					parser.convert(lin, bw);
 					bw.close();
 				} catch (IOException e) {
-					mapLogger.error("IOExcpetion: " + e.getMessage());					
+					mapLogger.error("Could not convert file: ", e);					
 					closeDeleteLocalBufferedWriter(bw, localFilename);	
 					return;
 				} catch (ParseException e) {
 					parserExceptions.increment(1);
-					mapLogger.warn("Failed to convert file due to parser error: " + e.getMessage());					
+					mapLogger.warn("Failed to convert file due to parser error: ", e);					
 					closeDeleteLocalBufferedWriter(bw, localFilename);
 					return;
 				}				
@@ -145,7 +145,8 @@ public class BatchGeoGDS2Pcl extends PerFile {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 		
@@ -158,7 +159,7 @@ public class BatchGeoGDS2Pcl extends PerFile {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 		
@@ -189,10 +190,10 @@ public class BatchGeoGDS2Pcl extends PerFile {
 			}
 			setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed due to IOException: ", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}	
 		

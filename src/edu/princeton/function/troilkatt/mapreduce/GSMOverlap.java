@@ -71,15 +71,17 @@ public class GSMOverlap extends TroilkattMapReduce {
 		public void setup(Context context) throws IOException {
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
-			try {
-				logTable = new LogTableHbase(pipelineName);
-			} catch (PipelineException e) {				
-				throw new IOException("Could not create logTable object: " + e.getMessage());
-			}
-
+			
 			String taskAttemptID = context.getTaskAttemptID().toString();
 			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
 			mapLogger = TroilkattMapReduce.getTaskLogger(conf);
+			
+			try {
+				logTable = new LogTableHbase(pipelineName);
+			} catch (PipelineException e) {
+				mapLogger.fatal("Could not create logTable object: ", e);
+				throw new IOException("Could not create logTable object: " + e);
+			}
 			
 			rowsRead = context.getCounter(GSMOverlapCounters.ROWS_READ);
 			invalidRows = context.getCounter(GSMOverlapCounters.INVALID_ROWS);
@@ -215,20 +217,23 @@ public class GSMOverlap extends TroilkattMapReduce {
 		public void setup(Context context)  throws IOException {
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
+			
+			String taskAttemptID = context.getTaskAttemptID().toString();
+			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
+			reduceLogger = TroilkattMapReduce.getTaskLogger(conf);
+			
 			try {
 				logTable = new LogTableHbase(pipelineName);
-			} catch (PipelineException e) {
-				throw new IOException("Could not create logTable object: " + e.getMessage());
+			} catch (PipelineException e) {				
+				throw new IOException("Could not create logTable object: " + e);
 			}
 			geoMetaSchema = new GeoMetaTableSchema();
 			try {
 				geoMetaTable = geoMetaSchema.openTable(logTable.hbConfig, false);
 			} catch (HbaseException e) {
-				throw new IOException("HbaseException: " + e.getMessage());
-			}
-			String taskAttemptID = context.getTaskAttemptID().toString();
-			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
-			reduceLogger = TroilkattMapReduce.getTaskLogger(conf);
+				reduceLogger.fatal("Could not open Hbase table: ", e);
+				throw new IOException("Could not open Hbase table: " + e);
+			}			
 			
 			gid2nSamples = new HashMap<String, Integer>();
 			gid2meta = new HashMap<String, String>();
@@ -342,7 +347,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 			try {
 				result = geoMetaTable.get(get);
 			} catch (IOException e) {				
-				throw new IOException("Could not get row: " + gid + ": " + e.toString());
+				throw new IOException("Could not get row: " + gid + ": ", e);
 			}
 			
 			if (result == null) {
@@ -400,7 +405,8 @@ public class GSMOverlap extends TroilkattMapReduce {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 
@@ -416,7 +422,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 
@@ -446,10 +452,10 @@ public class GSMOverlap extends TroilkattMapReduce {
 			
 			setOutputPath(hdfs, job);			
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed:v", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}
 
@@ -457,13 +463,13 @@ public class GSMOverlap extends TroilkattMapReduce {
 		try {
 			return job.waitForCompletion(true) ? 0: -1;
 		} catch (InterruptedException e) {
-			jobLogger.fatal("Interrupt exception: " + e.toString());
+			jobLogger.fatal("Job exception failed: ", e);
 			return -1;
 		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Class not found exception: " + e.toString());
+			jobLogger.fatal("Job exception failed: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: " + e.toString());
+			jobLogger.fatal("Job exception failed: ", e);
 			return -1;
 		}
 	}

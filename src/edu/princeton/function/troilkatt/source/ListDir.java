@@ -36,8 +36,8 @@ public class ListDir extends TFSSource {
 				throw new StageInitException("ListDir source initialization error: " + listDir + " is not a directory");
 			}
 		} catch (IOException e) {
-			logger.fatal("ListDir source initialization error: " + e.getMessage());
-			throw new StageInitException("ListDir source initialization error: " + e.getMessage());
+			logger.fatal("ListDir source initialization error: ", e);
+			throw new StageInitException("ListDir source initialization error: " + e);
 		}		
 
 		logger.debug("ListDir initialized, reading from: " + listDir);
@@ -65,8 +65,8 @@ public class ListDir extends TFSSource {
 				throw new StageException("Could not list directory");
 			}
 		} catch (IOException e) {
-			logger.fatal("Could not list directory: " + e.toString());
-			throw new StageException("Could not list directory");
+			logger.fatal("Could not list directory: ", e);
+			throw new StageException("Could not list directory" + e);
 		}
 		
 		logger.info("Returning " + outputFiles.size() + " files");

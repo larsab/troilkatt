@@ -154,10 +154,10 @@ public class ExecuteStage {
 			}
 		} catch (PipelineException e) {
 			logger.fatal("Setup failed for task: " + taskStageName, e);				
-			throw new StageInitException("Pipeline exception: " + e.getMessage());			
+			throw new StageInitException("Pipeline exception: " + e);			
 		} catch (TroilkattPropertiesException e) {
 			logger.fatal("Setup failed for task: " + taskStageName, e);				
-			throw new StageInitException("TroilkattPropertiesException exception: " + e.getMessage());
+			throw new StageInitException("TroilkattPropertiesException exception: " + e);
 		} 		
 	}
 		
@@ -195,7 +195,7 @@ public class ExecuteStage {
 			// Save output, log, and meta files in NFS						
 			stage.saveOutputFiles(outputFiles, timestamp);				
 		} catch (StageException e) {
-			logger.warn("Stage exceution failed: " + e);				
+			logger.warn("Stage exceution failed: ", e);				
 			// Do not throw exception until log files have been saved and local directories 
 			// has been cleaned
 			//eThrown = e;
@@ -283,7 +283,7 @@ public class ExecuteStage {
 			}
 			ib.close();
 		} catch (IOException e1) {			
-			e1.printStackTrace();
+			logger.fatal("Could not read arguments file: ", e1);
 			throw new StageInitException("Could not read arguments file: " + e1);
 		}
 		return inputFiles;

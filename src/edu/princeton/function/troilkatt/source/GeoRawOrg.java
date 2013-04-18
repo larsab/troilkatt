@@ -73,7 +73,7 @@ public class GeoRawOrg extends GeoGDSMirror {
 			orgPattern = Pattern.compile(argsParts[0]);
 			logger.info("Organism: " + argsParts[0]);
 		} catch (PatternSyntaxException e) {
-			logger.fatal("Invalid filter pattern: " + argsParts[0]);
+			logger.fatal("Invalid filter pattern: " + argsParts[0], e);
 			throw new StageInitException("Invalid filter pattern: " + argsParts[0]);
 		}
 		
@@ -174,10 +174,10 @@ public class GeoRawOrg extends GeoGDSMirror {
 	    		throw new StageException("Could not connect to GEO FTP server");
 	    	}			
 		} catch (SocketException e) {
-			logger.fatal("Could not connect to GEO FTP server: " + e);
+			logger.fatal("Could not connect to GEO FTP server: ", e);
 			throw new StageException("Could not connect to GEO FTP server");
 		} catch (IOException e) {
-			logger.fatal("Could not connect to GEO FTP server: " + e);
+			logger.fatal("Could not connect to GEO FTP server: ", e);
 			throw new StageException("Could not connect to GEO FTP server");
 		}
 		
@@ -220,7 +220,7 @@ public class GeoRawOrg extends GeoGDSMirror {
 				FSUtils.appendTextFile(OsPath.join(stageMetaDir, metaFilename), newIDlist);
 			} catch (IOException e) {
 				logger.fatal("Could not update metadata file: ", e);
-				throw new StageException("Could not update metadata file: " + e.getMessage());
+				throw new StageException("Could not update metadata file: " + e);
 			}
 			
 			// Delete downloaded file
@@ -270,7 +270,7 @@ public class GeoRawOrg extends GeoGDSMirror {
 				lines = FSUtils.readTextFile(metaFile);
 			} catch (IOException e) {
 				logger.fatal("Could not read from metadata file: ", e);
-				throw new StageException("Could not read from metadata file: " + e.getMessage());
+				throw new StageException("Could not read from metadata file: " + e);
 			}
 			for (String l: lines) {
 				oldIDs.add(l);
@@ -302,7 +302,7 @@ public class GeoRawOrg extends GeoGDSMirror {
 		try {
 			scanner = metaTable.getScanner(scan);
 		} catch (IOException e) {
-			logger.error(e.getStackTrace());
+			logger.error("Could not create Hbase table scanner: ", e);
 			throw new StageException("Could not create Hbase table scanner");
 		}
 		

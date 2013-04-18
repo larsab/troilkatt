@@ -152,9 +152,8 @@ public class BatchGeoGSE2Pcl extends PerFile {
 				parser.readStage1Results(fis);
 				fis.close();
 			} catch (ClassNotFoundException e) {
-				invalidInputFiles.increment(1);
-				mapLogger.fatal(e.getStackTrace());
-				mapLogger.fatal("Could not read serialized stage1 results");					
+				invalidInputFiles.increment(1);				
+				mapLogger.fatal("Could not read serialized stage1 results", e);					
 			}
 			serFilesRead.increment(1);
 												
@@ -201,14 +200,14 @@ public class BatchGeoGSE2Pcl extends PerFile {
 							parser.stage2(br, bw, pid); // parse and write output file
 							bw.close();
 						} catch (IOException e) {
-							mapLogger.error("IOExcpetion: ", e);					
+							mapLogger.error("Could not convert file: ", e);					
 							closeDeleteLocalBufferedWriter(bw, localFilename);
 							return;
 						}
 					} 		
 				} catch (ParseException e1) {
 					parserExceptions.increment(1);
-					mapLogger.error("ParseException: ", e1);
+					mapLogger.error("Could not convert file: ", e1);
 					if (localFilename == null) { // writing directly to HDFS
 						closeDeleteBufferedWriter(bw, outputBasename, compressionFormat, context);
 					}
@@ -251,7 +250,8 @@ public class BatchGeoGSE2Pcl extends PerFile {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Error: Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Error: Could not parse arguments: " + e2);
 			return -1;
 		}
 
@@ -264,7 +264,7 @@ public class BatchGeoGSE2Pcl extends PerFile {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 
@@ -295,10 +295,10 @@ public class BatchGeoGSE2Pcl extends PerFile {
 			}
 			setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed due to IOException: ", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}	
 

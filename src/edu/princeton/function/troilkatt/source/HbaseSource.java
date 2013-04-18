@@ -64,13 +64,13 @@ public class HbaseSource extends Source {
 			logger.error("Table given as argument does not exist:", e);
 			throw new StageInitException("Table given as argument does not exist:" + tableName);
 		} catch (MasterNotRunningException e) {			
-			logger.error(e.getStackTrace());
+			logger.error("Master is not running", e);
 			throw new StageInitException("HBaseMaster is not running");
 		} catch (ZooKeeperConnectionException e) {
-			logger.error(e.getStackTrace());
+			logger.error("ZooKeeper connection failed: ", e);
 			throw new StageInitException("Could not connect to ZooKeeper");
 		} catch (IOException e) {			
-			logger.error(e.getStackTrace());
+			logger.error("Could not initialized Hbase table: ", e);
 			throw new StageInitException("Could not open table" + tableName);
 		}  
 		
@@ -84,7 +84,7 @@ public class HbaseSource extends Source {
 		try {
 			wherePattern = Pattern.compile(argsParts[2]);
 		} catch (PatternSyntaxException e) {
-			logger.fatal("Invalid filter pattern: " + args);
+			logger.fatal("Invalid filter pattern: " + args, e);
 			throw new StageInitException("Invalid filter pattern: " + args);
 		}
 		
@@ -122,7 +122,7 @@ public class HbaseSource extends Source {
 		try {
 			scanner = table.getScanner(scan);
 		} catch (IOException e) {
-			logger.error("Could not create Hbase table scanner");
+			logger.error("Could not create Hbase table scanner", e);
 			throw new StageException("Could not create Hbase table scanner");
 		}
 		

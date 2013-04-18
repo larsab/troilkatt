@@ -69,16 +69,18 @@ public class GeneCounter extends TroilkattMapReduce {
 		public void setup(Context context) throws IOException {
 			conf = context.getConfiguration();			
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
-			try {
-				logTable = new LogTableHbase(pipelineName);
-			} catch (PipelineException e) {
-				throw new IOException("Could not create logTable object: " + e.getMessage());
-			}
 			
 			String taskAttemptID = context.getTaskAttemptID().toString();
 			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
 			mapLogger = TroilkattMapReduce.getTaskLogger(conf);
 			
+			try {
+				logTable = new LogTableHbase(pipelineName);
+			} catch (PipelineException e) {
+				mapLogger.fatal("Could not open log table: ", e);
+				throw new IOException("Could not create logTable object: " + e);
+			}
+									
 			linesRead = context.getCounter(GeneCounters.LINES_READ);
 			offsetZero = context.getCounter(GeneCounters.OFFSET_ZERO);
 			invalidLines = context.getCounter(GeneCounters.INVALID_LINES);
@@ -169,14 +171,17 @@ public class GeneCounter extends TroilkattMapReduce {
 		public void setup(Context context)  throws IOException {
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
-			try {
-				logTable = new LogTableHbase(pipelineName);
-			} catch (PipelineException e) {
-				throw new IOException("Could not create logTable object: " + e.getMessage());
-			}
+			
 			String taskAttemptID = context.getTaskAttemptID().toString();
 			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
 			reduceLogger = TroilkattMapReduce.getTaskLogger(conf);
+			
+			try {
+				logTable = new LogTableHbase(pipelineName);
+			} catch (PipelineException e) {
+				reduceLogger.fatal("Could not create logTable object: ", e);
+				throw new IOException("Could not create logTable object: " + e);
+			}			
 		}
 		
 		/**
@@ -221,7 +226,8 @@ public class GeneCounter extends TroilkattMapReduce {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 		
@@ -234,7 +240,7 @@ public class GeneCounter extends TroilkattMapReduce {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 	
@@ -260,10 +266,10 @@ public class GeneCounter extends TroilkattMapReduce {
 			job.setOutputKeyClass(Text.class);
 			job.setOutputValueClass(IntWritable.class);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed due to: ", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}	
 		
@@ -272,13 +278,13 @@ public class GeneCounter extends TroilkattMapReduce {
 		try {
 			return job.waitForCompletion(true) ? 0: -1;
 		} catch (InterruptedException e) {
-			jobLogger.fatal("Interrupt exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Class not found exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		}
 	}

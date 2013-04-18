@@ -58,8 +58,8 @@ public class GeoGSEMirror extends GeoGDSMirror {
 		try {
 			fp = new FileOutputStream(new File(outputFilename));
 		} catch (FileNotFoundException e) {
-			logger.fatal("Could not open output file: " + e.toString() + ": " + e.getMessage());
-			throw new StageException("Could not open output file: " + e.toString());
+			logger.fatal("Could not open output file: " + e.toString() + ": ", e);
+			throw new StageException("Could not open output file: " + e);
 		}
 		
 		try {
@@ -68,15 +68,13 @@ public class GeoGSEMirror extends GeoGDSMirror {
 				return null;
 			}
 			if (ftp.retrieveFile(ftpFilename, fp) == false) {
-				logger.warn("Could not download file: " + filename);
-				logger.warn("Retrieve failed");
+				logger.warn("Could not download file: " + filename + ": retrieve failed");				
 				OsPath.delete(outputFilename);
 				return null;
 			}
 			fp.close();
 		} catch (IOException e) {
-			logger.warn("Could not download file: " + filename);
-			logger.warn("Got IOException: " + e.getMessage());
+			logger.warn("Could not download file: " + filename, e);			
 			OsPath.delete(outputFilename);
 			return null;
 		}

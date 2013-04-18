@@ -76,7 +76,8 @@ public class BatchPclLogTransform extends BatchPclCommon {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 		
@@ -89,7 +90,7 @@ public class BatchPclLogTransform extends BatchPclCommon {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 		
@@ -120,10 +121,10 @@ public class BatchPclLogTransform extends BatchPclCommon {
 			}
 			setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed: ", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}	
 		

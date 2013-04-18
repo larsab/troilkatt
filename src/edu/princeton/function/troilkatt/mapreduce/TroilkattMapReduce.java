@@ -162,7 +162,7 @@ public class TroilkattMapReduce {
 		try {
 			readMapReduceArgsFile(conf, args[0]);
 		} catch (StageInitException e) {
-			System.err.println("Could not parse arguments file: " + e.getMessage());
+			System.err.println("Could not parse arguments file: " + e);
 			return false;
 		}
 				
@@ -236,7 +236,7 @@ public class TroilkattMapReduce {
 			
 			ib.close();
 		} catch (IOException e1) {			
-			throw new StageInitException("Could not read arguments file: " + e1.getMessage());
+			throw new StageInitException("Could not read arguments file");
 		}
 	}
 
@@ -347,8 +347,8 @@ public class TroilkattMapReduce {
 				}
 				return metaFiles;
 			}
-		} catch (IOException e) {			
-			throw new StageException("Could not download meta file for stage");
+		} catch (IOException e) {
+			throw new StageException("Could not download meta file for stage: " + e);
 		}
 	}
 	
@@ -396,7 +396,7 @@ public class TroilkattMapReduce {
 			System.err.println("Save logfiles for task attempt: " + taskAttemptID);
 			logTable.putMapReduceLogFiles(stageName, timestamp, taskAttemptID, logFiles);
 		} catch (StageException e) {
-			System.err.println("WARNING: Could not save logfiles: " + e.getMessage());
+			System.err.println("WARNING: Could not save logfiles: " + e);
 		}		
 	}
 	
@@ -560,14 +560,14 @@ public class TroilkattMapReduce {
 	public int waitForCompletionLogged(Job job) {
 		try {
 			return job.waitForCompletion(true) ? 0: -1;
-		} catch (InterruptedException e) {
-			jobLogger.fatal("Interrupt exception: " + e.toString());
+		}  catch (InterruptedException e) {
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Class not found exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		}
 	}

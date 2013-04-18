@@ -113,10 +113,10 @@ public class GeoGDSMirror extends TFSSource {
 	    		throw new StageException("Could not connect to GEO FTP server");
 	    	}			
 		} catch (SocketException e) {
-			logger.fatal("Could not connect to GEO FTP server: " + e);
+			logger.fatal("Could not connect to GEO FTP server: ", e);
 			throw new StageException("Could not connect to GEO FTP server");
 		} catch (IOException e) {
-			logger.fatal("Could not connect to GEO FTP server: " + e);
+			logger.fatal("Could not connect to GEO FTP server: ", e);
 			throw new StageException("Could not connect to GEO FTP server");
 		}
 	
@@ -128,8 +128,7 @@ public class GeoGDSMirror extends TFSSource {
 			FSUtils.writeTextFile(oldLog, oldIDs.toArray(new String[oldIDs.size()]));
 			logFiles.add(oldLog);
 		} catch (IOException e1) {
-			logger.warn("Could not create log file: " + oldLog);
-			logger.warn(e1.toString());
+			logger.warn("Could not create log file: " + oldLog, e1);			
 		}
 		
 		// Get list of files with ID not in oldIDs
@@ -140,8 +139,7 @@ public class GeoGDSMirror extends TFSSource {
 			FSUtils.writeTextFile(newLog, newFiles);
 			logFiles.add(newLog);
 		} catch (IOException e1) {
-			logger.warn("Could not create log file: " + newLog);
-			logger.warn(e1.toString());
+			logger.warn("Could not create log file: " + newLog, e1);			
 		}
 		
 		// Download new files from FTP server, one at a time, save the file in tfs,
@@ -198,7 +196,7 @@ public class GeoGDSMirror extends TFSSource {
 			FSUtils.writeTextFile(downloadedLog, outputIDs);
 			logFiles.add(downloadedLog);
 		} catch (IOException e1) {
-			logger.warn("Could not create log file:" + downloadedLog);
+			logger.warn("Could not create log file:" + downloadedLog, e1);
 			logger.warn(e1.toString());
 		}
 		
@@ -220,8 +218,8 @@ public class GeoGDSMirror extends TFSSource {
 		try {
 			oldFiles = tfs.listdirR(tfsOutputDir);
 		} catch (IOException e2) {
-			logger.fatal("Could not list output directory: " + e2.toString());
-			throw new StageException("Could not list output directory");
+			logger.fatal("Could not list output directory: ", e2);
+			throw new StageException("Could not list output directory: " + e2);
 		}
 		if (oldFiles == null) {
 			logger.fatal("Could not list output directory: " + tfsOutputDir);
@@ -295,7 +293,7 @@ public class GeoGDSMirror extends TFSSource {
 				// cwd = GDS directory 
 				ftpFiles = ftp.listNames();
 			} catch (IOException e) {
-				logger.fatal("Could not list FTP directory: " + e);
+				logger.fatal("Could not list FTP directory: ", e);
 				throw new StageException("Could not list FTP directory");
 			}
 			
@@ -305,7 +303,7 @@ public class GeoGDSMirror extends TFSSource {
 				try {
 					Thread.sleep(waitTime);
 				} catch (InterruptedException e) {
-					logger.warn("Interrupted during sleep.");				
+					logger.warn("Interrupted during sleep.", e);				
 				}
 				waitTime = waitTime * 2; // wait longer before next attempt
 			}
@@ -336,8 +334,8 @@ public class GeoGDSMirror extends TFSSource {
 		try {
 			fp = new FileOutputStream(new File(outputFilename));
 		} catch (FileNotFoundException e) {
-			logger.fatal("Could not open output file: " + e.toString() + ": " + e.getMessage());
-			throw new StageException("Could not open output file: " + e.toString());
+			logger.fatal("Could not open output file: " + e.toString() + ": ", e);
+			throw new StageException("Could not open output file: " + e);
 		}
 		
 		try {
@@ -353,7 +351,7 @@ public class GeoGDSMirror extends TFSSource {
 			fp.close();
 		} catch (IOException e) {
 			// This exception can be thrown if server closes connectin
-			logger.fatal("Could not download file: " + e.toString());
+			logger.fatal("Could not download file: ", e);
 			OsPath.delete(outputFilename);
 			return null;
 		}

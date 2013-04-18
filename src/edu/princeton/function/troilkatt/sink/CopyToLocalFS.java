@@ -63,8 +63,8 @@ public class CopyToLocalFS extends Sink {
 					logger.info("Copied file to local FS: " + localFilename);
 				}
 			} catch (IOException e) {
-				logger.fatal("Could not copy file to local FS: " + e.toString());
-				throw new StageException("Could not copy file to local FS: I/O Exception");
+				logger.fatal("Could not copy file to local FS: ", e);
+				throw new StageException("Could not copy file to local FS: " + e);
 			}
 		}
 		

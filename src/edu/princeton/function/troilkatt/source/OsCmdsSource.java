@@ -58,7 +58,7 @@ public class OsCmdsSource extends Source {
 		try {
 			cmds = readCommandsFile(this.args);
 		} catch (IOException e) {
-			logger.fatal(e.getStackTrace());
+			logger.fatal("Could not read commands file: ", e);
 			throw new StageInitException("Could not read commands from file: " + this.args);			
 		}
 	}

@@ -115,7 +115,7 @@ public class SplitSoft extends PerFile {
 				}
 				bw.close();
 			} catch (IOException e) {
-				mapLogger.error("IOExcpetion: " + e.getMessage());					
+				mapLogger.error("File split failed: ", e);					
 				closeDeleteLocalBufferedWriter(bw, outputFilename);		
 				return;
 			} finally {
@@ -136,7 +136,8 @@ public class SplitSoft extends PerFile {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 		
@@ -149,7 +150,7 @@ public class SplitSoft extends PerFile {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 		
@@ -180,10 +181,10 @@ public class SplitSoft extends PerFile {
 			}
 			setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}	
 		
@@ -191,13 +192,13 @@ public class SplitSoft extends PerFile {
 		try {
 			return job.waitForCompletion(true) ? 0: -1;
 		} catch (InterruptedException e) {
-			jobLogger.fatal("Interrupt exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Class not found exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		}
 	}

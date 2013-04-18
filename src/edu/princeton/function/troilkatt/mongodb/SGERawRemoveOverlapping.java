@@ -69,10 +69,29 @@ public class SGERawRemoveOverlapping {
 		 */
 		Set<String> sidp = sidp2gsm.keySet();
 		for (String s: sidp) { // for each platform			
+			// Get sample IDs for this platform
 			ArrayList<String> gsms = sidp2gsm.get(s);
+			
+			if (gsms.isEmpty()) {
+				System.err.println("No input files for: " + seriesID);
+				continue;
+			}		
+			if (gsms.get(0).equals("none")) {
+				// All samples deleted due to overlap
+				System.err.println("All samples deleted for: " + seriesID);
+				continue;
+			}
+			
+			// Get list of files for each ID
+			ArrayList<String> gsmFiles = new ArrayList<String>();
+			for (String g: gsms) {
+				ArrayList<String> gf = getRawFiles(g, files);
+				gsmFiles.addAll(gf);
+			}			
+			
+			// Create new tar with sample specific files
 			String outputTar = OsPath.join(outputDir, seriesID + ".tar");
-			int added = splitCelFiles(s, gsms, files, outputTar);
-							
+			int added = splitCelFiles(gsmFiles, outputTar);							
 			if (added == -1) {
 				System.err.println("Could not create tar file for series: " + seriesID);					
 				continue;
@@ -202,11 +221,10 @@ public class SGERawRemoveOverlapping {
 	 * @param srcDir directory with input files
 	 * @return list of raw files that belong to this sample
 	 */
-	protected static ArrayList<String> getRawFiles2(String gsmID, String srcDir) {
-		ArrayList<String> gsmFiles = new ArrayList<String>();
-		String[] files = OsPath.listdirR(srcDir);
+	protected static ArrayList<String> getRawFiles(String gsmID, ArrayList<String> inputFiles) {
+		ArrayList<String> gsmFiles = new ArrayList<String>();		
 
-		for (String f: files) {
+		for (String f: inputFiles) {
 			String basename = OsPath.basename(f);
 			// Convert everything to lower case to make matching simpler
 			basename = basename.toLowerCase();
@@ -225,9 +243,6 @@ public class SGERawRemoveOverlapping {
 	/**
 	 * Split CEL files 
 	 * 
-	 * @param seriesID that included the platformID if there are multiple platforms for 
-	 * a sample. The seriesID is used as the filename for the output tar file.
-	 * @param gsms sample IDs for whic to add files
 	 * @param inputFiles list of all input files in source tar. The files that corresponds
 	 * to entries in gsms are added to the output file
 	 * @param outputTar filename for output tar file
@@ -235,18 +250,9 @@ public class SGERawRemoveOverlapping {
 	 * or if all have been deleted due to overlap. -1 if an output tar file could not
 	 * be created.
 	 */
-	protected static int splitCelFiles(String seriesID,  ArrayList<String> gsms, ArrayList<String> inputFiles, String outputTar) {
+	protected static int splitCelFiles(ArrayList<String> inputFiles, String outputTar) {
 		int nAdded = 0;
-		
-		if (gsms.isEmpty()) {
-			System.err.println("No input files for: " + seriesID);
-			return 0;
-		}		
-		if (gsms.get(0).equals("none")) {
-			// All samples deleted due to overlap
-			System.err.println("All samples deleted for: " + seriesID);
-			return 0;
-		}
+				
 
 		try {
 			OutputStream os = new FileOutputStream(outputTar);
@@ -254,10 +260,8 @@ public class SGERawRemoveOverlapping {
 			
 			final byte[] buffer = new byte[4096]; // use a 4KB buffer
 			for (String f: inputFiles) {
-				//TODO: match file
-				
-				InputStream is = new FileInputStream(f);								
-				String arName = OsPath.basename(f);
+				String arName = OsPath.basename(f);				
+				InputStream is = new FileInputStream(f);									
 							
 				ArchiveEntry ar = new TarArchiveEntry(new File(f), arName);
 				aos.putArchiveEntry(ar);	

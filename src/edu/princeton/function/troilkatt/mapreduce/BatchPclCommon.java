@@ -72,8 +72,8 @@ public class BatchPclCommon extends PerFile {
 			try {
 				metaTable = geoMetaTable.openTable(hbConf, false);
 			} catch (HbaseException e) {
-				mapLogger.fatal("HbaseException", e);				
-				throw new IOException("HbaseException: " + e.getMessage());
+				mapLogger.fatal("Could not open table", e);				
+				throw new IOException("Could not open table: " + e);
 			}
 		}
 		
@@ -124,7 +124,7 @@ public class BatchPclCommon extends PerFile {
 					processFile(lin, bw, inputFilename);
 					bw.close();
 				} catch (IOException e) {
-					mapLogger.error("IOExcpetion: " + e.getMessage());					
+					mapLogger.error("Could not process file: ", e);					
 					closeDeleteLocalBufferedWriter(bw, localFilename);		
 					return;
 				} 			

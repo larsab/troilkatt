@@ -55,8 +55,8 @@ public class CopyToRemote extends Sink {
 					throw new StageException("Could not copy file to local FS");
 				}				
 			} catch (IOException e) {
-				logger.fatal("Could not copy file to local FS: " + e.toString());
-				throw new StageException("Could not copy file to local FS: I/O Exception");
+				logger.fatal("Could not copy file to local FS: ", e);
+				throw new StageException("Could not copy file to local FS: I/O Exception" + e);
 			}
 			
 			String cmd = script + " " + localFilename;

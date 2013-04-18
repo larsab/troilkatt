@@ -59,8 +59,8 @@ public class ListDirDiff extends TFSSource {
 				throw new StageInitException("Not a directory: " + dstDir);
 			}
 		} catch (IOException e) {
-			logger.fatal("ListDirDiff initialization error: " + e.getMessage());
-			throw new StageInitException("ListDirDiff initialization error: " + e.getMessage());
+			logger.fatal("ListDirDiff initialization error: ", e);
+			throw new StageInitException("ListDirDiff initialization error: " + e);
 		}		
 
 		logger.debug("ListDir initialized comparing dir: " + srcDir + " with " + dstDir);
@@ -95,8 +95,8 @@ public class ListDirDiff extends TFSSource {
 				throw new StageException("Could not list directory");
 			}
 		} catch (IOException e) {
-			logger.fatal("Could not list directory: " + e.toString());
-			throw new StageException("Could not list directory");
+			logger.fatal("Could not list directory: ", e);
+			throw new StageException("Could not list directory" + e);
 		}
 		
 		HashSet<String> setB = new HashSet<String>();

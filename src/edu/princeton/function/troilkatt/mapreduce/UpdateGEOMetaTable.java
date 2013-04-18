@@ -97,7 +97,8 @@ public class UpdateGEOMetaTable extends PerFile {
 			try {
 				table = geoMetaTable.openTable(hbConf, true);
 			} catch (HbaseException e) {
-				throw new IOException("HbaseException: " + e.getMessage());
+				mapLogger.fatal("Could not open hbase table: ", e);
+				throw new IOException("HbaseException: " + e);
 			}
 			
 			// Counters used to report progress and avoid a job being assumed to be crashed
@@ -252,7 +253,8 @@ public class UpdateGEOMetaTable extends PerFile {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 		
@@ -268,7 +270,7 @@ public class UpdateGEOMetaTable extends PerFile {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 				
@@ -277,7 +279,7 @@ public class UpdateGEOMetaTable extends PerFile {
 			// Create the table if it does not already exist
 			geoMetaTable.openTable(hbConf, true);
 		} catch (HbaseException e1) {
-			jobLogger.fatal("HbaseException: " + e1.getMessage());
+			jobLogger.fatal("Could not open Hbase table: ", e1);
 			return -1;
 		}
 		
@@ -308,10 +310,10 @@ public class UpdateGEOMetaTable extends PerFile {
 		    }
 		    setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed due to IOException: ", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}	
 		
@@ -319,13 +321,13 @@ public class UpdateGEOMetaTable extends PerFile {
 		try {
 			return job.waitForCompletion(true) ? 0: -1;
 		} catch (InterruptedException e) {
-			jobLogger.fatal("Interrupt exception: " + e.toString());
+			jobLogger.fatal("Interrupt exception: ", e);
 			return -1;
 		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Class not found exception: " + e.toString());
+			jobLogger.fatal("Class not found exception: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: " + e.toString());
+			jobLogger.fatal("Job execution failed: IOException: ", e);
 			return -1;
 		}	
 	}

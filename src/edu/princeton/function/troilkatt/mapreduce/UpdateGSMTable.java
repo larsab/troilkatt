@@ -72,7 +72,7 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 			try {
 				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
-				throw new IOException("Could not create logTable object: " + e.getMessage());
+				throw new IOException("Could not create logTable object: ", e);
 			}
 			
 			String taskAttemptID = context.getTaskAttemptID().toString();
@@ -184,11 +184,17 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 		@Override
 		public void setup(Context context)  throws IOException {			
 			conf = context.getConfiguration();
+			
+			String taskAttemptID = context.getTaskAttemptID().toString();
+			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
+			reduceLogger = TroilkattMapReduce.getTaskLogger(conf);
+			
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
 				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
-				throw new IOException("Could not create logTable object: " + e.getMessage());
+				reduceLogger.fatal("Could not create logTable object: ", e);
+				throw new IOException("Could not create logTable object: " + e);
 			}
 			timestamp = Long.valueOf(TroilkattMapReduce.confEget(conf, "troilkatt.timestamp"));
 			
@@ -196,12 +202,11 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 			try {
 				table = gsmTable.openTable(logTable.hbConfig, true);
 			} catch (HbaseException e) {
-				throw new IOException("HbaseException: " + e.getMessage());
+				reduceLogger.fatal("Could not open log table: ", e);
+				throw new IOException("HbaseException: " + e);
 			}
 			
-			String taskAttemptID = context.getTaskAttemptID().toString();
-			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
-			reduceLogger = TroilkattMapReduce.getTaskLogger(conf);
+			
 			
 			gsmRowsUpdated = context.getCounter(GSMCounters.GSM_ROWS_UPDATED);
 		}
@@ -272,7 +277,7 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 			try {
 				table.put(update);
 			} catch (IOException e) {
-				reduceLogger.error("Could not save updated row in GSM Hbase table: " + e.getMessage());
+				reduceLogger.error("Could not save updated row in GSM Hbase table: ", e);
 				throw e;
 			}  
 			gsmRowsUpdated.increment(1);
@@ -292,7 +297,8 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 		
@@ -305,7 +311,7 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}			
 			
@@ -337,10 +343,10 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 			
 			setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed due to IOException: ", e1);
 			return -1;
 		} catch (StageInitException e2) {
-			jobLogger.fatal("Job setup failed due to set output path exception: " + e2.getMessage());
+			jobLogger.fatal("Job setup failed due to set output path exception: ", e2);
 			return -1;
 		} 
 		
@@ -348,13 +354,13 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 	    try {
 			return job.waitForCompletion(true) ? 0: -1;
 		} catch (InterruptedException e) {
-			jobLogger.fatal("Interrupt exception: " + e.toString());
+			jobLogger.fatal("Interrupt exception: ", e);
 			return -1;
 		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Class not found exception: " + e.toString());
+			jobLogger.fatal("Class not found exception: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: " + e.toString());
+			jobLogger.fatal("Job execution failed: IOException: ", e);
 			return -1;
 		}
 	}

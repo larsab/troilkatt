@@ -82,8 +82,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 			FSUtils.writeTextFile(oldLog, oldIDs.toArray(new String[oldIDs.size()]));
 			logFiles.add(oldLog);
 		} catch (IOException e1) {
-			logger.warn("Could not create log file: " + oldLog);
-			logger.warn(e1.toString());
+			logger.warn("Could not create log file: " + oldLog, e1);			
 		}
 	
 		
@@ -93,10 +92,10 @@ public class GeoRawMirror extends GeoGDSMirror {
 				throw new StageException("Could not connect to GEO FTP server");
 			}			
 		} catch (SocketException e) {
-			logger.fatal("Could not connect to GEO FTP server: " + e);
+			logger.fatal("Could not connect to GEO FTP server: ", e);
 			throw new StageException("Could not connect to GEO FTP server");
 		} catch (IOException e) {
-			logger.fatal("Could not connect to GEO FTP server: " + e);
+			logger.fatal("Could not connect to GEO FTP server: ", e);
 			throw new StageException("Could not connect to GEO FTP server");
 		}
 		
@@ -114,8 +113,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 			FSUtils.writeTextFile(newLog, newFiles);
 			logFiles.add(newLog);
 		} catch (IOException e1) {
-			logger.warn("Could not create log file: " + newLog);
-			logger.warn(e1.toString());
+			logger.warn("Could not create log file: " + newLog, e1);			
 		}
 		
 		// Download new files from FTP server, one at a time, save the file in tfs,
@@ -160,8 +158,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 			FSUtils.writeTextFile(downloadedLog, outputIDs);
 			logFiles.add(downloadedLog);
 		} catch (IOException e1) {
-			logger.warn("Could not create log file: " + downloadedLog);
-			logger.warn(e1.toString());
+			logger.warn("Could not create log file: " + downloadedLog, e1);			
 		}
 		return outputFiles;
 	}

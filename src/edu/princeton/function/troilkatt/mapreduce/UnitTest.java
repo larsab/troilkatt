@@ -83,7 +83,7 @@ public class UnitTest extends TroilkattMapReduce {
 			try {
 				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
-				throw new IOException("Could not create logTable object: " + e.getMessage());
+				throw new IOException("Could not create logTable object: ", e);
 			}
 			
 			jobID = context.getJobID().toString();
@@ -120,8 +120,8 @@ public class UnitTest extends TroilkattMapReduce {
 			try {
 				hdfs = FileSystem.get(conf);
 			} catch (IOException e1) {		
-				mapLogger.fatal("Could not create FileSystem object: " + e1.toString());			
-				throw new IOException("Could not create FileSystem object: " + e1.toString());
+				mapLogger.fatal("Could not create FileSystem object: ", e1);			
+				throw new IOException("Could not create FileSystem object: " + e1);
 			}
 			TroilkattHDFS tfs = new TroilkattHDFS(hdfs);
 			try {
@@ -146,7 +146,7 @@ public class UnitTest extends TroilkattMapReduce {
 					throw new IOException("Metafile content mismatch");
 				}
 			} catch (StageException e) {
-				mapLogger.fatal("Could not download meta files to: " + taskMetaDir);
+				mapLogger.fatal("Could not download meta files to: " + taskMetaDir, e);
 				throw new IOException("Could not download meta files to: " + taskMetaDir);
 			}		
 			
@@ -246,7 +246,7 @@ public class UnitTest extends TroilkattMapReduce {
 			try {
 				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
-				throw new IOException("Could not create logTable object: " + e.getMessage());
+				throw new IOException("Could not create logTable schema object: " + e);
 			}
 			taskAttemptID = context.getTaskAttemptID().toString();
 			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
@@ -270,8 +270,8 @@ public class UnitTest extends TroilkattMapReduce {
 			try {
 				hdfs = FileSystem.get(conf);
 			} catch (IOException e1) {		
-				reduceLogger.fatal("Could not create FileSystem object: " + e1.toString());			
-				throw new IOException("Could not create FileSystem object: " + e1.toString());
+				reduceLogger.fatal("Could not create FileSystem object: ", e1);			
+				throw new IOException("Could not create FileSystem object: " + e1);
 			}
 			TroilkattHDFS tfs = new TroilkattHDFS(hdfs);
 			try {
@@ -296,7 +296,7 @@ public class UnitTest extends TroilkattMapReduce {
 					throw new IOException("Metafile content mismatch");
 				}
 			} catch (StageException e) {
-				reduceLogger.fatal("Could not download meta files to:" + taskMetaDir);
+				reduceLogger.fatal("Could not download meta files to:" + taskMetaDir, e);
 				throw new IOException("Could not download meta files to: " + taskMetaDir);
 			}
 			
@@ -399,7 +399,8 @@ public class UnitTest extends TroilkattMapReduce {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: IOException: " + e2);
 			return -1;
 		}
 
@@ -443,7 +444,7 @@ public class UnitTest extends TroilkattMapReduce {
 			FileOutputFormat.setOutputPath(job, new Path(outputDir));
 
 		} catch (IOException e) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e.getMessage());
+			jobLogger.fatal("Job setup failed: ", e);
 			return -1;
 		}
 
@@ -465,13 +466,13 @@ public class UnitTest extends TroilkattMapReduce {
 		try {
 			return job.waitForCompletion(true) ? 0: -1;
 		} catch (InterruptedException e) {
-			jobLogger.fatal("Job execution failed: Interrupt exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: Interrupt exception: ", e);
 			return -1;
 		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Job execution failed: Class not found exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: Class not found exception: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: " + e.toString());
+			jobLogger.fatal("Job execution failed: IOException: ", e);
 			return -1;
 		}
 	}
@@ -494,7 +495,8 @@ public class UnitTest extends TroilkattMapReduce {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: IOException: ");
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 
@@ -523,7 +525,7 @@ public class UnitTest extends TroilkattMapReduce {
 		try {
 			inputWords = TroilkattMapReduce.confEget(conf, "troilkatt.stage.args").split(" ");
 		} catch (IOException e2) {
-			jobLogger.fatal("Parameter troilkatt.stage.args not in configuratiuon file.");			
+			jobLogger.fatal("Parameter troilkatt.stage.args not in configuratiuon file.", e2);			
 			return -1;
 		}
 		if (inputWords.length == 0) {
@@ -535,7 +537,7 @@ public class UnitTest extends TroilkattMapReduce {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 
@@ -558,10 +560,10 @@ public class UnitTest extends TroilkattMapReduce {
 				}				
 			}
 		} catch (StageException e) {
-			jobLogger.fatal("Could not read arguments from configuration file: " + e.getMessage());
+			jobLogger.fatal("Could not read arguments from configuration file: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Could not meta-data file: " + e.getMessage());
+			jobLogger.fatal("Could not meta-data file: ", e);
 			return -1;
 		}
 		
@@ -587,10 +589,10 @@ public class UnitTest extends TroilkattMapReduce {
 			}
 			setOutputPath(hdfs, job);
 		} catch (IOException e) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e.getMessage());
+			jobLogger.fatal("Job setup failed: ", e);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not set output path: " + e.getMessage());
+			jobLogger.fatal("Could not set output path: ", e);
 			return -1;
 		}
 
@@ -620,13 +622,13 @@ public class UnitTest extends TroilkattMapReduce {
 				return -1;
 			}			
 		} catch (InterruptedException e) {
-			jobLogger.fatal("Job execution failed: Interrupt exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Job execution failed: Class not found exception: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: " + e.toString());
+			jobLogger.fatal("Job execution failed: ", e);
 			return -1;
 		}
 	}

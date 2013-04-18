@@ -96,7 +96,7 @@ public class PerFile extends TroilkattMapReduce {
 			try {
 				logTable = new LogTableHbase(pipelineName);
 			} catch (PipelineException e) {
-				throw new IOException("Could not create logTable object: " + e.getMessage());
+				throw new IOException("Could not create logTable schema object: " + e);
 			}
 			
 			jobID = context.getJobID().toString();
@@ -140,10 +140,8 @@ public class PerFile extends TroilkattMapReduce {
 		public void finalize() {				
 			try {
 				doCleanup(false);
-			} catch (IOException e) {
-				// This should never happend
-				e.printStackTrace();
-				throw new RuntimeException("Should not happen");
+			} catch (IOException e) {				
+				mapLogger.error("Cleanup failed: ", e);
 			}
 		}
 		
@@ -164,15 +162,13 @@ public class PerFile extends TroilkattMapReduce {
 			} catch (IOException e) {
 				// Throw exception later such that temporary files are deleted
 				eThrown = e;
-				e.printStackTrace();
-				System.err.println("Could not save output files");
+				mapLogger.fatal("Could not save output files", e);
 			}
 			
 			try {
 				TroilkattMapReduce.saveTaskLogFiles(conf, taskLogDir, taskAttemptID, logTable);
-			} catch (IOException e) {			
-				e.printStackTrace();
-				System.err.println("Could not save log files");
+			} catch (IOException e) {							
+				mapLogger.fatal("Could not save log files", e);
 			}
 			// Local FS directories will be deleted in finalize
 			
@@ -231,8 +227,10 @@ public class PerFile extends TroilkattMapReduce {
 					ins = hdfs.open(inputPath); 	
 					return new BufferedReader(new InputStreamReader(ins));
 				} catch (FileNotFoundException e) {
+					mapLogger.error("Open file failed: ", e);
 					return null;
 				} catch (IOException e) {
+					mapLogger.error("Open file failed: ", e);
 					return null;					
 				}
 			}
@@ -240,9 +238,11 @@ public class PerFile extends TroilkattMapReduce {
 				try {
 					ins = inputCodec.createInputStream(hdfs.open(inputPath));
 					return new BufferedReader(new InputStreamReader(ins));					
-				} catch (FileNotFoundException e) {					
+				} catch (FileNotFoundException e) {	
+					mapLogger.error("Open file failed: ", e);
 					return null;
 				} catch (IOException e) {
+					mapLogger.error("Open file failed: ", e);	
 					return null;					
 				}
 			}
@@ -256,6 +256,7 @@ public class PerFile extends TroilkattMapReduce {
 					fin = new FileInputStream(new File(localInputFilename));				
 					return new BufferedReader(new InputStreamReader(fin));
 				} catch (IOException e) {
+					mapLogger.error("Open file failed: ", e);
 					return null;
 				}
 			}
@@ -338,7 +339,7 @@ public class PerFile extends TroilkattMapReduce {
 			try {
 				bw.close();
 			} catch (IOException e) {
-				mapLogger.warn("Could not close local file: " + e.getMessage());
+				mapLogger.warn("Could not close local file: ", e);
 			}
 			
 			OsPath.delete(localFilename);

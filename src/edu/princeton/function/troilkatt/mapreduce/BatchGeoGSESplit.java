@@ -147,7 +147,7 @@ public class BatchGeoGSESplit extends PerFile {
 				serFile.close();
 				OsPath.delete(serFilename);
 				context.progress();
-				mapLogger.error("ParseException: " + e.getMessage());
+				mapLogger.error("Could not open ser file: ", e);
 				br.close();
 				return;
 			} 			
@@ -202,7 +202,7 @@ public class BatchGeoGSESplit extends PerFile {
 							parser.writeSoftPerPlatform(br, bw, pid);
 							bw.close();
 						} catch (IOException e) {
-							mapLogger.error("IOExcpetion: " + e.getMessage());					
+							mapLogger.error("Could not write per platform files: ", e);					
 							closeDeleteLocalBufferedWriter(bw, localFilename);
 							return;
 						}				
@@ -252,7 +252,8 @@ public class BatchGeoGSESplit extends PerFile {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Error: Could not parse arguments: IOException: " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println("Error: Could not parse arguments: " + e2);
 			return -1;
 		}
 
@@ -265,7 +266,7 @@ public class BatchGeoGSESplit extends PerFile {
 		try {
 			hdfs = FileSystem.get(conf);
 		} catch (IOException e1) {		
-			jobLogger.fatal("Could not create FileSystem object: " + e1.toString());			
+			jobLogger.fatal("Could not create FileSystem object: ", e1);			
 			return -1;
 		}
 
@@ -296,10 +297,10 @@ public class BatchGeoGSESplit extends PerFile {
 			}
 			setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: " + e1.getMessage());
+			jobLogger.fatal("Job setup failed: ", e1);
 			return -1;
 		} catch (StageInitException e) {
-			jobLogger.fatal("Could not initialize job: " + e.getMessage());
+			jobLogger.fatal("Could not initialize job: ", e);
 			return -1;
 		}	
 

@@ -76,7 +76,7 @@ public class Source extends Stage {
 			saveMetaFiles(metaFiles, timestamp);
 		} catch (StageException e) {
 			// Do not throw exception until log files have been saved
-			logger.warn("Retrieve failed");
+			logger.warn("Retrieve failed: " + e);
 			eThrown = e;
 		}
 		
@@ -110,7 +110,7 @@ public class Source extends Stage {
 			try {
 				return tfs.listdirT(tfsOutputDir, timestamp);
 			} catch (IOException e) {
-				logger.fatal("Could not list files in outputdirectory: " + tfsOutputDir, e);
+				logger.fatal("Could not list files in output directory: " + tfsOutputDir, e);
 				throw new StageException("Could not recover files from last iteration");
 			}
 		}

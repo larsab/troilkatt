@@ -61,8 +61,7 @@ public class FileSource extends Source {
 		try {
 			filenames = FSUtils.readTextFile(inputFile);			
 		} catch (IOException e) {
-			logger.fatal("Could not open input file: " + inputFile);
-			logger.fatal(e.toString());
+			logger.fatal("Could not open input file: " + inputFile, e);			
 			// Excpetion is thrown when log files have been saved
 			eThrown = e; 			
 		}		

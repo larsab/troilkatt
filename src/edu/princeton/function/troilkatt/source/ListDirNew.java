@@ -58,8 +58,8 @@ public class ListDirNew extends ListDir {
 		try {
 			FSUtils.appendTextFile(OsPath.join(stageMetaDir, metaFilename), outputFiles);
 		} catch (IOException e) {
-			logger.fatal("Could not update metadata file: " + e.getMessage());
-			throw new StageException("Could not update metadata file: " + e.getMessage());
+			logger.fatal("Could not update metadata file: ", e);
+			throw new StageException("Could not update metadata file: " + e);
 		}
 		
 		logger.info("Returning " + outputFiles.size() + " files");
@@ -91,8 +91,8 @@ public class ListDirNew extends ListDir {
 			try {
 				lines = FSUtils.readTextFile(metaFile);
 			} catch (IOException e) {
-				logger.fatal("Could not read from metadata file: " + e.getMessage());
-				throw new StageException("Could not read from metadata file: " + e.getMessage());
+				logger.fatal("Could not read from metadata file: ", e);
+				throw new StageException("Could not read from metadata file: " + e);
 			}
 			for (String l: lines) {
 				String relativeName = OsPath.absolute2relative(l, rootDir);
