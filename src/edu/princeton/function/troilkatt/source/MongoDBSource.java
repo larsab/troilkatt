@@ -64,7 +64,7 @@ public class MongoDBSource extends Source {
 		
 		try {
 			// All checks are for lowercase valuess
-			wherePattern = Pattern.compile(argsParts[3].toLowerCase());
+			wherePattern = Pattern.compile(argsParts[4].toLowerCase());
 		} catch (PatternSyntaxException e) {
 			logger.fatal("Invalid filter pattern: " + args, e);
 			throw new StageInitException("Invalid filter pattern: " + args);

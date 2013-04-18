@@ -254,7 +254,7 @@ public class SGERawRemoveOverlapping {
 			
 			final byte[] buffer = new byte[4096]; // use a 4KB buffer
 			for (String f: inputFiles) {
-				TODO: match file
+				//TODO: match file
 				
 				InputStream is = new FileInputStream(f);								
 				String arName = OsPath.basename(f);

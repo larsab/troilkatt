@@ -376,9 +376,11 @@ public class Stage {
 				throw new StageException("Could not download file: " + f);
 			}
 			if (ln == null) {
-				throw new StageException("Could not copy file from TFS: " + f);
+				//throw new StageException("Could not copy file from TFS: " + f);
+				logger.warn("Skipping file: " + f);				
+			} else {
+				localFiles.add(ln);
 			}
-			localFiles.add(ln);
 		}
 		return localFiles;
 	}

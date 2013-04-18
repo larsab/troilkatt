@@ -27,7 +27,7 @@
          <stage>
             <name>split</name>
             <type>sge_stage</type>
-            <arguments>execute_per_file 8 5096 java -Xmx4096m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.GeoGSESplit TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR TROILKATT.GLOBALMETA_DIR/geo/ser /home/larsab/troilkatt2/log4j.properties TROILKATT.INPUT_DIR/TROILKATT.FILE_NOEXT > TROILKATT.LOG_DIR/TROILKATT.FILE.split.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.split.error</arguments>
+            <arguments>execute_per_file 8 5096 /usr/java/latest/bin/java -Xmx4096m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.GeoGSESplit TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR TROILKATT.GLOBALMETA_DIR/geo/ser /home/larsab/troilkatt2/log4j.properties TROILKATT.INPUT_DIR/TROILKATT.FILE_NOEXT > TROILKATT.LOG_DIR/TROILKATT.FILE.split.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.split.error</arguments>
             <output-directory>geo/gse/soft-gpl</output-directory>
             <compression-format>bz2</compression-format>
    	    <storage-time>-1</storage-time>
@@ -36,7 +36,7 @@
          <stage>
             <name>soft2pcl</name>
             <type>sge_stage</type>
-            <arguments>execute_per_file 8 5096 java -Xmx4096m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.GeoGSE2Pcl2 TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.pcl TROILKATT.GLOBALMETA_DIR/geo/ser /home/larsab/troilkatt2/log4j.properties TROILKATT.INPUT_DIR/TROILKATT.FILE_NOEXT > TROILKATT.LOG_DIR/TROILKATT.FILE.soft2pcl.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2pcl.error</arguments>
+            <arguments>execute_per_file 8 5096 /usr/java/latest/bin/java -Xmx4096m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.sge.GeoGSE2Pcl2 TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.pcl TROILKATT.GLOBALMETA_DIR/geo/ser /home/larsab/troilkatt2/log4j.properties TROILKATT.INPUT_DIR/TROILKATT.FILE_NOEXT > TROILKATT.LOG_DIR/TROILKATT.FILE.soft2pcl.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.soft2pcl.error</arguments>
             <output-directory>geo/gse/pcl</output-directory>
             <compression-format>bz2</compression-format>
    	    <storage-time>-1</storage-time>
@@ -54,7 +54,7 @@
          <stage>
 	    <name>pcl2info</name>
 	    <type>sge_stage</type>
-	    <arguments>execute_per_file 16 4096 java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.UpdateGEOInfo TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.MONGODB_SERVER_HOST TROILKATT.MONGODB_SERVER_PORT > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.info 2> TROILKATT.LOG_DIR/TROILKATT.FILE.pcl2info.error</arguments>
+	    <arguments>execute_per_file 16 4096 /usr/java/latest/bin/java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.UpdateGEOInfo TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.MONGODB_SERVER_HOST TROILKATT.MONGODB_SERVER_PORT > TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.info 2> TROILKATT.LOG_DIR/TROILKATT.FILE.pcl2info.error</arguments>
 	    <output-directory>geo/gse/info</output-directory>
 	    <compression-format>bz2</compression-format>
 	    <storage-time>-1</storage-time>
