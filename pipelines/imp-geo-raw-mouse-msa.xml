@@ -1,0 +1,79 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Process mouse raw files -->
+<dataset>	
+
+	<source>
+		<name>geo_raw_dir</name>
+		<type>list_dir</type>
+	    <arguments>/user/larsab/troilkatt/data/imp/raw/mouse/rmo</arguments>	    
+	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Read in files from the remove overlap staghe in the imp-gep-raw-mouse pipeline.</description>    
+	</source> 
+
+	<pipeline>	
+		<stage>
+			<name>cel2pcl</name>
+			<type>mapreduce_stage</type>
+			<arguments>script_per_file /usr/bin/python TROILKATT.SCRIPTS/cel2pcl.py TROILKATT.BIN/R TROILKATT.SCRIPTS/R/ProcessCEL_MAS.R Mm</arguments>
+			<output-directory>imp/raw/mouse-mas5/pcl</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Convert cel files to PCL format.</description>						
+		</stage>
+		<stage>
+			<name>missing_values</name>			
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMissingValues 50 3 50 0 0</arguments>
+			<output-directory>imp/raw/mouse-mas5/mv</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>			
+			<description>Fill in missing values and set some values that are better characterized as missing.</description>						
+		</stage>
+		<stage>
+			<name>knnimpute</name>
+			<type>mapreduce_stage</type>
+			<arguments>execute_per_file TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
+			<output-directory>imp/raw/mouse-mas5/knn</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>		
+			<description>Fill in missing values with their most likely values.</description>
+		</stage>
+		<stage>
+			<name>map_genes</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMapGeneNames TROILKATT.GLOBALMETA_DIR/genes/imp/mmu.map</arguments>
+			<output-directory>imp/raw/mouse-mas5/map</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>			
+			<description>Translate all gene names to a common standard</description>
+		</stage>				
+		<stage>
+			<name>average_duplicates</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMeanGenesThatAgree 0</arguments>
+			<output-directory>imp/raw/mouse-mas5/avg</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>14</storage-time>					
+			<description>Average together duplicate genes</description>
+		</stage>
+		<stage>
+			<name>pcl2qdab</name>
+			<type>mapreduce_stage</type>
+			<arguments>execute_per_file /usr/bin/python TROILKATT.SCRIPTS/pcl2qdab.py TROILKATT.BIN TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.TMP_DIR/TROILKATT.FILE_NOEXT.dat TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.qdab TROILKATT.GLOBALMETA_DIR/imp/GSE.quant > TROILKATT.LOG_DIR/TROILKATT.FILE.output 2> TROILKATT.LOG_DIR/TROILKATT.FILE.error</arguments>
+			<output-directory>imp/raw/mouse-mas5/qdab</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>	
+			<description>Do distance calculation and convert .dat files to .dab files</description>
+		</stage>     
+	</pipeline>
+	<sink>
+		<name>imp_mouse-mas5_raw_sink</name>
+		<type>null_sink</type>
+		<arguments></arguments>
+		<description>There is no sink for the final qdab files.</description>
+	</sink>
+				
+</dataset>
