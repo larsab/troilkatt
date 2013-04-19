@@ -359,7 +359,8 @@ public class BatchRawRemoveOverlapping extends PerFile {
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
 		} catch (IOException e2) {
-			System.err.println("Could not parse arguments: ", e2);
+			e2.printStackTrace();
+			System.err.println("Could not parse arguments: " + e2);
 			return -1;
 		}
 		
@@ -403,7 +404,7 @@ public class BatchRawRemoveOverlapping extends PerFile {
 			}
 			setOutputPath(hdfs, job);
 		} catch (IOException e1) {
-			jobLogger.fatal("Job setup failed due to IOException: ", e1);
+			jobLogger.fatal("Job setup failed: ", e1);
 			return -1;
 		} catch (StageInitException e) {
 			jobLogger.fatal("Could not initialize job: ", e);

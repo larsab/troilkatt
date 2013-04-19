@@ -80,17 +80,31 @@ public class LogTableTar extends LogTable {
 	}
 
 	/**
-	 * Save logfiles to Hbase
+	 * Save logfiles in a tarball
 	 * 
 	 * @param stageName stage name used for the row ID
 	 * @param timestamp Troilkatt timestamp used for the row ID
 	 * @param logFiles log files to save
-	 * 
-	 * @throws StageException if file content could not be save in Hbase
 	 * @return number of files saved, or -1 if an error occured
+	 * @throws StageException if file content could not be save in Hbase
 	 */
 	@Override
 	public int putLogFiles(String stageName, long timestamp, ArrayList<String> localFiles) throws StageException {		
+		return putLogFiles(stageName, timestamp, localFiles, null);
+	}
+	
+	/**
+	 * Save logfiles in a tarball. This function keeps subdirectories
+	 * 
+	 * @param stageName stage name used for the row ID
+	 * @param timestamp Troilkatt timestamp used for the row ID
+	 * @param logFiles log files to save
+	 * @param rootDir log files that are relative to this directory keep their sub-directory. 
+	 * If not specified all files are put in one directory. 
+	 * @return number of files saved, or -1 if an error occured
+	 * @throws StageException if file content could not be save in Hbase
+	 */
+	public int putLogFiles(String stageName, long timestamp, ArrayList<String> localFiles, String rootDir) throws StageException {		
 		if (localFiles.isEmpty()) {
 			logger.warn("No log files to save");
 			return 0;
@@ -104,20 +118,29 @@ public class LogTableTar extends LogTable {
 			logger.fatal("Could not make tmp directory: " + tmpDir);
 		}
 		
-		String stageDir = OsPath.join(pipelineLogDir, stageName);
-		
-		if (! OsPath.isdir(stageDir)) {
-			if (! OsPath.mkdir(stageDir)) {
-				logger.fatal("Could not make stage directory: " + stageDir);
-				return -1;				
-			}
-		}
-
 		System.out.println("Copy files to " + tmpSubdir);
 		int fileCnt = 0;
 		for (String f: localFiles) {
-			String tmpFilename = OsPath.join(tmpSubdir, OsPath.basename(f));				
-			if (! OsPath.copy(f, tmpFilename)) {
+			String newName = null;			
+			if (rootDir != null && f.startsWith(rootDir)) {
+				String relName = OsPath.absolute2relative(f, rootDir);
+				newName = OsPath.join(tmpSubdir, relName);
+				String dirName = OsPath.dirname(newName);
+				
+				try {
+					if (! tfs.isdir(dirName)) {
+						tfs.mkdir(dirName);
+					}
+				} catch (IOException e) {
+					logger.fatal("Could not create sub-directory for log files: " + dirName, e);
+					return -1;
+				}
+			} 
+			else {
+				newName = OsPath.join(tmpSubdir, OsPath.basename(f));
+			}
+			
+			if (! OsPath.copy(f, newName)) {
 				logger.fatal("Could not move file to tmp directory: " + f);
 				return -1;
 			}	

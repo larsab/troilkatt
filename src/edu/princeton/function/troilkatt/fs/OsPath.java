@@ -439,7 +439,7 @@ public class OsPath {
 	 * @param absolute: absolute filename
 	 * @param dir: directory to make filename relative to
 	 *    
-	 * @return: relative filename, or null if the absolute filename does not contain a file
+	 * @return relative filename, or null if the absolute filename does not contain a file
 	 * relative to dir
 	 */
 	public static String absolute2relative(String absolute, String dir) {		
@@ -568,8 +568,7 @@ public class OsPath {
 		}
 				
 		Vector<String> filenames = new Vector<String>(files.length);
-		for (int i = 0; i < files.length; i++) {
-			
+		for (int i = 0; i < files.length; i++) {			
 			String fullFilename = OsPath.join(dir, files[i].getName());
 			File fullFilePath = new File(fullFilename); 
 			if (recursive && fullFilePath.isDirectory()) {

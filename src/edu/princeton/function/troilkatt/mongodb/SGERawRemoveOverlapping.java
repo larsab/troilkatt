@@ -54,6 +54,10 @@ public class SGERawRemoveOverlapping {
 							
 		String seriesID = FilenameUtils.getDsetID(inputFilename);
 		HashMap<String, ArrayList<String>> sidp2gsm = getParts(coll, seriesID);
+		if (sidp2gsm == null) {
+			System.err.println("Could not find meta data about: " + seriesID);
+			return;
+		}
 			
 		/*
 		 * Unpack raw file
@@ -73,12 +77,12 @@ public class SGERawRemoveOverlapping {
 			ArrayList<String> gsms = sidp2gsm.get(s);
 			
 			if (gsms.isEmpty()) {
-				System.err.println("No input files for: " + seriesID);
+				System.err.println("No input files for: " + s);
 				continue;
 			}		
 			if (gsms.get(0).equals("none")) {
 				// All samples deleted due to overlap
-				System.err.println("All samples deleted for: " + seriesID);
+				System.err.println("All samples deleted for: " + s);
 				continue;
 			}
 			
@@ -87,18 +91,25 @@ public class SGERawRemoveOverlapping {
 			for (String g: gsms) {
 				ArrayList<String> gf = getRawFiles(g, files);
 				gsmFiles.addAll(gf);
-			}			
+			}		
+			
+			if (gsmFiles.size() == 0) {
+				System.err.println("No raw files found for: " + s);
+				continue;
+			}
 			
 			// Create new tar with sample specific files
-			String outputTar = OsPath.join(outputDir, seriesID + ".tar");
+			String outputTar = OsPath.join(outputDir, s + ".tar");
 			int added = splitCelFiles(gsmFiles, outputTar);							
 			if (added == -1) {
-				System.err.println("Could not create tar file for series: " + seriesID);					
+				System.err.println("Could not create tar file for series: " + s);					
 				continue;
 			}
 			if (added == 0) {									
-				continue;
+				System.err.println("No files added for series: " + s);
+				OsPath.delete(outputTar);
 			}							
+			System.out.println("Added " + added + " files to " + outputTar);
 		}			
 	}
 		
@@ -106,15 +117,15 @@ public class SGERawRemoveOverlapping {
 	 * Get platform specific parts for a series
 	 *
 	 * @param coll initialized MongoDB collection handle
-	 * @param seriesID series ID
+	 * @param seriesID series ID without platform specifier
 	 * @return hash map where the platform-specific series ID is used as key, and 
 	 * the value consist of a list with sample IDs in that platform (with samples
 	 * removed due to overlap)
 	 */
 	protected static HashMap<String, ArrayList<String>> getParts(DBCollection coll, String seriesID) {
-		HashMap<String, ArrayList<String>> sid2gsm = new HashMap<String, ArrayList<String>>();
+		HashMap<String, ArrayList<String>> sidp2gsm = new HashMap<String, ArrayList<String>>();
 		
-		DBCursor cursor = coll.find(new BasicDBObject("calculated:id-noPlatform", seriesID));
+		DBCursor cursor = coll.find(new BasicDBObject("meta:id", seriesID));
 		cursor.limit(0);
 		
 		if (cursor.count() == 0) {
@@ -128,13 +139,14 @@ public class SGERawRemoveOverlapping {
 		while(cursor.hasNext()) {
 			DBObject entry = cursor.next();
 		
-			String sid = (String) entry.get("meta:id");
+			String sid = (String) entry.get("meta:id"); // without platform ID
+			String sidWithPlatform = (String) entry.get("key");
 			if (sid == null) {
 				System.err.println("Could not find MongoDB id field for: " + seriesID);
 				System.exit(-1);
 			}
 			
-			if (sid2gsm.containsKey(sid)) { // newer entry already added
+			if (sidp2gsm.containsKey(sidWithPlatform)) { // newer entry already added
 				continue;
 			}
 			 
@@ -145,7 +157,7 @@ public class SGERawRemoveOverlapping {
 			}
 			else {
 				ArrayList<String> includedSamples = TroilkattTable.string2array(includedSamplesStr);
-				sid2gsm.put(sid,  includedSamples);
+				sidp2gsm.put(sidWithPlatform,  includedSamples);
 				continue;
 			}
 			
@@ -156,10 +168,10 @@ public class SGERawRemoveOverlapping {
 				System.exit(-1);
 			}
 			ArrayList<String> allSamples = TroilkattTable.string2array(allSamplesStr);
-			sid2gsm.put(sid, allSamples);			
+			sidp2gsm.put(sidWithPlatform, allSamples);			
 		}
 
-		return sid2gsm;
+		return sidp2gsm;
 	}
 		
 	/**
@@ -306,7 +318,7 @@ public class SGERawRemoveOverlapping {
 	 *             [4] mongoDB server listen port
 	 */
 	public static void main(String[] args) throws Exception {			
-		if (args.length < 4) {
+		if (args.length < 5) {
 			System.err.println("Usage: java SGERawRemoveOverlapping inputFilename outputDir tmpDir mongoDBServerIP mongoDBServerPort");
 			System.exit(2);
 		}

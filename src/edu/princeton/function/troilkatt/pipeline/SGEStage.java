@@ -10,6 +10,7 @@ import org.apache.log4j.Level;
 
 import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.fs.LogTableTar;
 import edu.princeton.function.troilkatt.fs.OsPath;
 
 /** 
@@ -45,6 +46,11 @@ public class SGEStage extends Stage {
 	// Memory allocated for task specific stripped down troilkatt process
 	// Note! This value should inclide 1GB that is reserved for the binary, stack, ...
 	protected static final int troilkattVMSize = 3096; // in MB
+	
+	// Temporary SGE output directory on NFS (set in process for each stage execution)
+	String nfsTmpOutputDir;	
+	// Root for task log files (set in pricess for each stage execution)
+	String nfsTmpLogDir;	
 	
 	/**
 	 * Constructor.
@@ -109,7 +115,12 @@ public class SGEStage extends Stage {
         	else {
         		stageArgs = stageArgs + " " + p;
         	}
-        }        
+        }      
+        
+        // These are set in process
+        nfsTmpOutputDir = null;	
+    	// Root for task log files (set in pricess for each stage execution)
+    	nfsTmpLogDir = null;
 	}
 	
 	/**
@@ -159,6 +170,25 @@ public class SGEStage extends Stage {
 		
 		return nfsFiles;
 	 }
+	
+	/**
+	 * Function called to save the log files produced by this stage.
+	 * 
+	 * @param localFiles list of files on local FS to save
+	 * @return number of files saved
+	 * @throws StageException if one or more files could not be saved 
+	 */
+	protected int saveLogFiles(ArrayList<String> logFiles, long timestamp) throws StageException {
+		LogTableTar logTableTar = (LogTableTar) logTable;
+		if (logFiles.size() > 0) {
+			int nSaved = logTableTar.putLogFiles(stageName, timestamp, logFiles, nfsTmpLogDir);
+			if (nSaved != logFiles.size()) {
+				logger.warn("Could not save all log files");				
+			}
+			return nSaved;
+		}
+		return 0;
+	}
 	
 	/**
 	 * Helper function to write an SGE script
@@ -351,10 +381,10 @@ public class SGEStage extends Stage {
 			long timestamp) throws StageException {						
 		
 		// Temporary SGE output directory on NFS
-		String nfsTmpOutputDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/output");
+		nfsTmpOutputDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/output");
 		OsPath.mkdir(nfsTmpOutputDir);
 		// Root for task log files
-		String nfsTmpLogDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/log");
+		nfsTmpLogDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/log");
 		OsPath.mkdir(nfsTmpLogDir);
 		
 		// Create arguments file for MapReduce Job-task
