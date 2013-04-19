@@ -47,11 +47,6 @@ public class SGEStage extends Stage {
 	// Note! This value should inclide 1GB that is reserved for the binary, stack, ...
 	protected static final int troilkattVMSize = 3096; // in MB
 	
-	// Temporary SGE output directory on NFS (set in process for each stage execution)
-	String nfsTmpOutputDir;	
-	// Root for task log files (set in pricess for each stage execution)
-	String nfsTmpLogDir;	
-	
 	/**
 	 * Constructor.
 	 * 
@@ -116,11 +111,6 @@ public class SGEStage extends Stage {
         		stageArgs = stageArgs + " " + p;
         	}
         }      
-        
-        // These are set in process
-        nfsTmpOutputDir = null;	
-    	// Root for task log files (set in pricess for each stage execution)
-    	nfsTmpLogDir = null;
 	}
 	
 	/**
@@ -178,10 +168,11 @@ public class SGEStage extends Stage {
 	 * @return number of files saved
 	 * @throws StageException if one or more files could not be saved 
 	 */
+	@Override
 	protected int saveLogFiles(ArrayList<String> logFiles, long timestamp) throws StageException {
 		LogTableTar logTableTar = (LogTableTar) logTable;
 		if (logFiles.size() > 0) {
-			int nSaved = logTableTar.putLogFiles(stageName, timestamp, logFiles, nfsTmpLogDir);
+			int nSaved = logTableTar.putLogFiles(stageName, timestamp, logFiles, stageLogDir);
 			if (nSaved != logFiles.size()) {
 				logger.warn("Could not save all log files");				
 			}
@@ -381,10 +372,10 @@ public class SGEStage extends Stage {
 			long timestamp) throws StageException {						
 		
 		// Temporary SGE output directory on NFS
-		nfsTmpOutputDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/output");
+		String nfsTmpOutputDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/output");
 		OsPath.mkdir(nfsTmpOutputDir);
 		// Root for task log files
-		nfsTmpLogDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/log");
+		String nfsTmpLogDir = OsPath.join(sgeDir, getStageID() + "-" + timestamp + "/log");
 		OsPath.mkdir(nfsTmpLogDir);
 		
 		// Create arguments file for MapReduce Job-task
