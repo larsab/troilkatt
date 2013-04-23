@@ -8,6 +8,7 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.OsPath;
+import edu.princeton.function.troilkatt.fs.TroilkattFS;
 import gnu.getopt.Getopt;
 
 /**
@@ -21,6 +22,9 @@ public class TroilkattClient extends Troilkatt {
 	// Directory for tmp files
 	// The directory is created in the constructor and deleted in the destructor	
 	protected String tmpDir = "/tmp/troilkatt-client"; 
+	
+	// Troilkatt file ssytem
+	protected TroilkattFS tfs;
 	
 	/**
 	 * Constructor
