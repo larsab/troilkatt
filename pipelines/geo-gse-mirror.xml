@@ -32,7 +32,7 @@
         <output-directory></output-directory>
         <compression-format></compression-format>
         <storage-time>-1</storage-time>
-        <description>Read in files from the GEO GSE SOFT HDFS directory.</description>
+        <description>Read in files from the GEO GSE SOFT NFS directory.</description>
      </source>
 	<pipeline>
 	    <stage>

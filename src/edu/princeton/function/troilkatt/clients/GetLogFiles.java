@@ -138,7 +138,23 @@ protected static final String clientName = "GetLogFiles";
 				lt = lth;
 			}
 			else if (persistentStorage.equals("nfs")) {
-				lt = new LogTableTar(pipelineName);
+				String tfsRootDir  = troilkattProperties.get("troilkatt.tfs.root.dir");
+				String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "client");
+				if (! OsPath.isdir(localLogDir)) {
+					if (! OsPath.mkdir(localLogDir)) {
+						logger.fatal("Could not create directory: " + localLogDir);
+						throw new PipelineException("mkdir " + localLogDir + " failed");
+					}
+				}
+				String localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), "client");
+				if (! OsPath.isdir(localTmpDir)) {
+					if (! OsPath.mkdir(localTmpDir)) {
+						logger.fatal("Could not create directory: " + localTmpDir);
+						throw new PipelineException("mkdir " + localTmpDir + " failed");
+					}
+				}
+				
+				lt = new LogTableTar(pipelineName, tfs, OsPath.join(tfsRootDir, "log"), localLogDir, localTmpDir);
 			}
 			else {
 				logger.fatal("Invalid valid for persistent storage");
