@@ -75,7 +75,8 @@ public class ExecutePerFileSGE extends Stage {
 			ArrayList<String> metaFiles, ArrayList<String> logFiles,
 			long timestamp) throws StageException {	   
 		logger.debug("Execute cmd to process all files in input directory");
-
+		int counter = 0;
+		int total = inputFiles.size();
 		// Execute command per file in newFiles list        
 		boolean cmdFailed = false;
 		for (String tf: inputFiles) {            
@@ -91,6 +92,9 @@ public class ExecutePerFileSGE extends Stage {
 				cmdFailed = true;
 				break;
 			}
+			if ((++counter%10) == 0) 
+				logger.info("Executed: "+counter+" commands [" + counter*100/total+" %]");
+
 		}
 		
 		// Always update log file list

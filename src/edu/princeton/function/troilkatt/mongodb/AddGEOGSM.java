@@ -87,22 +87,24 @@ public class AddGEOGSM {
 			String gsmString = (String) entry.get("meta:sampleIDs");
 			if (gsmString == null) {
 				System.err.println("No meta:sampleIDs field for: " + gid);
-			}			   
-			String[] gsms = gsmString.split("\n");
-
-			// Update sampleID -> GDS/GSE mappings
-			for (String gsm: gsms) {
-				if (! gsm.startsWith("GSM")) {
-					System.err.println("Invalid GSM id: " + gsm + " in row: " + gid);
-					continue;
+			} else {			   
+				String[] gsms = gsmString.split("\n");
+				
+	
+				// Update sampleID -> GDS/GSE mappings
+				for (String gsm: gsms) {
+					if (! gsm.startsWith("GSM")) {
+						System.err.println("Invalid GSM id: " + gsm + " in row: " + gid);
+						continue;
+					}
+	
+					ArrayList<String> val = gsm2gids.get(gsm);
+					if (val == null) { // no entry in hash table
+						val = new ArrayList<String>();
+						gsm2gids.put(gsm, val);
+					}				
+					val.add(gid);					
 				}
-
-				ArrayList<String> val = gsm2gids.get(gsm);
-				if (val == null) { // no entry in hash table
-					val = new ArrayList<String>();
-					gsm2gids.put(gsm, val);
-				}				
-				val.add(gid);					
 			}
 		}
 		cursor.close();

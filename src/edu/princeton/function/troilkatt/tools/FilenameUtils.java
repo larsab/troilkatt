@@ -1,5 +1,8 @@
 package edu.princeton.function.troilkatt.tools;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.princeton.function.troilkatt.fs.OsPath;
 
 /**
@@ -7,7 +10,7 @@ import edu.princeton.function.troilkatt.fs.OsPath;
  */
 public class FilenameUtils {
 	public static final String PLATFORM_SEPERATOR = "-";
-	
+	public static final Pattern INTEGERS_ONLY = Pattern.compile("\\d+");
 	/**
 	 * Convert filename to dataset ID
 	 * 
@@ -89,4 +92,44 @@ public class FilenameUtils {
 			return true;
 		}
 	}
+	
+	/**
+	 * If name is long, e.g. GSM1145128_NetFra-1_Drosophila_2_.CEL, it will convert it to GSM1145128.CEL
+	 * @param sampleName
+	 * @return shorter name (or the same)
+	 */
+	public static String convertSampleName(String sampleName) {
+		if (sampleName == null || sampleName.trim().equals(""))
+			return "";
+
+		if (!sampleName.toLowerCase().startsWith("gsm"))
+			return sampleName;
+					
+		Matcher makeMatch = INTEGERS_ONLY.matcher(sampleName);
+		makeMatch.find();		
+		String digits = makeMatch.group();
+		return sampleName.substring(0,3).toUpperCase() + digits; 
+	}
+	
+	public static void main(String[] args) {
+	
+		String name = "GSM1145128_NetFra-1_Drosophila_2_.CEL";
+		System.out.println(name+": "+convertSampleName(name));
+		name = "GSM1145128CEL";
+		System.out.println(name+": "+convertSampleName(name));
+		name = "GSM1145128.CEL";
+		System.out.println(name+": "+convertSampleName(name));
+		name = "GSM1145128_asdf.CEL";
+		System.out.println(name+": "+convertSampleName(name));
+		name = "gsm1145128_asdf.cel";
+		System.out.println(name+": "+convertSampleName(name));
+		name = "GSM915201_DMSO_G.CEL";
+		System.out.println(name+": "+convertSampleName(name));
+		name= "GSM244169.cel";
+		System.out.println(name+": "+convertSampleName(name));
+		name= "GSM953405_1540_3674_18638_1c48_Celegans.CEL";
+		System.out.println(name+": "+convertSampleName(name));				
+	}
+	
+	
 }

@@ -118,7 +118,7 @@ public class PclMeanGenesThatAgree {
 				}
 				// Otherwise, record the experiment name
 				else {
-					exprNames.add(names[i]);
+					exprNames.add(FilenameUtils.convertSampleName(names[i]));
 					numExprs++;
 				}
 			}
@@ -483,7 +483,7 @@ public class PclMeanGenesThatAgree {
 	 * Write output file to stdout
 	 */
 	public void writeNewPclToStdOut() {
-		System.out.print("YORF\tNAME\tGWEIGHT");
+		System.out.print("NAME\tNAME\tGWEIGHT");
 		for (int i = 0; i < exprNames.size(); i++) {
 			System.out.print("\t" + (String) exprNames.get(i));
 		}
@@ -520,7 +520,7 @@ public class PclMeanGenesThatAgree {
 	 * @throws IOException 
 	 */
 	public void writeNewPclToFile(BufferedWriter bw) throws IOException {		
-		bw.write("YORF\tNAME\tGWEIGHT");
+		bw.write("NAME\tNAME\tGWEIGHT");
 		for (int i = 0; i < exprNames.size(); i++) {
 			bw.write("\t" + (String) exprNames.get(i));
 		}

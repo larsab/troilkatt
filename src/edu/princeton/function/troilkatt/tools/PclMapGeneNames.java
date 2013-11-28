@@ -118,10 +118,13 @@ public class PclMapGeneNames {
 		if (headerRead == false) {
 			headerRead = true;
 			return line;
-		}
+		}	
+		//the 2nd line might be EWEIGHT but not always (e.g. if some preceding stages got rid of this line)
 		if (eweightRead == false) {
 			eweightRead = true;
-			return line;
+			if (line.toLowerCase().startsWith("eweight")) {
+				return line;
+			}			
 		}
 		
 		line = line.trim();

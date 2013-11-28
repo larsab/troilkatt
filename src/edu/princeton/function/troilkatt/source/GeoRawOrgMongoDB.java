@@ -38,6 +38,7 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 	
 	// MongoDB
 	protected String serverAdr;
+	protected int serverPort;
 	protected String collectionName;
 	
 	// Debug
@@ -70,6 +71,7 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 		}		
 		
 		serverAdr = argsParts[1];
+		serverPort = Integer.valueOf(argsParts[2]);
 		collectionName = "geoMeta";
 		
 		// Debug
@@ -112,7 +114,7 @@ public class GeoRawOrgMongoDB extends GeoGDSMirror {
 		/* Setup MongoDB */
 		MongoClient mongoClient;
 		try {
-			mongoClient = new MongoClient(serverAdr);
+			mongoClient = new MongoClient(serverAdr,serverPort);
 		} catch (UnknownHostException e1) {
 			logger.fatal("Could not connect to MongoDB server: ", e1);
 			throw new StageException("Could not connect to MongoDB server: " + e1.getMessage());

@@ -65,7 +65,7 @@ public class SaveFilelistMongoDB extends Stage {
 		
 		MongoClient mongoClient;
 		try {
-			mongoClient = new MongoClient(serverAdr);
+			mongoClient = new MongoClient(serverAdr,serverPort);
 		} catch (UnknownHostException e) {
 			logger.fatal("Could not connect to MongoDB server: " + e);
 			throw new StageException("Could not connect to MongoDB server: " + e.getMessage());

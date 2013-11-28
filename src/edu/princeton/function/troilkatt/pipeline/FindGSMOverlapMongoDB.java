@@ -57,6 +57,7 @@ public class FindGSMOverlapMongoDB extends Stage {
 	
 	// MongoDB server
 	protected String serverAdr;
+	protected int serverPort;
 	
 	/**
 	 * Constructor 
@@ -66,7 +67,7 @@ public class FindGSMOverlapMongoDB extends Stage {
 	 * @param args [0] output filename, relative to output directory
 	 *             [1] minimum number of samples in a series/dataset
 	 *             [2] maximum number of overlapping samples in a series/dataset
-	 *             [3] list of all series/dataset files for which overlap has been calculated
+	 *             [3]ï¿½list of all series/dataset files for which overlap has been calculated
 	 *             [4] MongoDB server IP address
 	 * @param outputDirectory output directory in NFS.
 	 * @param compressionFormat compression to use for output files
@@ -90,8 +91,8 @@ public class FindGSMOverlapMongoDB extends Stage {
 		
 		logger.info("args: " + this.args);
 		String[] argsParts = this.args.split(" ");
-		if (argsParts.length != 5) {
-			throw new StageInitException("Invalid number of arguments: expected 5, got " + argsParts.length);
+		if (argsParts.length != 6) {
+			throw new StageInitException("Invalid number of arguments: expected 6, got " + argsParts.length);
 		}
 				
 		outputFilename = argsParts[0];		 
@@ -99,9 +100,10 @@ public class FindGSMOverlapMongoDB extends Stage {
 		try {
 			minSamples = Integer.valueOf(argsParts[1]);
 			maxOverlap = Integer.valueOf(argsParts[2]);
+			serverPort = Integer.valueOf(argsParts[5]);
 		} catch (NumberFormatException e) {			
 			logger.fatal("Number format exception: ", e);
-			throw new StageInitException("Invalid arguments, one of these is not an integer: " + argsParts[1] + " or " + argsParts[2]);
+			throw new StageInitException("Invalid arguments, one of these is not an integer: " + argsParts[1] + " or " + argsParts[2]  + " or " + argsParts[5]);
 		}
 		
 		listFilename = argsParts[3];
@@ -110,6 +112,7 @@ public class FindGSMOverlapMongoDB extends Stage {
 		}
 		
 		serverAdr = argsParts[4];
+		
 	}
 	
 	/**
@@ -130,7 +133,7 @@ public class FindGSMOverlapMongoDB extends Stage {
 		
 		MongoClient mongoClient;
 		try {
-			mongoClient = new MongoClient(serverAdr);
+			mongoClient = new MongoClient(serverAdr,serverPort);
 		} catch (UnknownHostException e1) {
 			logger.fatal("Could not connect to MongoDB server: ", e1);
 			throw new StageException("Could not connect to MongoDB server: " + e1.getMessage());

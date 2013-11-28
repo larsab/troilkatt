@@ -226,7 +226,9 @@ public class Stage {
 
 		// Download input and meta files
 		ArrayList<String> inputFiles = downloadInputFiles(inputTFSFiles);
+		logger.debug("Before downloadMetaFiles");		
 		ArrayList<String> metaFiles = downloadMetaFiles();
+
 		ArrayList<String> logFiles = new ArrayList<String>();
 		
 		// Do processing		
@@ -234,15 +236,18 @@ public class Stage {
 		StageException eThrown = null; // set to true in case of excpeption in process()
 		ArrayList<String> tfsOutputFiles = null;
 		try {
+			logger.debug("Before process");
 			outputFiles = process(inputFiles, metaFiles, logFiles, timestamp);
 			// Only save output and meta files if job succeeded
 			if (tfsOutputDir != null) {
+				logger.debug("Before saveOutputFiles");
 				tfsOutputFiles = saveOutputFiles(outputFiles, timestamp);
 			}
 			else { // no output files should be saved
 				logger.warn("Stage does not produce any output data");
 				tfsOutputFiles = new ArrayList<String>();
 			}
+			logger.debug("Before saveMetaFiles");
 			saveMetaFiles(metaFiles, timestamp);
 			logger.debug("Process2() done at " + timestamp);
 		} catch (StageException e) {
@@ -367,6 +372,9 @@ public class Stage {
 	 */
 	public ArrayList<String> downloadInputFiles(ArrayList<String> tfsFiles) throws StageException {
 		ArrayList<String> localFiles = new ArrayList<String>();
+		int total = tfsFiles.size();
+		logger.debug("Number of files to download: "+ total);
+		int counter = 0;
 		for (String f: tfsFiles) {
 			String ln;
 			try {
@@ -381,6 +389,9 @@ public class Stage {
 			} else {
 				localFiles.add(ln);
 			}
+			
+			if ((++counter)%10 == 0)
+				logger.info("Uncompressed: "+counter+" files [" + counter*100/total+" %]");
 		}
 		return localFiles;
 	}
@@ -506,12 +517,13 @@ public class Stage {
 	 * @throws StageException if all tmp files could not be deleted 
 	 */
 	public void cleanupLocalDirs() throws StageException {
+	    // This function was empty (commented) by Alicja. Why?
 		String[] dirs = {stageInputDir, stageLogDir, stageOutputDir, stageMetaDir, stageTmpDir};
 		
 		// Delete and then re-create directory
 		for (String d: dirs) {
 			if (! OsPath.isdir(d)) {
-				logger.warn("Stage directory: " + d + " does not exist");				
+				logger.warn("Stage directory: " + d + " does not exist");
 			}
 			else {
 				if (OsPath.deleteAll(d) == false) {
