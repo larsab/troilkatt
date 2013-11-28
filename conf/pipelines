@@ -15,8 +15,10 @@
 #pipelines/brainarray2.xml
 #
 # GEO Series
-#pipelines/geo-gse-mirror.xml
+pipelines/geo-gse-mirror.xml
+#pipelines/geo-gse-mirror-sge.xml
 #pipelines/geo-gse-meta.xml
+#pipelines/geo-gse-meta-sge.xml
 #
 # GEO Datasets
 #
@@ -25,7 +27,7 @@
 #pipelines/geo-gds-meta.xml
 #pipelines/geo-gds-meta-sge.xml
 #pipelines/hefalmp-geo-gds-human.xml
-pipelines/hefalmp-geo-gds-human-sge.xml
+#pipelines/hefalmp-geo-gds-human-sge.xml
 #pipelines/hefalmp-geo-gds-mouse.xml
 #pipelines/hefalmp-geo-gds-rat.xml
 #pipelines/hefalmp-geo-gds-yeast.xml
@@ -73,6 +75,7 @@ pipelines/hefalmp-geo-gds-human-sge.xml
 #pipelines/imp-geo-gds-ftu.xml
 #
 #pipelines/imp-geo-gse-human.xml
+#pipelines/imp-geo-gse-human-sge.xml
 #pipelines/imp-geo-gse-fissionyeast.xml
 #pipelines/imp-geo-gse-dog.xml
 #pipelines/imp-geo-gse-cow.xml
@@ -97,7 +100,9 @@ pipelines/hefalmp-geo-gds-human-sge.xml
 #pipelines/imp-geo-gse-syf.xml
 #pipelines/imp-geo-gse-ftu.xml
 #
+#pipelines/imp-geo-raw-human-sge.xml
 #pipelines/imp-geo-raw-human.xml
+#pipelines/imp-geo-raw-mouse-sge.xml
 #pipelines/imp-geo-raw-mouse.xml
 #pipelines/imp-geo-raw-mouse-mas5.xml
 #pipelines/imp-geo-raw-rat.xml

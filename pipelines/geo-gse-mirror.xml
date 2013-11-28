@@ -2,7 +2,7 @@
 
 <!-- Mirror all GSE files from the GEO FTP server and convert these to the PCL format -->
 <dataset>	
-<!-- 	
+
 	<source>
             <name>geo_gse_mirror</name>
 	    <type>geo_gse_mirror</type>
@@ -12,7 +12,7 @@
 	    <storage-time>-1</storage-time>
 	    <description>Mirror all series (GSEXXX) files from GEO and keep them forever.</description>    
 	</source>
-
+<!-- 	
         <source>
 	    <name>geo_meta_source</name>
 	    <type>hbase_source</type>
@@ -23,9 +23,8 @@
 	    <description>Get list of GEO GSE PCL files with fission yeast in the organisms meta-data field.</description>    
 	</source> 
 	 
-	 -->
 	
-	 <source>
+	<source>
      	<name>geo_gse_soft_dir</name>
        	<type>list_dir</type>
         <arguments>/user/larsab/troilkatt/data/geo/gse/soft</arguments>
@@ -34,11 +33,13 @@
         <storage-time>-1</storage-time>
         <description>Read in files from the GEO GSE SOFT NFS directory.</description>
      </source>
+ -->
+
 	<pipeline>
 	    <stage>
 		<name>split</name>
 		<type>mapreduce</type>
-		<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSESplit</arguments>
+		<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSESplit 10240 12288</arguments>
 		<output-directory>geo/gse/soft-gpl</output-directory>
 		<compression-format>bz2</compression-format>
 		<storage-time>0</storage-time>
@@ -53,31 +54,11 @@
                 <storage-time>-1</storage-time>
                 <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
         </stage>
-<!-- 
-         <stage>                                                                                                                                                                 
-            <name>null</name>
-            <type>null_stage</type>
-            <arguments></arguments>
-            <output-directory></output-directory>
-            <compression-format></compression-format>
-            <storage-time>0</storage-time>
-            <description>Null stage to keep stage numbering consistent.</description>                                                             
-        </stage>
-        <stage>                                                                                                                                                                 
-            <name>null</name>                                                                                                                    
-            <type>null_stage</type>                                                                                                                             
-            <arguments></arguments>                                                                                                                 
-            <output-directory></output-directory>                                                                                                           
-            <compression-format></compression-format>                                                                                                       
-            <storage-time>0</storage-time>                                                                                                                 
-            <description>Null stage to keep stage numbering consistent.</description>                                                             
-        </stage>         
 
- -->
         <stage>
 			<name>soft2pcl</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSE2Pcl</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSE2Pcl 20480 24000</arguments>
 			<output-directory>geo/gse/pcl</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>
@@ -86,7 +67,7 @@
 		<stage>
 			<name>pcl2info</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPcl2Info</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPcl2Info 2098 4096</arguments>
 			<output-directory>geo/gse/info</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>
