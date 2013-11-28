@@ -30,7 +30,7 @@ protected static final String clientName = "GetLogFiles";
 		System.out.println(String.format("%s [options] pipeline-name stage-name output-dir\n\n" + 
 				"Required:\n" +
 				"\tpipeline-name: pipeline name (same as configuration file without .xml).\n" +
-				"\tstage-name:    stage name including stage number.\n" +
+				"\tstage-name:    stage name including stage number (example: 000-geo_gse_mirror).\n" +
 				"\toutput-dir:    directory where log files are copied to.\n\n" +
 				"Options:\n" +				
 				"\t-t TIMESTAMP  Specify a timestamp for which to retrieve log files for (default: newest).\n" +
@@ -132,7 +132,7 @@ protected static final String clientName = "GetLogFiles";
 		LogTable lt = null;
 		LogTableHbase lth = null;
 		try {
-			String persistentStorage = troilkattProperties.get("persistent.storage");
+			String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 			if (persistentStorage.equals("hadoop")) {
 				lth = new LogTableHbase(pipelineName);
 				lt = lth;
@@ -160,7 +160,7 @@ protected static final String clientName = "GetLogFiles";
 				logger.fatal("Invalid valid for persistent storage");
 				throw new TroilkattPropertiesException("Invalid value for persistent storage property");
 			}		
-		} catch (PipelineException e) {
+		} catch (PipelineException e) {			
 			logger.error("Could not create log table handle", e);
 			System.out.println("Could not create log table handle");
 			System.exit(2);
@@ -181,6 +181,7 @@ protected static final String clientName = "GetLogFiles";
 				lt.getLogFiles(stageName, timestamp, outputDir);
 			}
 		} catch (StageException e) {
+			e.printStackTrace();
 			logger.error("Could not download all log files", e);
 			System.out.println("Could not download all log files");
 			System.exit(2);
@@ -197,6 +198,7 @@ protected static final String clientName = "GetLogFiles";
 		try {
 			getter.run(args);
 		} catch (TroilkattPropertiesException e) {
+			e.printStackTrace();
 			System.err.println("Invalid properties file.");
 			System.exit(2);
 		}		
