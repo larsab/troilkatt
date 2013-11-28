@@ -1,0 +1,88 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Process worm raw files -->
+<dataset>	
+
+<!--	<source>
+            <name>geo_ftp</name>
+	    <type>geo_raw_org_mongodb</type>
+	    <arguments>'Caenorhabditis elegans' TROILKATT.MONGODB_SERVER_HOST TROILKATT.MONGODB_SERVER_PORT</arguments>	    
+	    <output-directory>geo/raw/worm</output-directory>
+	    <compression-format>none</compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Download RAW files from the GEO FTP server that match the specified organism.</description>    
+	</source>
+--> 	
+	<source>
+        <name>geo_raw_dir</name>
+	    <type>list_dir</type>
+	    <arguments>/Genomics/ogtr03/function/troilkatt/main/data/geo/raw/worm</arguments>	  	    
+	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Read in files from the platform specific GEO raw HDFS directory.</description>    
+	</source> 
+	<pipeline>	
+    <stage>
+		<name>remove_overlapping</name>
+		<type>execute_per_file</type>
+		<arguments>java -Xmx4096m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGERawRemoveOverlapping TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR TROILKATT.TMP_DIR TROILKATT.MONGODB_SERVER_HOST TROILKATT.MONGODB_SERVER_PORT</arguments>
+		<output-directory>imp/raw/worm/rmo</output-directory>
+		<compression-format>none</compression-format>
+		<storage-time>-1</storage-time>
+		<description>Remove overlapping samples and split RAW file into platform specific parts.</description>						
+	</stage>
+	<stage>
+		<name>cel2pcl</name>
+		<type>sge_stage</type>
+		<arguments>script_per_file 2 8096 /usr/local/bin/python TROILKATT.SCRIPTS/cel2pcl.py /usr/local/bin/R TROILKATT.SCRIPTS/R/ProcessCEL.R Ce</arguments>
+		<output-directory>imp/raw/worm/pcl</output-directory>
+		<compression-format>bz2</compression-format>
+		<storage-time>-1</storage-time>
+		<description>Convert cel files to PCL format.</description>						
+	</stage>
+
+	<stage>
+		<name>missing_values</name>			
+		<type>execute_per_file</type>
+		<arguments>java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.mongodb.SGEPclMissingValues TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.map 50 3 50 TROILKATT.MONGODB_SERVER_HOST TROILKATT.MONGODB_SERVER_PORT > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+		<output-directory>imp/raw/worm/mv</output-directory>
+		<compression-format>bz2</compression-format>
+		<storage-time>14</storage-time>			
+		<description>Fill in missing values and set some values that are better characterized as missing.</description>						
+	</stage>
+        <stage>
+		<name>map_genes</name>
+		<type>sge_stage</type>
+		<arguments>execute_per_file 8 4096 /usr/bin/java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.tools.PclMapGeneNames TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.GLOBALMETA_DIR/genes/imp/cel.map TROILKATT.OUTPUT_DIR/TROILKATT.FILE.map > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+		<output-directory>imp/raw/worm/map</output-directory>
+		<compression-format>bz2</compression-format>
+		<storage-time>14</storage-time>			
+		<description>Translate all gene names to a common standard</description>
+	</stage>				
+        <stage>
+		<name>average_duplicates</name>
+		<type>sge_stage</type>
+		<arguments>execute_per_file 8 4096 /usr/bin/java -Xmx2048m -classpath TROILKATT.CLASSPATH edu.princeton.function.troilkatt.tools.PclMeanGenesThatAgree TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.avg > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+		<output-directory>imp/raw/worm/final</output-directory>
+		<compression-format>bz2</compression-format>
+		<storage-time>14</storage-time>					
+		<description>Average together duplicate genes</description>
+	</stage>	
+        <stage>
+		<name>pcl2qdab</name>
+		<type>sge_stage</type>
+		<arguments>execute_per_file 2 8096 /usr/local/bin/python TROILKATT.SCRIPTS/pcl2qdab.py TROILKATT.BIN TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.TMP_DIR/TROILKATT.FILE_NOEXT.dat TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.qdab TROILKATT.GLOBALMETA_DIR/imp/GSE.quant > TROILKATT.LOG_DIR/TROILKATT.FILE.output 2> TROILKATT.LOG_DIR/TROILKATT.FILE.error</arguments>
+		<output-directory>imp/raw/worm/qdab</output-directory>
+		<compression-format>bz2</compression-format>
+		<storage-time>-1</storage-time>	
+		<description>Do distance calculation and convert .dat files to .dab files</description>
+	</stage> 
+    </pipeline>   
+	<sink>
+		<name>imp_worm_raw_pcl_sink</name>
+		<type>null_sink</type>
+		<arguments></arguments>
+		<description>There is no sink for the final qdab files.</description>
+	</sink>				
+</dataset>

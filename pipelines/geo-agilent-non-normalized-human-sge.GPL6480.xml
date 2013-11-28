@@ -1,0 +1,45 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Process human illumina platforms files -->
+<dataset>	
+	<source>
+		    <name>geo_agilent_dir</name>
+		    <type>list_dir</type>
+	    <arguments>/Genomics/ogtr04/atadych/troilkatt/main/data/geo/agilent/current/GPL6480</arguments> 	 
+	    <!--<arguments>/Genomics/ogtr04/atadych/troilkatt/main/data/imp/illumina/mv</arguments> 	 -->
+  	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Read in files from the platform specific GEO Agilent directory.</description>    
+	</source> 
+	<pipeline>	
+	<stage>
+		<name>mapping_columns_quantalize_norm</name>
+		<type>script_per_file</type>
+		<arguments>/usr/local/bin/python TROILKATT.SCRIPTS/raw2pcl_Agilent.py /usr/local/bin/R TROILKATT.SCRIPTS/R /Genomics/ogtr03/function/troilkatt/global-meta/illumina-agilent/GPL-parsed-miniml GPL6480</arguments>
+		<output-directory>imp/agilent/mc</output-directory>
+		<compression-format>none</compression-format>
+		<storage-time>-1</storage-time>
+		<description>Maps columns names to correct GSM (e.g. Saline 1 to GSM GSM575248)</description>						
+	</stage> 
+
+	<stage>
+		<name>final-average_duplicates_map</name>
+		<type>execute_per_file</type>
+		<arguments>/usr/local/bin/python TROILKATT.SCRIPTS/combine_genes.py TROILKATT.GLOBALMETA_DIR/illumina-agilent/gene_convert.txt TROILKATT.GLOBALMETA_DIR/illumina-agilent/GPL-tbl TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.final > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+		<output-directory>imp/agilent/final</output-directory>
+		<compression-format>none</compression-format>
+		<storage-time>-1</storage-time>					
+		<description>Average together duplicate genes and map them to
+entrez id </description>
+	</stage> 	
+
+    </pipeline>   
+	<sink>
+		<name>imp_human_agilent_sink</name>
+		<type>null_sink</type>
+		<arguments></arguments>
+		<description>There is no sink for the final qdab files.</description>
+	</sink>
+				
+</dataset>

@@ -6,7 +6,7 @@ outputFile = commandArgs( trailingOnly = TRUE)[3]
 #the affy libraries are for working with CEL files
 #
 # To install these, exeucte:
-# source("http://bioconductor.org/biocLite.R")
+#source("http://bioconductor.org/biocLite.R")
 # biocLite("affy")
 # biocLite("affyio")
 library("affy")
@@ -31,6 +31,11 @@ mapping <- list()
 for (level in ptype_levels) {
   striphyphen = gsub('-', '', level)
   stripped = gsub('_', '', striphyphen)
+  stripped = sub("hugene10st.*", "hugene10st", stripped, ignore.case=T, fixed=F)
+  stripped = sub("hugene11st.*", "hugene11st", stripped, ignore.case=T, fixed=F)
+  stripped = sub("hugene20st.*", "hugene20st", stripped, ignore.case=T, fixed=F)
+  stripped = sub("hugene21st.*", "hugene21st", stripped, ignore.case=T, fixed=F)
+  stripped = sub("huex10st.*", "huex10stv2", stripped, ignore.case=T, fixed=F)
   mapping[[level]] <- paste(stripped, organismCode, 'ENTREZG', sep='_')
 }
 

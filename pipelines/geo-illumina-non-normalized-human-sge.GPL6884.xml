@@ -1,0 +1,62 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- Process human illumina platforms files -->
+<dataset>	
+	<source>
+		    <name>geo_illumina_dir</name>
+		    <type>list_dir</type>
+	    <arguments>/Genomics/ogtr04/atadych/troilkatt/main/data/geo/illumina/current/GPL6884</arguments> 	 
+	    <!--<arguments>/Genomics/ogtr04/atadych/troilkatt/main/data/imp/illumina/mv</arguments> 	 -->
+  	    <output-directory></output-directory>
+	    <compression-format></compression-format>
+	    <storage-time>-1</storage-time>	    
+	    <description>Read in files from the platform specific GEO Illumina directory.</description>    
+	</source> 
+	<pipeline>	
+	<stage>
+		<name>mapping_columns</name>
+		<type>execute_per_file</type>
+		<arguments>/usr/local/bin/python TROILKATT.SCRIPTS/illumina_reader_avg_signal.py TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.GLOBALMETA_DIR/illumina-agilent/GPL-parsed-miniml TROILKATT.GLOBALMETA_DIR/illumina-agilent/GSM-tbl TROILKATT.OUTPUT_DIR GPL6884 > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+		<output-directory>imp/illumina/mc</output-directory>
+		<compression-format>none</compression-format>
+		<storage-time>-1</storage-time>
+		<description>Maps columns names to correct GSM (e.g. Saline 1 to GSM GSM575248)</description>						
+	</stage> 
+
+	<stage>
+		<name>missing_values_log</name>			
+		<type>execute_per_file</type>
+		<arguments>/usr/local/bin/python TROILKATT.SCRIPTS/remove_array_genes.py TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.mv > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+		<output-directory>imp/illumina/mv</output-directory>
+		<compression-format>none</compression-format>
+		<storage-time>-1</storage-time>			
+		<description>Remove missing values (if there is not enough entries per probe) and checks if values are in right range (log or not log normalized)</description>						
+	</stage>
+        <stage>
+		<name>quantile_norm</name>
+		<type>execute_per_file</type>
+		<arguments>TROILKATT.SCRIPTS/R/normalize_illumina.R TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.qn > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+		<output-directory>imp/illumina/qn</output-directory>
+		<compression-format>none</compression-format>
+		<storage-time>-1</storage-time>			
+		<description>Quantile normalization of values</description>
+	</stage>				
+	<stage>
+		<name>final-average_duplicates_map</name>
+		<type>execute_per_file</type>
+		<arguments>/usr/local/bin/python TROILKATT.SCRIPTS/combine_genes.py TROILKATT.GLOBALMETA_DIR/illumina-agilent/gene_convert.txt TROILKATT.GLOBALMETA_DIR/illumina-agilent/GPL-tbl TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE.final > TROILKATT.LOG_DIR/TROILKATT.FILE.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.err</arguments>
+		<output-directory>imp/illumina/final</output-directory>
+		<compression-format>none</compression-format>
+		<storage-time>-1</storage-time>					
+		<description>Average together duplicate genes and map them to
+entrez id </description>
+	</stage> 	
+    </pipeline>   
+	<sink>
+		<name>imp_human_ilumina_sink</name>
+		<type>null_sink</type>
+		<arguments></arguments>
+		<description>There is no sink for the final qdab files.</description>
+	</sink>
+				
+</dataset>
