@@ -172,7 +172,9 @@ public class SGEStage extends Stage {
 	protected int saveLogFiles(ArrayList<String> logFiles, long timestamp) throws StageException {
 		LogTableTar logTableTar = (LogTableTar) logTable;
 		if (logFiles.size() > 0) {
-			int nSaved = logTableTar.putLogFiles(stageName, timestamp, logFiles, stageLogDir);
+			//int nSaved = logTableTar.putLogFiles(stageName, timestamp, logFiles, stageLogDir);
+			// stageLogDir is removed; why?
+			int nSaved = logTableTar.putLogFiles(stageName, timestamp, logFiles);
 			if (nSaved != logFiles.size()) {
 				logger.warn("Could not save all log files");				
 			}

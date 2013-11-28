@@ -443,7 +443,7 @@ public class TroilkattFS {
 				cin = new CompressorStreamFactory().createCompressorInputStream(compression, is);
 			}
 		} catch (CompressorException e) { // This is expected, for example for the "none" format
-			logger.warn("Unknwon compression: " + compression);			
+			logger.warn("Unknown compression: " + compression);			
 		}
 
 		if (cin == null) { // Codec is not supported
@@ -657,7 +657,7 @@ public class TroilkattFS {
 		// the local variable compression my contain both the archive and compression format (e.g. tar.gz) 
 		String compressionExtension = OsPath.getLastExtension(compression); // just compression format
 		String archiveExtension = OsPath.getLastExtension(OsPath.removeLastExtension(compression)); // just archive format		
-		
+		logger.debug("Compressed dir:" + compressedDir +", destination dir: " + dstDir);
 		ArrayList<String> dirContent = new ArrayList<String>();
 		
 		/*
@@ -683,21 +683,21 @@ public class TroilkattFS {
 				cin = new CompressorStreamFactory().createCompressorInputStream(compressionExtension, is);
 			}
 		} catch (CompressorException e) { // This is expected, for example for the "none" format
-			logger.warn("Unknwon compression: " + compressionExtension);			
+			logger.warn("Unknown compression: " + compressionExtension);			
 		}
 		
 		if (cin != null) { // valid compression extension
 			try {
 				ain = new ArchiveStreamFactory().createArchiveInputStream(archiveExtension, cin);
 			} catch (ArchiveException e) { // This is expected, for example for the "none" format
-				logger.warn("Unknwon archive: " + archiveExtension);			
+				logger.warn("Unknown archive: " + archiveExtension);			
 			}
 		} 
 		else { // not a valid compression extension, so we assume it is not a compressed archive
 			try {
 				ain = new ArchiveStreamFactory().createArchiveInputStream(compression, is);
 			} catch (ArchiveException e) { // This is expected, for example for the "none" format
-				logger.warn("Unknwon archive: " + archiveExtension);			
+				logger.warn("Unknown archive: " + archiveExtension);		
 			}
 		}
 		
