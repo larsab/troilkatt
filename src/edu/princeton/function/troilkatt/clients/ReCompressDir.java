@@ -276,7 +276,7 @@ public class ReCompressDir extends TroilkattClient {
 						
 		Job job = null;
 		try {
-			job = new Job(conf, clientName);
+			job = Job.getInstance(conf, clientName);
 			job.setJarByClass(ReCompressDir.class);
 			
 			/* Setup mapper: use the Compress class*/

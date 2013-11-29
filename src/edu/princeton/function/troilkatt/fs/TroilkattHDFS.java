@@ -689,7 +689,7 @@ public class TroilkattHDFS extends TroilkattFS {
 	public boolean isfile(String filename) throws IOException {
 		Path path = new Path(filename);
 		try {			
-			if (hdfs.getFileStatus(path).isDir()) {
+			if (hdfs.getFileStatus(path).isDirectory()) {
 				return false;
 			}
 			else {
@@ -715,7 +715,7 @@ public class TroilkattHDFS extends TroilkattFS {
 		Path dirPath = new Path(dirName);
 		try {
 			FileStatus dirStatus = hdfs.getFileStatus(dirPath);
-			return dirStatus.isDir();
+			return dirStatus.isDirectory();
 		} catch (FileNotFoundException e) {
 			return false;
 		}
@@ -738,7 +738,7 @@ public class TroilkattHDFS extends TroilkattFS {
 		} catch (FileNotFoundException e) {
 			// do nothing
 		}
-		if ((dirStatus == null) || (dirStatus.isDir() == false)) {			
+		if ((dirStatus == null) || (dirStatus.isDirectory() == false)) {			
 			if (hdfs.mkdirs(dirPath) == false) {
 				throw new IOException("HDFS mkdir " + dirName + " failed");
 			}
@@ -963,7 +963,7 @@ public class TroilkattHDFS extends TroilkattFS {
 		
 		for (FileStatus fs: files) {
 			Path p = fs.getPath();
-			if (fs.isDir()) {			
+			if (fs.isDirectory()) {			
 				getFilelistRecursive(path2filename(p), filePaths);
 			}
 			else if (p.getName().startsWith(".")) {

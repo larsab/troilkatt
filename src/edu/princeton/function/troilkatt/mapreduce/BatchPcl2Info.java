@@ -197,7 +197,7 @@ public class BatchPcl2Info extends PerFile {
 			// Note! must be done before creating job
 			setMemoryLimits(conf);
 						
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(BatchPcl2Info.class);
 
 			/* Setup mapper */

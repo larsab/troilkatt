@@ -339,7 +339,7 @@ public class ExecuteStage extends PerFile {
 			
 			setMemoryLimits(conf, maxMapredVMem - maxTroilkattVMem - 512, maxMapredVMem);
 			
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			
 			job.setJarByClass(ExecuteStage.class);
 			

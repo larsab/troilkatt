@@ -247,7 +247,7 @@ public class GeneCounter extends TroilkattMapReduce {
 		/* Setup job */				
 		Job job;
 		try {
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			
 			job.setJarByClass(GeneCounter.class);
 			

@@ -437,7 +437,7 @@ public class UnitTest extends TroilkattMapReduce {
 		/* Setup job */		
 		Job job = null;
 		try {
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(UnitTest.class);
 
 			FileInputFormat.setInputPaths(job, new Path(inputDir));
@@ -579,7 +579,7 @@ public class UnitTest extends TroilkattMapReduce {
 		/* Setup job */		
 		Job job = null;
 		try {
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(UnitTest.class);
 
 			/* Setup input and output paths */

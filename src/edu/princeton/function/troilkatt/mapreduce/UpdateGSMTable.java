@@ -324,7 +324,7 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 			// Note! must be done before creating job
 			setMemoryLimits(conf);
 			
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(UpdateGSMTable.class);
 		
 			/* Setup mapper */		

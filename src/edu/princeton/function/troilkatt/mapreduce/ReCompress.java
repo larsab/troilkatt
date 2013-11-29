@@ -161,7 +161,7 @@ public class ReCompress extends PerFile {
 			// Note! must be done before creating job
 			setMemoryLimits(conf);
 						
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(ReCompress.class);
 			
 			/* Setup mapper: use the Compress class*/

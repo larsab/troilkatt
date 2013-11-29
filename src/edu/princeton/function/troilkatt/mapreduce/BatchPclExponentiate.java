@@ -104,7 +104,7 @@ public class BatchPclExponentiate extends BatchPclCommon {
 			// Note! must be done before creating job
 			setMemoryLimits(conf);
 						
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(BatchPclExponentiate.class);
 
 			/* Setup mapper */

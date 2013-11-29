@@ -11,7 +11,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.After;
@@ -70,7 +69,7 @@ public class LogTableHbaseTest extends TestSuper {
 		assertNotNull(logTable.logger);
 		
 		assertTrue(hbAdm.isTableAvailable(tableName));
-		assertTrue(HTable.isTableEnabled(tableName));
+		assertTrue(hbAdm.isTableEnabled(tableName));
 	}
 
 	@Test

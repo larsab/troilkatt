@@ -113,7 +113,7 @@ public class PerFileUnitTest extends PerFile {
 		 */				
 		Job job = null;
 		try {
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(PerFileUnitTest.class);
 			
 			/* Setup mapper: use the Compress class*/

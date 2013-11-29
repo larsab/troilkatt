@@ -119,7 +119,7 @@ public class HbaseAsciiExport {
 		System.out.println("cols: " + cols);
 		conf.set("troilkatt.export.columns", cols);
 		
-		Job job = new Job(conf, "export_" + tableName);
+		Job job = Job.getInstance(conf, "export_" + tableName);
 		job.setJarByClass(HbaseAsciiExport.class);
 		job.setMapperClass(AsciiExporter.class);
 		Scan s = new Scan();

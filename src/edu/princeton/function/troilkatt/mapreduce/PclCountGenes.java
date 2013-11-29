@@ -131,7 +131,7 @@ public class PclCountGenes extends BatchPclCommon {
 			// Set memory limits
 			// Note! must be done before creating job
 			setMemoryLimits(conf);			
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(PclCountGenes.class);
 
 			/* Setup mapper */

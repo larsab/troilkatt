@@ -79,7 +79,8 @@ public class HbaseSetupTest {
 		/* Enable client side scanner caching: multiple rows are retrieved at a time for
 		 * a scanner and cached in the client memory. This will also increase the client
 		 * memory footprint */
-		table.setScannerCaching(10);
+		// Should be done for each scanner
+		//table.setScannerCaching(10);
 
 
 		/*

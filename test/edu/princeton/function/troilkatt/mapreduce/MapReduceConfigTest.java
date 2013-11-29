@@ -133,7 +133,7 @@ public class MapReduceConfigTest {
 		// Create input path
 		hdfs.mkdirs(inputPath);		
 		FileStatus dirStatus = hdfs.getFileStatus(inputPath);
-		if(! dirStatus.isDir()) {		
+		if(! dirStatus.isDirectory()) {		
 			System.err.println("Could not create input directory");
 			System.exit(-1);
 		}
@@ -154,11 +154,11 @@ public class MapReduceConfigTest {
 		// Make sure that output directory does not exist
 		try {
 			dirStatus = hdfs.getFileStatus(outputPath);
-			if (dirStatus.isDir()) {
+			if (dirStatus.isDirectory()) {
 				hdfs.delete(outputPath, true);
 			}
 			dirStatus = hdfs.getFileStatus(outputPath);
-			if (dirStatus.isDir()) {
+			if (dirStatus.isDirectory()) {
 				System.err.println("Could not delete output directory");
 				System.exit(-1);
 			}
@@ -177,7 +177,7 @@ public class MapReduceConfigTest {
 		jobLogger.fatal("Job logger initialized");
 		
 		Configuration conf = new Configuration();				
-		Job job = new Job(conf, "map-reduce-config-test");
+		Job job = Job.getInstance(conf, "map-reduce-config-test");
 		job.setJarByClass(MapReduceConfigTest.class);
 		FileInputFormat.addInputPath(job, new Path(inputDir));
 		FileOutputFormat.setOutputPath(job, new Path(outputDir));		

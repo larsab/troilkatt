@@ -386,7 +386,7 @@ public class BatchRawRemoveOverlapping extends PerFile {
 			// Note! must be done before creating job
 			setMemoryLimits(conf);
 						
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);
 			job.setJarByClass(BatchPclRemoveOverlapping.class);
 
 			/* Setup mapper */
