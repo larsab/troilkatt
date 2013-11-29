@@ -172,7 +172,7 @@ public class BatchGeoGDS2Pcl extends PerFile {
 			// Note! must be done before creating job
 			setMemoryLimits(conf);
 
-			job = new Job(conf, progName);
+			job = Job.getInstance(conf, progName);			
 			job.setJarByClass(BatchGeoGDS2Pcl.class);
 
 			/* Setup mapper */
