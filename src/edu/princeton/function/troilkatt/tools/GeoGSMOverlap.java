@@ -1307,6 +1307,7 @@ public class GeoGSMOverlap {
 			String parts[] = line.split("\t");			
 			// each line should have two tab separated parts
 			if (parts.length != 2) {
+				ins.close();
 				if (providedLogger != null) {
 					providedLogger.error("Invalid line in overlap file: " + filename);
 				}

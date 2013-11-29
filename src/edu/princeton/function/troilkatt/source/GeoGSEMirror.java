@@ -65,6 +65,7 @@ public class GeoGSEMirror extends GeoGDSMirror {
 		try {
 			if (ftp.setFileType(FTP.BINARY_FILE_TYPE) == false) {
 				logger.warn("Could not set filetype to binary");
+				fp.close();
 				return null;
 			}
 			if (ftp.retrieveFile(ftpFilename, fp) == false) {

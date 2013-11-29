@@ -171,6 +171,10 @@ public class FindGSMOverlap extends Stage {
 		try {			
 			outputFile = new BufferedWriter(new FileWriter(OsPath.join(stageOutputDir, outputFilename)));
 		} catch (IOException e) {
+			try {				
+				logFile.close();
+			} catch (IOException e2) {
+			}
 			logger.error("Could not open output file", e);
 			throw new StageException("Could not open output file: " + outputFilename);
 		}

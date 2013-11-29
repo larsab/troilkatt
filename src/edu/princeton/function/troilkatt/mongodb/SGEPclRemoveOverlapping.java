@@ -80,7 +80,8 @@ public class SGEPclRemoveOverlapping {
 		// Read header line
 		String headerLine = br.readLine();
 		if (headerLine == null) {
-			System.err.println("Could not read header line");			
+			System.err.println("Could not read header line");		
+			br.close();
 			return;
 		}
 			
@@ -89,7 +90,8 @@ public class SGEPclRemoveOverlapping {
 			// Parse first line to find indexes of samples to delete
 			deleteColumnIndexes = GeoGSMOverlap.getDeleteColumnIndexes(toDelete, headerLine);
 			if (deleteColumnIndexes == null ) {
-				System.err.println("Could not find all samples to delete in header line: " + headerLine);					
+				System.err.println("Could not find all samples to delete in header line: " + headerLine);
+				br.close();
 				return;
 			}
 		}

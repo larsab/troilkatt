@@ -245,8 +245,7 @@ public class HREFSource extends Source {
 			urls.add(downloadURL);
 	    }
 	    
-	    
-		fin.close();
+		src.close();
 		
 	    return urls;
 	}

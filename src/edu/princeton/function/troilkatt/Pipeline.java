@@ -419,6 +419,7 @@ public class Pipeline {
 				
 				pipelineFile = pipelineFile.trim();
 				if (pipelineFile.indexOf(".xml") == -1) {
+					inputStream.close();
 					logger.fatal("All pipelines should be named using their .xml file: " + pipelineFile);
 					throw new PipelineException("Pipeline name error: " + pipelineFile);
 				}
@@ -427,6 +428,7 @@ public class Pipeline {
 				try {
 					name = OsPath.basename(pipelineFile).split("\\.")[0];
 				} catch (ArrayIndexOutOfBoundsException e) {
+					inputStream.close();
 					logger.fatal("Could not parse dataset name: " + pipelineFile, e);
 					throw new PipelineException("Pipeline name error: " + pipelineFile);
 				}
@@ -440,6 +442,7 @@ public class Pipeline {
 							tfs);
 					datasets.add(p);
 				} catch (StageInitException e) {
+					inputStream.close();
 					logger.fatal("Could not create a stage in pipeline: " + e);
 					throw new PipelineException("Could not create a stage in pipeline");
 				}

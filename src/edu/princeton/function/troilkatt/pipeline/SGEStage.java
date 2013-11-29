@@ -262,6 +262,7 @@ public class SGEStage extends Stage {
 				localSgeDir = troilkattProperties.get("troilkatt.localfs.sge.dir");
 			} catch (TroilkattPropertiesException e) {
 				logger.fatal("Invalid properies file: " + e);
+				out.close();
 				throw new StageException("Could not create input arguments file");
 			}
 			out.println("sge.pipeline.dir = " + OsPath.join(localSgeDir, "pipeline"));

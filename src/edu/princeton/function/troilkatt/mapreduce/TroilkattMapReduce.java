@@ -220,12 +220,14 @@ public class TroilkattMapReduce {
 			conf.set("troilkatt.hard.max.memory.mb", checkKeyGetValLong(ib.readLine(), "hard.max.memory.mb"));
 			
 			if (! "input.files.start".equals(ib.readLine())) {
+				ib.close();
 				throw new StageInitException("input.files.start not found in arguments file");
 			}
 			
 			while (true) {
 				String str = ib.readLine();
 				if (str == null) {
+					ib.close();
 					throw new StageInitException("input.files.end not found in arguments file");
 				}
 				if (str.equals("input.files.end")) {

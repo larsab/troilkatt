@@ -151,6 +151,7 @@ public class MapReduce extends Stage {
 			try {
 				mapreduceDir = troilkattProperties.get("troilkatt.localfs.mapreduce.dir");
 			} catch (TroilkattPropertiesException e) {
+				out.close();
 				logger.fatal("Invalid properies file: " + e);
 				throw new StageException("Could not create input arguments file");
 			}

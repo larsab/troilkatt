@@ -268,12 +268,14 @@ public class ExecuteStage {
 			maxProcs = Integer.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "max.num.procs"));
 			maxVMSize = Long.valueOf(TroilkattMapReduce.checkKeyGetValLong(ib.readLine(), "max.vm.size"));
 			if (! ib.readLine().equals("input.files.start")) {
+				ib.close();
 				throw new StageInitException("input.files.start not found in arguments file");
 			}
 			
 			while (true) {
 				String str = ib.readLine();
 				if (str == null) {
+					ib.close();
 					throw new StageInitException("input.files.end not found in arguments file");
 				}
 				if (str.equals("input.files.end")) {

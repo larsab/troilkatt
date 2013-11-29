@@ -306,9 +306,33 @@ public class OsPath {
 	public static boolean copy(String src, String dst, Logger logger) {
 		boolean rv = true;
 		
+		FileInputStream fis = null;
 		try {
-			FileChannel in = (new FileInputStream(src)).getChannel();
-			FileChannel out = (new FileOutputStream(dst)).getChannel();
+			fis = new FileInputStream(src);			
+		} catch (FileNotFoundException e) {			
+			if (logger != null) {
+				logger.error("File not found: " + src, e);
+			}
+			return false;
+		}
+		
+		FileOutputStream fos = null;
+		try {			
+			fos = new FileOutputStream(dst);
+		} catch (FileNotFoundException e) {
+			try {
+				fis.close();
+			} catch (IOException e2) {
+			}
+			if (logger != null) {
+				logger.error("File not found: " + dst, e);
+			}
+			return false;
+		}
+			
+		try {
+			FileChannel in = fis.getChannel();
+			FileChannel out = fos.getChannel();
 			long transferedBytes = 0;
 			long toTransfer = in.size();
 			while (transferedBytes < toTransfer) {
@@ -316,12 +340,15 @@ public class OsPath {
 			}				
 			in.close();
 			out.close();
-		} catch (FileNotFoundException e) {		
-			if (logger != null) {
-				logger.error("File not found: " + src, e);
-			}
-			return false;
+			fis.close();
+			fos.close();
 		} catch (IOException e) {
+			try {
+				fis.close();
+				fos.close();
+			} catch (IOException e2) {
+				
+			}
 			if (logger != null) {
 				logger.error("IOException: " + src, e);
 			}

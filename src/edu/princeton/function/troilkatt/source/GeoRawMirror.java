@@ -187,6 +187,7 @@ public class GeoRawMirror extends GeoGDSMirror {
 			if (ftpClient.setFileType(FTP.BINARY_FILE_TYPE) == false) {
 				sLogger.warn("Could not set filetype to binary");
 				OsPath.delete(outputFilename);
+				fp.close();
 				return false;
 			}
 			if (ftpClient.retrieveFile(ftpFilename, fp) == false) {

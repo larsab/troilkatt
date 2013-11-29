@@ -58,18 +58,24 @@ public class TestSuper {
 			String str2 = ib2.readLine();
 			
 			if ((str1 == null) || (str2 == null)) {
-				if ((str1 == null) && (str2 == null)) { 
+				if ((str1 == null) && (str2 == null)) {
+					ib1.close();
+					ib2.close();
 					return true;
 				}
 				else {
+					ib1.close();
+					ib2.close();
 					return false;
 				}
 			}
 			
 			if (str1.equals(str2) == false) {
+				ib1.close();
+				ib2.close();
 				return false;
 			}
-		}
+		}		
 	}
 
 	/**

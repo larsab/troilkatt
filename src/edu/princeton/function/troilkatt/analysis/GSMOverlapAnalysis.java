@@ -75,6 +75,7 @@ public class GSMOverlapAnalysis {
 
 			Date date = dateFormatter.parse(parts[1]);
 			if (gse2date.containsKey(gid)) {
+				ins.close();
 				throw new RuntimeException("Invalid table file: multiple entries for: " + gid);
 			}
 			gse2date.put(gid, date);
@@ -93,11 +94,13 @@ public class GSMOverlapAnalysis {
 					gsm2gse.put(gsm, m2e);
 				}
 				if (m2e.contains(gid)) {
+					ins.close();
 					throw new RuntimeException("Invalid table file: multiple entries for: " + gsm);
 				}
 				m2e.add(gid);					
 			}
 			if (gse2gsm.containsKey(gid)) {
+				ins.close();
 				throw new RuntimeException("Invalid table file: multiple entries for: " + gid);
 			}
 			gse2gsm.put(gid, newGsms);
@@ -125,6 +128,7 @@ public class GSMOverlapAnalysis {
 			if (GeoGSMOverlap.compareIDs(gid1, gid2) < 0) {
 				String tuple = gid1 + "," + gid2;
 				if (added.contains(tuple)) {
+					ins.close();
 					throw new RuntimeException("Duplicate: (" + tuple + ")");
 				}
 				added.add(tuple);
@@ -340,6 +344,7 @@ public class GSMOverlapAnalysis {
 		for (String gid: gses) {
 			ArrayList<String> gsms = gse2gsm.get(gid);
 			if (gsms == null) {
+				os.close();
 				throw new RuntimeException("GID not found: " + gid);
 			}
 			os.write(gid);
@@ -377,6 +382,7 @@ public class GSMOverlapAnalysis {
 			
 			ArrayList<String> gsms = gse2gsm.get(gid);
 			if (gsms == null) {
+				os.close();
 				throw new RuntimeException("GID not found: " + gid);
 			}
 			HashSet<String> excluded = removedSamples.get(gid);
@@ -419,6 +425,7 @@ public class GSMOverlapAnalysis {
 		for (String gsm: gsm2gse.keySet()) {
 			ArrayList<String> gsms = gsm2gse.get(gsm);			
 			if (gsms == null) {
+				os.close();
 				throw new RuntimeException("GSM ID not found: " + gsm);
 			}
 			String gsmLine = "";
@@ -457,6 +464,7 @@ public class GSMOverlapAnalysis {
 		for (String gsm: gsm2gse.keySet()) {
 			ArrayList<String> gsms = gsm2gse.get(gsm);			
 			if (gsms == null) {
+				os.close();
 				throw new RuntimeException("GSM ID not found: " + gsm);
 			}
 			String gsmLine = "";

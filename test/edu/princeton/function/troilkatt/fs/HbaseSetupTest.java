@@ -67,6 +67,7 @@ public class HbaseSetupTest {
 			}
 
 			hbAdm.createTable(htd);
+			hbAdm.close();
 
 			// attempt to re-open table
 			table = new HTable(hbConf, tableName);		
@@ -101,6 +102,7 @@ public class HbaseSetupTest {
 		String val = Bytes.toString(valBytes);
 		assertEquals("The content", val);
 		
+		table.close();
 	}
 	
 	public static void main(String[] args) throws IOException {

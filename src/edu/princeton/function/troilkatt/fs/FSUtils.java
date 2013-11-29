@@ -31,6 +31,7 @@ public class FSUtils {
 		// Make sure the file is smaller than Integer,MAX_VALUE!
 		long length = file.length();
 		if (length > Integer.MAX_VALUE) {
+			is.close();
 			throw new IOException("File is too large (> Integer.MAX_VALUE)");
 		}        
 
@@ -46,6 +47,7 @@ public class FSUtils {
 
 		// Ensure all the bytes have been read in
 		if (offset < bytes.length) {
+			is.close();
 			throw new IOException("Could not completely read file "+ file.getName());
 		}
  
@@ -70,6 +72,7 @@ public class FSUtils {
 			lines.add(str);
 		}
 		
+		ib.close();
 		return lines.toArray(new String[lines.size()]);
 	}
 

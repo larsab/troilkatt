@@ -148,6 +148,7 @@ public class TroilkattTable {
 			}
 			
 			hbAdm.createTable(htd);
+			hbAdm.close();
 		} catch (MasterNotRunningException e) {
 			throw new HbaseException("HBaseMaster is not running: " + e.toString());
 		} catch (ZooKeeperConnectionException e) {
@@ -168,7 +169,8 @@ public class TroilkattTable {
 			table.close();
 			HBaseAdmin hbAdm = new HBaseAdmin(hbConfig);
 			hbAdm.disableTable(tableName);
-			hbAdm.deleteTable(tableName);			
+			hbAdm.deleteTable(tableName);		
+			hbAdm.close();
 		} catch (MasterNotRunningException e) {
 			throw new HbaseException("HBaseMaster is not running: " + e.toString());
 		} catch (ZooKeeperConnectionException e) {
@@ -191,6 +193,7 @@ public class TroilkattTable {
 			hbAdm.disableTable(tableName);
 			hbAdm.deleteTable(tableName);
 			createTable(hbConfig);			
+			hbAdm.close();
 		} catch (MasterNotRunningException e) {
 			throw new HbaseException("HBaseMaster is not running: " + e.toString());
 		} catch (ZooKeeperConnectionException e) {
