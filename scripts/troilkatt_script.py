@@ -265,7 +265,7 @@ Options:
 """
 Run a troilkatt script
 
-Command line arguments: %s [options] inputDir outputDir metaDir globalMetaDir logDir <args>, where
+Command line arguments: trilkatt_script.py [options] inputDir outputDir metaDir globalMetaDir logDir <args>, where
     options: troilkatt specific options (configuration file, logging level, etc)
     inputDir: input directory
     outputDir: output directory

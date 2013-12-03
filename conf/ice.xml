@@ -14,7 +14,7 @@ Troilkatt configuration file for the ice cluster
 
 	Administrator e-mail. It is used as the password when logging to NCBI FTP servers.
 
-    	</description>
+   	</description>
     </property>
 
     <property>
@@ -24,7 +24,7 @@ Troilkatt configuration file for the ice cluster
 
 	File system to use for persistent storage. Valid values are: hadoop and nfs
 
-    	</description>
+    </description>
     </property>
 
     <property>
@@ -50,9 +50,9 @@ Troilkatt configuration file for the ice cluster
 	crawlers and pipeline stages, and then saved into persistent storage.
 			
 	</description>
-   </property>
-	
-   <property>
+    </property>
+ 	
+    <property>
 	<name>troilkatt.globalfs.global-meta.dir</name>
 	<value>/home/larsab/troilkatt/global-meta</value>
 	<description>
@@ -63,9 +63,9 @@ Troilkatt configuration file for the ice cluster
 	The TROILKATT.GLOBALMETA_DIR symbol is mapped to this directory.
 			
 	</description>
-   </property>
+    </property>
 	
-   <property>
+    <property>
 	<name>troilkatt.localfs.sge.dir</name>
 	<value>/home/larsab/troilkatt2/test-tmp/sge-local</value>
 	<description>
@@ -74,10 +74,10 @@ Troilkatt configuration file for the ice cluster
 	
 	Note! _all_ data in this directory will be deleted after each iteration.
 	
-        </description>
-   </property>
+    </description>
+    </property>
 	
-   <property>
+    <property>
 	<name>troilkatt.globalfs.sge.dir</name>
 	<value>/home/larsab/troilkatt/sge</value>
 	<description>
@@ -87,9 +87,9 @@ Troilkatt configuration file for the ice cluster
 	Note! _all_ data in this directory will be deleted after each iteration.
 			
 	</description>
-   </property>
+    </property>
 	
-   <property>
+    <property>
 	<name>troilkatt.global-meta.retain.days</name>
 	<value>-1</value>
 	<description>
@@ -97,10 +97,10 @@ Troilkatt configuration file for the ice cluster
 	Time in days for which global-meta data is retained before being deleted. If
 	-1 global-meta is never deleted.
     	
-        </description>
-   </property>
+    </description>
+    </property>
 	
-   <property>
+    <property>
 	<name>troilkatt.localfs.mapreduce.dir</name>
 	<value>/state/partition3/larsab/troilkatt/mapreduce</value>
 	<description>
@@ -110,9 +110,9 @@ Troilkatt configuration file for the ice cluster
 	Note! all data in this directory will be deleted after each iteration
 			
 	</description>
-   </property>
+    </property>
 	
-   <property>
+    <property>
 	<name>troilkatt.localfs.binary.dir</name>
 	<value>/home/larsab/troilkatt/apps/bin</value>
 	<description>
@@ -121,7 +121,7 @@ Troilkatt configuration file for the ice cluster
 			
 	The TROILKATT.BIN symbol is mapped to this directory.
     	
-        </description>
+    </description>
     </property>
 	
     <property>
@@ -133,9 +133,9 @@ Troilkatt configuration file for the ice cluster
 	the stages. The TROILKATT.UTILS symbol is mapped to this directory.
 			
 	</description>
-   </property>
+    </property>
 	
-   <property>
+    <property>
 	<name>troilkatt.localfs.scripts.dir</name>
 	<value>/home/larsab/skarntyde/troilkatt2/scripts</value>
 	<description>
@@ -145,9 +145,9 @@ Troilkatt configuration file for the ice cluster
 	directory.
 			
 	</description>
-   </property>
+    </property>
 	
-   <property>
+    <property>
 	<name>troilkatt.tfs.root.dir</name>
 	<value>/user/larsab/troilkatt</value>
 	<description>
@@ -155,9 +155,9 @@ Troilkatt configuration file for the ice cluster
 	Root directory for Troilkatt files in HDFS.
 	
 	</description>
-   </property>	
+    </property>	
 
-   <property>
+    <property>
 	<name>troilkatt.tfs.status.file</name>
 	<value>/user/larsab/troilkatt/status/status.txt</value>
 	<description>
@@ -170,7 +170,7 @@ Troilkatt configuration file for the ice cluster
 	directory.
 			
 	</description>
-   </property>
+    </property>
 	
    <property>
 	<name>troilkatt.update.interval.hours</name>
@@ -179,17 +179,17 @@ Troilkatt configuration file for the ice cluster
 
 	Time in hours between each time the crawlers are called.
     	
-        </description>
-   </property>
+    </description>
+    </property>
 	
-   <property>
+    <property>
 	<name>troilkatt.jar</name>
 	<value>/home/larsab/troilkatt2/lib/troilkatt.jar</value>
 	<description>
 
 	Jar file with Troilkatt classes.
     	
-        </description>
+    </description>
     </property>
 	
     <property>
@@ -200,7 +200,7 @@ Troilkatt configuration file for the ice cluster
 	Jar files passed to the hadoop MapReduce startup script (-libjars). 
 	These should include: hbase-VERSION.jar, commons-cli.jar, zookeeper.jar, commons-logging.jar
     	
-        </description>
+    </description>
     </property>
 
     <property>
@@ -213,7 +213,7 @@ Troilkatt configuration file for the ice cluster
 	The classpath should include log4j-1.2.jar, commons-compress.jar, hbase.jar, and hadoop-core.jar. 
 	In addition the root directory for the troilkatt class files should be included (typically troilkatt2/bin). 
     	
-    	</description>
+    </description>
     </property>
 
     <property>
@@ -245,7 +245,7 @@ Troilkatt configuration file for the ice cluster
 
 	 MongoDB server port (required). The default port is 27017 for MongoDB.
     	
-    	</description>
+    </description>
     </property>
 		
     <property>
@@ -256,7 +256,7 @@ Troilkatt configuration file for the ice cluster
 	Troilkatt container binary. The container is used to ensure that applications
 	started by troilkatt are limited with regards to memory usage and CPU time.
     	
-        </description>
+   </description>
    </property>
 	
 </configuration>
