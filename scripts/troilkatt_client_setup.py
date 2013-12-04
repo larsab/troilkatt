@@ -1,3 +1,12 @@
+"""
+Setup a cluster for troilkatt.
+
+Run this script from the node where the main troilkatt server is to be run.
+
+Command line arguments: troilkatt_script.py configFile, where
+    configFile: configuration file to use to setup the cluster 
+"""
+
 import os, os.path
 import stat
 
@@ -187,15 +196,7 @@ def verifyLocalFile(filename, modeStr):
         
 if __name__ == '__main__':
     """
-    Setup a cluster for troilkatt.
-
-    Run this script from the node where the main troilkatt server is to be run.
-
-    Command line arguments: troilkatt_script.py configFile hostfile, where
-        configFile: configuration file to use to setup the cluster 
-        hostfile: list of client hostnames
-        
-    Tip: "rocks run host "hostname" > hostfile" will create a hostfile
+    Setup a cluster
     """
     import sys
     
@@ -207,7 +208,7 @@ if __name__ == '__main__':
     from troilkatt_properties import TroilkattProperties
     tp = TroilkattProperties(configFile)
     
-    hosts = file.read().splitlines()
+    hosts = parseHostfile(sys.argv[2])
     
     # Guessing the path for the troilkatt_client_setup.py scrips
     clientScript= os.path.join(os.getcwd(), sys.argv[0])
