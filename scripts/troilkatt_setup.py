@@ -21,27 +21,27 @@ def modeStr2Bits(modeStr):
     
     # Owner
     if modeStr[0] == 'r':
-        mode = mode & stat.S_IRUSR
+        mode = mode | stat.S_IRUSR
     if modeStr[1] == 'w':
-        mode = mode & stat.S_IWUSR
+        mode = mode | stat.S_IWUSR
     if modeStr[2] == 'x':
-        mode = mode & stat.S_IXUSR
+        mode = mode | stat.S_IXUSR
         
     # Group
     if modeStr[3] == 'r':
-        mode = mode & stat.S_IRGRP
+        mode = mode | stat.S_IRGRP
     if modeStr[4] == 'w':
-        mode = mode & stat.S_IWGRP
+        mode = mode | stat.S_IWGRP
     if modeStr[5] == 'x':
-        mode = mode & stat.S_IXGRP
+        mode = mode | stat.S_IXGRP
         
     # Other
     if modeStr[6] == 'r':
-        mode = mode & stat.S_IROTH
+        mode = mode | stat.S_IROTH
     if modeStr[7] == 'w':
-        mode = mode & stat.S_IWOTH
+	mode = mode | stat.S_IWOTH
     if modeStr[8] == 'x':
-        mode = mode & stat.S_IXOTH
+        mode = mode | stat.S_IXOTH
         
     return mode
 
@@ -105,16 +105,20 @@ def createLocalDir(dir, modeStr):
     """
     
     mode = modeStr2Bits(modeStr)
+    print str(mode)
+    print modeStr
     
     if os.path.isdir(dir):
         print "\tDirectory already exists: %s" % (dir)
-        return verifyLocalDir(dir, mode)
+	return verifyLocalDir(dir, modeStr)
     else:
         try:
             os.makedirs(dir, mode)
+	    # makedirs does not respect o+w flag
+	    os.chmod(dir, mode)
             print "\tDirectory created: %s" % (dir)
-            print "\tMode: %s" % (mode)
-            return verifyLocalDir(dir, mode)
+            print "\tMode: %s" % (modeStr)
+            return verifyLocalDir(dir, modeStr)
         except OSError, e:
             print '\tCould not create directory: %s' % (dir)
             return False
@@ -146,8 +150,9 @@ def createClientDirs(dir, modeStr, hosts, clientScript):
     @return True on success, False otherwise.
     """
     for h in hosts:
-        print'\tCreate directory %s on %s with mode %s' % (h, dir, modeStr)
-        if os.system("ssh %s '%s %s %s'") % (h, clientScript, dir, modeStr) != 0:
+        print'\tCreate directory %s on %s with mode %s' % (dir, h, modeStr)
+	print clientScript
+        if os.system("ssh %s 'python %s %s %s'" % (h, clientScript, dir, modeStr)) != 0:
             print '\tRemote command Failed'
             return False
     
@@ -157,12 +162,14 @@ def verifyLocalDir(dir, modeStr):
     """
     Make sure that the directory has the given mode. Return True or False.
     """
+
+    assert(len(modeStr) == 9)
     
     if os.path.isdir(dir) == False:
         print '\tNot a directory: %s' % (dir)
         return False # Not a directory
     
-    dirMode = os.stat(dir)
+    dirMode = os.stat(dir)[0]
     
     if modeStr == modeBits2Str(dirMode):
         return True
@@ -178,7 +185,7 @@ def verifyLocalFile(filename, modeStr):
         print '\tNot a file: %s' % (filename)
         return False # Not a file
     
-    fileMode = os.stat(filename)
+    fileMode = os.stat(filename)[0]
     
     if modeStr == modeBits2Str(fileMode):
         return True
@@ -212,7 +219,7 @@ if __name__ == '__main__':
     fp.close()
     
     # Guessing the path for the troilkatt_client_setup.py scrips
-    clientScript= os.path.join(os.getcwd(), sys.argv[0])
+    clientScript= os.path.join(os.getcwd(), sys.argv[0].replace("troilkatt_setup", "troilkatt_client_setup"))
     assert(os.path.isfile(clientScript)), 'Could not find troilkatt_client_setup.py script (is not %s)' % (clientScript) 
     
     print "Admin email is: %s" % (tp.get("troilkatt.admin.email"))
@@ -271,7 +278,7 @@ if __name__ == '__main__':
         failures += 1
     
     print "Create HDFS directory"
-    if persistentStorage == "hdfs":
+    if persistentStorage == "hadoop":
         if createHDFSDir("troilkatt.tfs.root.dir", CLIENT_DIR_MODE) != True:
             print '\tFAILED'
             failures += 1
@@ -296,14 +303,14 @@ if __name__ == '__main__':
         print '\tFAILED'
         failures += 1
     print "\tJar"
-    if verifyFile(tp.get("troilkatt.jar"), S_IRUSR & stat.S_IRGRP& stat.S_IROTH) != True:
+    if verifyLocalFile(tp.get("troilkatt.jar"), "r--r--r--") != True:
         print '\tFAILED'
         failures += 1
     print "\tLibjars"
     libJars = tp.get("troilkatt.libjars").split(",")
     allPassed= True
     for l in libJars:
-        if verifyFile(l, S_IRUSR & stat.S_IRGRP& stat.S_IROTH) != True:
+        if verifyLocalFile(l, "r--r--r--") != True:
             allPassed = False
     if allPassed != True:
         print '\tFAILED'
@@ -312,13 +319,13 @@ if __name__ == '__main__':
     libJars = tp.get("troilkatt.classpath").split(":")
     allPassed= True
     for l in libJars:
-        if verifyFile(l, S_IRUSR & stat.S_IRGRP& stat.S_IROTH) != True:
-            allPassed = Fale
+        if verifyLocalFile(l, "r--r--r--") != True:
+            allPassed = False
     if allPassed != True:
         print '\tFAILED'
         failures += 1
     print "\tContainer"
-    if verifyFile(tp.get("troilkatt.container.bin"), BIN_DIR_MODE) != True:        
+    if verifyLocalFile(tp.get("troilkatt.container.bin"), BIN_DIR_MODE) != True:        
         print '\tFAILED'
         failures += 1
         
