@@ -111,7 +111,7 @@ def createLocalDir(dir, modeStr):
         return verifyLocalDir(dir, mode)
     else:
         try:
-            os.mkdir(dir, mode)
+            os.makedirs(dir, mode)
             print "\tDirectory created: %s" % (dir)
             print "\tMode: %s" % (mode)
             return verifyLocalDir(dir, mode)
@@ -206,8 +206,10 @@ if __name__ == '__main__':
     
     from troilkatt_properties import TroilkattProperties
     tp = TroilkattProperties(configFile)
-    
-    hosts = file.read().splitlines()
+   
+    fp = open(sys.argv[2]) 
+    hosts = fp.read().splitlines()
+    fp.close()
     
     # Guessing the path for the troilkatt_client_setup.py scrips
     clientScript= os.path.join(os.getcwd(), sys.argv[0])
