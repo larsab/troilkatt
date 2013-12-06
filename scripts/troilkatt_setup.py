@@ -135,7 +135,7 @@ def createHDFSDir(dir, modeStr):
     print '\Create hadoop directory'
     print '\tNote! No automatic checks'
     os.system('hadoop fs -mkdir %s' % (dir))
-    os.system('hadoop fs -chmod %s' % (modeStr))
+    os.system('hadoop fs -chmod %s %s' % (dir, mode))
     
     return True # always
         
@@ -279,7 +279,7 @@ if __name__ == '__main__':
     
     print "Create HDFS directory"
     if persistentStorage == "hadoop":
-        if createHDFSDir("troilkatt.tfs.root.dir", CLIENT_DIR_MODE) != True:
+        if createHDFSDir(tp.get("troilkatt.tfs.root.dir"), CLIENT_DIR_MODE) != True:
             print '\tFAILED'
             failures += 1
     elif persistentStorage == "nfs":
@@ -292,26 +292,33 @@ if __name__ == '__main__':
     print "Verifying binary and script binaries (on this machine only)"
     print "\tBin"
     if verifyLocalDir(tp.get("troilkatt.localfs.binary.dir"), BIN_DIR_MODE) != True:
+        print "%s not in %s mode" % (tp.get("troilkatt.localfs.binary.dir"), BIN_DIR_MODE)
         print '\tFAILED'
         failures += 1
     print "\tUtils"
     if verifyLocalDir(tp.get("troilkatt.localfs.utils.dir"), BIN_DIR_MODE) != True:
+        print "%s not in %s mode" % (tp.get("troilkatt.localfs.utils.dir"), BIN_DIR_MODE)
         print '\tFAILED'
         failures += 1
     print "\tScripts"
     if verifyLocalDir(tp.get("troilkatt.localfs.scripts.dir"), BIN_DIR_MODE) != True:
+        print "%s not in %s mode" % (tp.get("troilkatt.localfs.scripts.dir"), BIN_DIR_MODE)
         print '\tFAILED'
         failures += 1
     print "\tJar"
-    if verifyLocalFile(tp.get("troilkatt.jar"), "r--r--r--") != True:
+    if verifyLocalFile(tp.get("troilkatt.jar"), "rwxr--r--") != True:
+        print "%s not in %s mode" % (tp.get("troilkatt.jar"), "r--r--r--")
         print '\tFAILED'
         failures += 1
     print "\tLibjars"
     libJars = tp.get("troilkatt.libjars").split(",")
     allPassed= True
     for l in libJars:
-        if verifyLocalFile(l, "r--r--r--") != True:
-            allPassed = False
+        if verifyLocalFile(l, "rw-r--r--") != True:
+            print "Warning %s not in %s mode" % (l, "rwxr-xr-x")
+            if not os.path.isfile(l) and not os.path.isdir(l):
+                print "Not a file or directory: %s" % (l)
+                allPassed = False
     if allPassed != True:
         print '\tFAILED'
         failures += 1
@@ -319,13 +326,17 @@ if __name__ == '__main__':
     libJars = tp.get("troilkatt.classpath").split(":")
     allPassed= True
     for l in libJars:
-        if verifyLocalFile(l, "r--r--r--") != True:
-            allPassed = False
+        if verifyLocalFile(l, "rw-r--r--") != True:
+            print "Warning: %s not in %s mode" % (l, "rwxr-xr-x")
+            if not os.path.isfile(l) and not os.path.isdir(l):
+                print "Not a file or directory: %s" % (l)
+                allPassed = False
     if allPassed != True:
         print '\tFAILED'
         failures += 1
     print "\tContainer"
     if verifyLocalFile(tp.get("troilkatt.container.bin"), BIN_DIR_MODE) != True:        
+        print "%s not in %s mode" % (tp.get("troilkatt.container.bin"), "rwxr-xr-x")
         print '\tFAILED'
         failures += 1
         
@@ -334,6 +345,8 @@ if __name__ == '__main__':
         print 'It has path: ' + tp.get("troilkatt.tfs.root.dir")
         print 'And it should have mode = ' + CLIENT_DIR_MODE
     
-        
-    print '\n\nFAILURES: %d\n' % (failures)
-    
+    if failures > 0:
+        print '\n\nFAILURES: %d\n' % (failures)
+    else:
+        print 'Everything seems OK'
+

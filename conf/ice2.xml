@@ -208,7 +208,7 @@ Troilkatt configuration file for the ice2 cluster
 		
     <property>
 		<name>troilkatt.container.bin</name>
-		<value>/home/larsab/troilkatt2/bin/troilkatt_container</value>
+		<value>/home/larsab/troilkatt/apps/bin/troilkatt_container</value>
 		<description>
 			Troilkatt container binary. The container is used to ensure that applications
 			started by troilkatt are limited with regards to memory usage and CPU time.    	
