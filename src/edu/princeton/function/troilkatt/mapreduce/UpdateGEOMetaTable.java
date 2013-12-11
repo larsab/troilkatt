@@ -92,7 +92,9 @@ public class UpdateGEOMetaTable extends PerFile {
 			super.setup(context);
 						
 			/* Setup Htable */
-			Configuration hbConf = HBaseConfiguration.create();
+			//Configuration hbConf = HBaseConfiguration.create();
+			Configuration hbConf = conf;
+			
 			geoMetaTable = new GeoMetaTableSchema();
 			try {
 				table = geoMetaTable.openTable(hbConf, true);
@@ -294,6 +296,9 @@ public class UpdateGEOMetaTable extends PerFile {
 						
 			job = Job.getInstance(conf, progName);
 			job.setJarByClass(UpdateGEOMetaTable.class);
+			
+			// Add HBase jars
+			//TableMapReduceUtil.addDependencyJars(job); 
 			
 			/* Setup mapper: use the Compress class*/
 			job.setMapperClass(MetaParserMapper.class);				

@@ -38,8 +38,8 @@ public class TroilkattHDFS extends TroilkattFS {
 	 * 
 	 * @throws IOException 
 	 */
-	public TroilkattHDFS() throws IOException {
-		conf = new Configuration();		
+	public TroilkattHDFS(Configuration cf) throws IOException {
+		conf = cf;		
 		hdfs = FileSystem.get(conf);		
 		logger = Logger.getLogger("troilkatt.hdfs");
 	}

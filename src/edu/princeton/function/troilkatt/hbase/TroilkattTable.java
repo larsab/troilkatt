@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -57,38 +56,26 @@ public class TroilkattTable {
 	 * Table instance that is set in openTable
 	 */
 	public HTable table;
-	
-	/**
-	 * Helper function to get Hbase configuration object.
-	 * 
-	 * Note! The directory with the Hbase configuration XML file should be in the 
-	 * Java classpath.
-	 * 
-	 * @return Hbase configuration
-	 */
-	public static Configuration getConfiguration() {
-		return HBaseConfiguration.create();
-	}
-	
+
 	/**
 	 * Open a table. If the table does not exist it is created.
 	 * 
-	 * @param hbConf Hbase configuration object
+	 * @param hbc Hbase configuration object
 	 * @param createIfNeeded true if the table should be created if it does
 	 * not exists.
 	 * @return table handler
 	 * @throws HbaseException if an Hbase-related exception occurs 
 	 */
-	public HTable openTable(Configuration hbConf, boolean createIfNeeded) throws HbaseException {			
+	public HTable openTable(Configuration hbConfig, boolean createIfNeeded) throws HbaseException {			
 		try {
 			try {
-				table = new HTable(hbConf, tableName);
+				table = new HTable(hbConfig, tableName);
 			} catch (TableNotFoundException e1) {				
 				System.err.println("LogTable not found for pipeline: " + tableName);
 				if (createIfNeeded) {
-					createTable(hbConf);
+					createTable(hbConfig);
 					// attempt to re-open table
-					table = new HTable(hbConf, tableName);
+					table = new HTable(hbConfig, tableName);
 				}
 				else {
 					throw new HbaseException("Could not open table (may not exist): " + tableName);
@@ -117,11 +104,10 @@ public class TroilkattTable {
 	/**
 	 * Create a Hbase table.
 	 *
-	 * @param hbConfig Hbase configuation object
+	 * @param hbc Hbase configuation object
 	 * @throws HbaseException 
 	 */
 	public void createTable(Configuration hbConfig) throws HbaseException {
-		
 		try {
 			HBaseAdmin hbAdm = new HBaseAdmin(hbConfig);
 			HTableDescriptor htd = new HTableDescriptor(Bytes.toBytes(tableName));		
@@ -161,11 +147,12 @@ public class TroilkattTable {
 	
 	/**
 	 * Delete a table. Mostly used for testing.
-	 *  
+	 * 
+	 * @param hbConfig Initialized HBase configuration object 
+	 * 
 	 * @throws HbaseException if the table could not be deleted
 	 */
-	public void deleteTable() throws HbaseException {
-		Configuration hbConfig = HBaseConfiguration.create();
+	public void deleteTable(Configuration hbConfig) throws HbaseException {
 		try {
 			table.close();
 			HBaseAdmin hbAdm = new HBaseAdmin(hbConfig);
@@ -184,10 +171,10 @@ public class TroilkattTable {
 	/**
 	 * Delete and recreate table. Intended for testing.
 	 * 
+	 * @param hbConfig Initialized HBase configuration object
 	 * @throws HbaseException 
 	 */
-	public void clearTable() throws HbaseException {
-		Configuration hbConfig = HBaseConfiguration.create();
+	public void clearTable(Configuration hbConfig) throws HbaseException {
 		try {
 			HBaseAdmin hbAdm = new HBaseAdmin(hbConfig);
 			table.close();

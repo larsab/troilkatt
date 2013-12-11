@@ -67,7 +67,8 @@ public class BatchPclCommon extends PerFile {
 			rowsDiscarded = context.getCounter(BatchPclCounters.ROWS_DISCARDED);			
 			
 			// Setup meta-data table
-			Configuration hbConf = HBaseConfiguration.create();
+			//Configuration hbConf = HBaseConfiguration.create();
+			Configuration hbConf = conf;
 			geoMetaTable = new GeoMetaTableSchema();
 			try {
 				metaTable = geoMetaTable.openTable(hbConf, false);

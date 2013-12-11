@@ -1,20 +1,27 @@
 package edu.princeton.function.troilkatt;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
+import edu.princeton.function.troilkatt.fs.LogTableTar;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 import edu.princeton.function.troilkatt.pipeline.Stage;
+import edu.princeton.function.troilkatt.pipeline.StageInitException;
 import edu.princeton.function.troilkatt.utils.Utils;
-
 import gnu.getopt.Getopt;
 
 /**
@@ -175,7 +182,7 @@ public class Troilkatt {
 		try {			
 			String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 			if (persistentStorage.equals("hadoop")) {
-				tfs = new TroilkattHDFS();
+				tfs = new TroilkattHDFS(new Configuration());
 			}
 			else if (persistentStorage.equals("nfs")) {
 				tfs = new TroilkattNFS();
@@ -191,7 +198,7 @@ public class Troilkatt {
 			System.exit(-1);
 		}	
 	
-	return tfs;
+		return tfs;
 	}
 
 	/**
@@ -409,6 +416,121 @@ public class Troilkatt {
 	}
 
 	/**
+	 * Create all pipelines specified in dataset file
+	 *
+	 * @param datasetFile: file specifying dataset names to be crawled
+	 * @param troilkattProperties: troilkatt properties object
+	 * @param tfs tfs handle
+	 * @param logger: callers logger instance
+	 *  
+	 * @return list of pipelines
+	 * @throws PipelineException if a pipeline configuration file could not be parsed
+	 * @throws TroilkattPropertiesException 
+	 */
+	public ArrayList<Pipeline> openPipelines(String datasetFile, 
+			TroilkattProperties troilkattProperties,  
+			TroilkattFS tfs,
+			Logger logger) throws PipelineException, TroilkattPropertiesException {
+	
+		ArrayList<Pipeline> datasets = new ArrayList<Pipeline>();
+		BufferedReader inputStream;
+	
+		try {
+			inputStream = new BufferedReader(new FileReader(datasetFile));
+	
+			while (true) {
+				/*
+				 * Parse entry
+				 */
+				String pipelineFile = inputStream.readLine();
+				if (pipelineFile == null) {
+					break;
+				}
+	
+				if (pipelineFile.startsWith("#")) {
+					continue;
+				}
+				
+				pipelineFile = pipelineFile.trim();
+				if (pipelineFile.indexOf(".xml") == -1) {
+					inputStream.close();
+					logger.fatal("All pipelines should be named using their .xml file: " + pipelineFile);
+					throw new PipelineException("Pipeline name error: " + pipelineFile);
+				}
+	
+				/*
+				 * Find pipeline name
+				 */
+				String name;
+				try {
+					name = OsPath.basename(pipelineFile).split("\\.")[0];
+				} catch (ArrayIndexOutOfBoundsException e) {
+					inputStream.close();
+					logger.fatal("Could not parse dataset name: " + pipelineFile, e);
+					throw new PipelineException("Pipeline name error: " + pipelineFile);
+				}
+				logger.info("Create pipeline: " + name);
+					
+				/*
+				 * Create log table (per pipeline)
+				 */
+				LogTable lt = null;
+				String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
+				if (persistentStorage.equals("hadoop")) {
+					lt = new LogTableHbase(name, HBaseConfiguration.create());
+				}
+				else if (persistentStorage.equals("nfs")) {
+					String sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");
+					
+					String localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);
+					if (! OsPath.isdir(localTmpDir)) {
+						if (! OsPath.mkdir(localTmpDir)) {
+							logger.fatal("Could not create directory: " + localTmpDir);
+							throw new PipelineException("mkdir " + localTmpDir + " failed");
+						}
+					}
+
+					String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "logtar");
+					if (! OsPath.mkdir(localLogDir)) {
+						logger.fatal("Could not create directory: " + localLogDir);
+						throw new PipelineException("mkdir " + localLogDir + " failed");
+					}
+					String globalLogDir = OsPath.join(sgeDir, "logtar");
+					if (! OsPath.mkdir(globalLogDir)) {
+						logger.fatal("Could not create directory: " + globalLogDir);
+						throw new PipelineException("mkdir " + globalLogDir + " failed");
+					}
+					lt = new LogTableTar(name, tfs, globalLogDir, localLogDir, localTmpDir);
+				}
+				else {
+					logger.fatal("Invalid valid for persistent storage");
+					throw new PipelineException("Invalid valid for persistent storage");
+				}
+				
+				Pipeline p;
+				try {
+					p = new Pipeline(name,
+							pipelineFile,
+							troilkattProperties,
+							tfs, lt);
+					datasets.add(p);
+				} catch (StageInitException e) {
+					inputStream.close();
+					logger.fatal("Could not create a stage in pipeline: " + e);
+					throw new PipelineException("Could not create a stage in pipeline");
+				}
+					
+			}			
+			inputStream.close();
+		} catch (IOException e) {
+			logger.fatal("Could not parse dataset file: " + datasetFile, e);			
+			throw new PipelineException("Could not parse dataset file: " + datasetFile);
+		}
+	
+		return datasets;
+	}
+	
+	/**
 	 * Troilkatt main loop
 	 * 
 	 * @param argv command line arguments
@@ -461,7 +583,7 @@ public class Troilkatt {
 		 */			
 		ArrayList<Pipeline> pipelines = null;
 		try {
-			pipelines = Pipeline.openPipelines(args.get("datasetFile"), 
+			pipelines = openPipelines(args.get("datasetFile"), 
 					troilkattProperties,       									
 					tfs,
 					logger);

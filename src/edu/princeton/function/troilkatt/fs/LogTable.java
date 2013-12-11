@@ -76,7 +76,7 @@ public class LogTable {
 	/**
 	 * Check if a logfile exists. This function is mostly used for testing and debugging.
 	 * 
-	 * @param stageName stage name used finor the row ID
+	 * @param stageName stage name used for the row ID
 	 * @param timestamp Troilkatt timestamp used in the row ID
 	 * @param logFilename file to check
 	 * @return true if a logfile exists, false otherwise

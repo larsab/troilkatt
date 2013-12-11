@@ -71,7 +71,8 @@ public class BatchPcl2Info extends PerFile {
 			parser = new Pcl2Info();
 			
 			/* Setup Htable */
-			Configuration hbConf = HBaseConfiguration.create();
+			//Configuration hbConf = HBaseConfiguration.create();
+			Configuration hbConf = conf;
 			geoMetaTable = new GeoMetaTableSchema();
 			try {
 				table = geoMetaTable.openTable(hbConf, true);

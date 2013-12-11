@@ -97,7 +97,8 @@ public class BatchRawRemoveOverlapping extends PerFile {
 			//}	
 			
 			/* Setup Htable */
-			Configuration hbConf = HBaseConfiguration.create();
+			//Configuration hbConf = HBaseConfiguration.create();
+			Configuration hbConf = conf;
 			GeoMetaTableSchema metaTableSchema = new GeoMetaTableSchema();
 			try {
 				metaTable = metaTableSchema.openTable(hbConf, true);

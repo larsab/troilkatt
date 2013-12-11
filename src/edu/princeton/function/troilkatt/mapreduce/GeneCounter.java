@@ -232,7 +232,7 @@ public class GeneCounter extends TroilkattMapReduce {
 		}
 		
 		if (parseArgs(conf, remainingArgs) == false) {			
-			System.err.println("Inavlid arguments " + cargs);
+			System.err.println("Inavlid arguments: " + cargs);
 			return -1;
 		}			
 		

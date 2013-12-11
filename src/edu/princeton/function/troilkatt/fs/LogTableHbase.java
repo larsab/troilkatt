@@ -2,10 +2,10 @@ package edu.princeton.function.troilkatt.fs;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.NavigableMap;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
@@ -67,12 +67,22 @@ public class LogTableHbase extends LogTable {
 	 * Note! creating a Hbase Table is expensive, so it should only be done once. In addition,
 	 * there should be one instance per thread.
 	 * 
+	 * @param pipelineName table name
+	 * @param conf initialized HBase configuration object
+	 * 
 	 * @throws PipelineException 
 	 * 
 	 */
-	public LogTableHbase(String pipelineName) throws PipelineException {	
+	public LogTableHbase(String pipelineName, Configuration hbc) throws PipelineException {	
 		super(pipelineName);
-		hbConfig = HBaseConfiguration.create();;
+		//hbConfig = HBaseConfiguration.create();;
+		hbConfig = hbc;
+		
+		System.err.println("Here!");
+		Iterator it = hbConfig.iterator();
+	    while (it.hasNext()) {
+	    	System.err.println(it.next());
+	    }
 		
 		try {
 			table = schema.openTable(hbConfig, true);

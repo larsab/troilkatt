@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -35,7 +34,7 @@ import edu.princeton.function.troilkatt.utils.Utils;
  * Use PerFile as super-class for MapReduce programs that needs to process one file 
  * at a time.
  */
-public class TroilkattMapReduce {			
+public class TroilkattMapReduce  {			
 	protected static Logger jobLogger;
 	
 	/*
@@ -579,20 +578,20 @@ public class TroilkattMapReduce {
 	 * 
 	 * @return Hadoop configuration object with all Hbase entries added
 	 */
-	public static Configuration getMergedConfiguration() {
-		Configuration hbConf = HBaseConfiguration.create();
-		Configuration conf = new Configuration();
-		
-		Iterator<Entry<String, String>> it = hbConf.iterator();
-		while (it.hasNext()) {
-			Entry<String, String> entry = it.next();
-			String key = entry.getKey();
-			String value = entry.getValue();
-			conf.set(key, value);
-		}
-		
-		return conf;
-	}
+	//public static Configuration getMergedConfiguration() {
+	//	Configuration hbConf = HBaseConfiguration.create();
+	//	Configuration conf = new Configuration();
+	//	
+	//	Iterator<Entry<String, String>> it = hbConf.iterator();
+	//	while (it.hasNext()) {
+	//		Entry<String, String> entry = it.next();
+	//		String key = entry.getKey();
+	//		String value = entry.getValue();
+	//		conf.set(key, value);
+	//	}
+	//	
+	//	return conf;
+	//}
 	
 	/**
 	 * Replace TROILKATT. substrings with per process variables.
@@ -629,5 +628,5 @@ public class TroilkattMapReduce {
 		newStr = Stage.setCommonTroilkattSymbols(newStr, prop, log);
 
 		return newStr;
-	}	  
+	} 
 }
