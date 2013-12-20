@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -165,7 +166,9 @@ public class HbaseAsciiExport {
 	 * @throws Exception When running the job fails.
 	 */
 	public static void main(String[] args) throws Exception {
-		Configuration conf = TroilkattMapReduce.getMergedConfiguration();
+		Configuration conf = new Configuration();
+		HBaseConfiguration.merge(conf, HBaseConfiguration.create()); // add Hbase configuration
+		
 		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 		if (otherArgs.length < 3) {
 			usage("Wrong number of arguments: " + otherArgs.length);

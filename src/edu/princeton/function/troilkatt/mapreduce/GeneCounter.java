@@ -1,10 +1,11 @@
 package edu.princeton.function.troilkatt.mapreduce;
 
 import java.io.IOException;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -12,7 +13,6 @@ import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import edu.princeton.function.troilkatt.PipelineException;
@@ -75,7 +75,7 @@ public class GeneCounter extends TroilkattMapReduce {
 			mapLogger = TroilkattMapReduce.getTaskLogger(conf);
 			
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {
 				mapLogger.fatal("Could not open log table: ", e);
 				throw new IOException("Could not create logTable object: " + e);
@@ -177,7 +177,7 @@ public class GeneCounter extends TroilkattMapReduce {
 			reduceLogger = TroilkattMapReduce.getTaskLogger(conf);
 			
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {
 				reduceLogger.fatal("Could not create logTable object: ", e);
 				throw new IOException("Could not create logTable object: " + e);
@@ -221,7 +221,9 @@ public class GeneCounter extends TroilkattMapReduce {
 	 * @throws StageException 
 	 */
 	public int run(String[] cargs) {
-		Configuration conf = new Configuration();		
+		Configuration conf = new Configuration();
+		HBaseConfiguration.merge(conf, HBaseConfiguration.create()); // add Hbase configuration
+		
 		String[] remainingArgs;
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();

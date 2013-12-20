@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
@@ -70,7 +71,7 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable object: ", e);
 			}
@@ -191,7 +192,7 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 			
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {
 				reduceLogger.fatal("Could not create logTable object: ", e);
 				throw new IOException("Could not create logTable object: " + e);
@@ -291,7 +292,8 @@ public class UpdateGSMTable extends TroilkattMapReduce {
 	 * @return 0 on success, -1 of failure
 	 */
 	public int run(String[] cargs) {				
-		Configuration conf = getMergedConfiguration();
+		Configuration conf = new Configuration();
+		HBaseConfiguration.merge(conf, HBaseConfiguration.create()); // add Hbase configuration
 		
 		String[] remainingArgs;
 		try {

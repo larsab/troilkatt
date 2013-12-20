@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
@@ -294,7 +295,9 @@ public class ExecuteStage extends PerFile {
 	 * @return 0 on success, -1 of failure
 	 */
 	public int run(String[] cargs)  {
-		Configuration conf = new Configuration();		
+		Configuration conf = new Configuration();
+		HBaseConfiguration.merge(conf, HBaseConfiguration.create()); // add Hbase configuration
+		
 		String[] remainingArgs;
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();

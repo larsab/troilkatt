@@ -2,11 +2,12 @@ package edu.princeton.function.troilkatt.mapreduce;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -81,7 +82,7 @@ public class UnitTest extends TroilkattMapReduce {
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable object: ", e);
 			}
@@ -244,7 +245,7 @@ public class UnitTest extends TroilkattMapReduce {
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable schema object: " + e);
 			}
@@ -490,7 +491,9 @@ public class UnitTest extends TroilkattMapReduce {
 	 */
 	public int run(String[] cargs) {
 		// Note! logger not set up yet
-		Configuration conf = new Configuration();		
+		Configuration conf = new Configuration();
+		HBaseConfiguration.merge(conf, HBaseConfiguration.create()); // add Hbase configuration
+		
 		String[] remainingArgs = null;;
 		try {
 			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();

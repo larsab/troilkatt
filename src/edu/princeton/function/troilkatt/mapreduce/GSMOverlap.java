@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
@@ -77,7 +78,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 			mapLogger = TroilkattMapReduce.getTaskLogger(conf);
 			
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {
 				mapLogger.fatal("Could not create logTable object: ", e);
 				throw new IOException("Could not create logTable object: " + e);
@@ -223,7 +224,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 			reduceLogger = TroilkattMapReduce.getTaskLogger(conf);
 			
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {				
 				throw new IOException("Could not create logTable object: " + e);
 			}
@@ -399,7 +400,8 @@ public class GSMOverlap extends TroilkattMapReduce {
 	 * @return 0 on success, -1 of failure
 	 */
 	public int run(String[] cargs) {		
-		Configuration conf = getMergedConfiguration();			
+		Configuration conf = new Configuration();
+		HBaseConfiguration.merge(conf, HBaseConfiguration.create()); // add Hbase configuration		
 		
 		String[] remainingArgs;
 		try {

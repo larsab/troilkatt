@@ -94,7 +94,7 @@ public class PerFile extends TroilkattMapReduce {
 			compressionFormat = TroilkattMapReduce.confEget(conf, "troilkatt.compression.format");
 			timestamp = Long.valueOf(TroilkattMapReduce.confEget(conf, "troilkatt.timestamp"));
 			try {
-				logTable = new LogTableHbase(pipelineName);
+				logTable = new LogTableHbase(pipelineName, conf);
 			} catch (PipelineException e) {
 				throw new IOException("Could not create logTable schema object: " + e);
 			}

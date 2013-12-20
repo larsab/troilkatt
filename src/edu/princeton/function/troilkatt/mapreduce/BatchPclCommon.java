@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
