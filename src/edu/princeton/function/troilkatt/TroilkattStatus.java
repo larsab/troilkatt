@@ -9,6 +9,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
 
 import edu.princeton.function.troilkatt.fs.OsPath;
@@ -285,12 +287,12 @@ public class TroilkattStatus {
 	}
 
 	/**
-	 * Main used for debugging
+	 * Mainly used for debugging
 	 * @throws IOException 
 	 * @throws TroilkattPropertiesException 
 	 */
 	public static void main(String[] args) throws IOException, TroilkattPropertiesException {		
-		TroilkattFS tfs = new TroilkattHDFS();
+		TroilkattFS tfs = new TroilkattHDFS(new Configuration());
 		TroilkattProperties troilkattProperties = new TroilkattProperties("/home/larsab/workspace/skarntyde/troilkatt2/conf/ice.xml");
 		troilkattProperties.set("troilkatt.localfs.dir", "/tmp");
 		TroilkattStatus status = new TroilkattStatus(tfs, troilkattProperties);

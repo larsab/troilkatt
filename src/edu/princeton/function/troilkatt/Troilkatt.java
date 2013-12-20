@@ -486,6 +486,7 @@ public class Troilkatt {
 					if (! OsPath.isdir(localTmpDir)) {
 						if (! OsPath.mkdir(localTmpDir)) {
 							logger.fatal("Could not create directory: " + localTmpDir);
+							inputStream.close();
 							throw new PipelineException("mkdir " + localTmpDir + " failed");
 						}
 					}
@@ -493,17 +494,20 @@ public class Troilkatt {
 					String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "logtar");
 					if (! OsPath.mkdir(localLogDir)) {
 						logger.fatal("Could not create directory: " + localLogDir);
+						inputStream.close();
 						throw new PipelineException("mkdir " + localLogDir + " failed");
 					}
 					String globalLogDir = OsPath.join(sgeDir, "logtar");
 					if (! OsPath.mkdir(globalLogDir)) {
 						logger.fatal("Could not create directory: " + globalLogDir);
+						inputStream.close();
 						throw new PipelineException("mkdir " + globalLogDir + " failed");
 					}
 					lt = new LogTableTar(name, tfs, globalLogDir, localLogDir, localTmpDir);
 				}
 				else {
 					logger.fatal("Invalid valid for persistent storage");
+					inputStream.close();
 					throw new PipelineException("Invalid valid for persistent storage");
 				}
 				

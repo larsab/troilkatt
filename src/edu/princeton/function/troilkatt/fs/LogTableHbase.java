@@ -2,7 +2,6 @@ package edu.princeton.function.troilkatt.fs;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.NavigableMap;
 
 import org.apache.hadoop.conf.Configuration;
@@ -77,12 +76,6 @@ public class LogTableHbase extends LogTable {
 		super(pipelineName);
 		//hbConfig = HBaseConfiguration.create();;
 		hbConfig = hbc;
-		
-		System.err.println("Here!");
-		Iterator it = hbConfig.iterator();
-	    while (it.hasNext()) {
-	    	System.err.println(it.next());
-	    }
 		
 		try {
 			table = schema.openTable(hbConfig, true);

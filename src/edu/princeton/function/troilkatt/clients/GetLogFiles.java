@@ -2,6 +2,8 @@ package edu.princeton.function.troilkatt.clients;
 
 import java.util.HashMap;
 
+import org.apache.hadoop.hbase.HBaseConfiguration;
+
 import edu.princeton.function.troilkatt.PipelineException;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.LogTable;
@@ -134,7 +136,7 @@ protected static final String clientName = "GetLogFiles";
 		try {
 			String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 			if (persistentStorage.equals("hadoop")) {
-				lth = new LogTableHbase(pipelineName);
+				lth = new LogTableHbase(pipelineName, HBaseConfiguration.create());
 				lt = lth;
 			}
 			else if (persistentStorage.equals("nfs")) {

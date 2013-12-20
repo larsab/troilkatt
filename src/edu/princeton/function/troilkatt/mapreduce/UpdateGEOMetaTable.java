@@ -249,7 +249,7 @@ public class UpdateGEOMetaTable extends PerFile {
 	 */
 	public int run(String[] cargs) {		
 		Configuration conf = new Configuration();
-		Configuration hbConf = HBaseConfiguration.create();
+		HBaseConfiguration.merge(conf, HBaseConfiguration.create()); // add Hbase configuration
 		
 		String[] remainingArgs;
 		try {
@@ -279,7 +279,7 @@ public class UpdateGEOMetaTable extends PerFile {
 		GeoMetaTableSchema geoMetaTable = new GeoMetaTableSchema();			
 		try {
 			// Create the table if it does not already exist
-			geoMetaTable.openTable(hbConf, true);
+			geoMetaTable.openTable(conf, true);
 		} catch (HbaseException e1) {
 			jobLogger.fatal("Could not open Hbase table: ", e1);
 			return -1;

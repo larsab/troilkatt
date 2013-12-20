@@ -43,9 +43,9 @@ public class LogTableTar extends LogTable {
 	/**
 	 * Constructor.
 	 * 
+	 * @param pipelineName pipeline name that is used to name to tar
 	 * @param tfs TroilkattFS handle
 	 * @param logRooteDir root directory on NFS for log files. This is where log files will be put).
-	 * @param pipelineName
 	 * @param logDir logfile directory to be used by this class
 	 * @param tmpDir directory for temporary files needed while saving packing log files
 	 * 

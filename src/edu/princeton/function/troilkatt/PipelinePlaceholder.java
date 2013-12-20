@@ -5,7 +5,6 @@ package edu.princeton.function.troilkatt;
 
 import java.io.IOException;
 
-import edu.princeton.function.troilkatt.fs.LogTable;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
 
 /**
@@ -16,8 +15,8 @@ public class PipelinePlaceholder extends Pipeline {
 
 	public PipelinePlaceholder(String name,
 			TroilkattProperties troilkattProperties, 
-			TroilkattFS tfs, LogTable lt) throws PipelineException, TroilkattPropertiesException {
-		super(name, troilkattProperties, tfs, lt);		
+			TroilkattFS tfs) throws PipelineException, TroilkattPropertiesException {
+		super(name, troilkattProperties, tfs, null);		
 	}
 
 	/**

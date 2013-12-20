@@ -1,12 +1,9 @@
 package edu.princeton.function.troilkatt;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,7 +16,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import edu.princeton.function.troilkatt.fs.LogTable;
-import edu.princeton.function.troilkatt.fs.LogTableTar;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
 import edu.princeton.function.troilkatt.pipeline.Stage;

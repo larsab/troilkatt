@@ -127,7 +127,7 @@ public class ExecuteStage {
 		
 		/* Setup TFS/ NFS */		
 		tfs = new TroilkattNFS();
-					
+		
 		try {
 			PipelinePlaceholder pipeline = new PipelinePlaceholder(pipelineName, 
 				troilkattProperties, tfs);
@@ -294,7 +294,7 @@ public class ExecuteStage {
 	/**
 	 * Arguments: [0] sgeArgsFilename
 	 *            [1] task number
-	 *            [2] jobID
+	 *            [2] jobID
 	 */
 	public static void main(String[] args) {		
 		if (args.length < 3) {

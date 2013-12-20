@@ -3,10 +3,13 @@ package edu.princeton.function.troilkatt.clients;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.apache.hadoop.hbase.HBaseConfiguration;
+
 import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.PipelineException;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
 import edu.princeton.function.troilkatt.pipeline.MapReduce;
@@ -220,7 +223,9 @@ public class ExecuteMapReduceJob extends TroilkattClient {
 		// dummy pipeline
 		Pipeline pipeline = null;
 		try {
-			pipeline = new Pipeline(args.get("pipelineName"), troilkattProperties, tfs);
+			String pipelineName = args.get("pipelineName");
+			LogTableHbase lt = new LogTableHbase(pipelineName, HBaseConfiguration.create());
+			pipeline = new Pipeline(pipelineName, troilkattProperties, tfs, lt);
 		} catch (PipelineException e) {
 			logger.fatal("Could not create dummy pipeline: ", e);
 			System.exit(1);
