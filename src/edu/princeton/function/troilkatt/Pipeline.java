@@ -179,7 +179,13 @@ public class Pipeline {
 					continue;
 				}
 				status.setStatus(s.stageName, timestamp, "start");
-				inputFiles = s.process2(inputFiles, timestamp);			
+				
+				// GeStore (alternative 1): check which input files have been changed
+				
+				inputFiles = s.process2(inputFiles, timestamp);
+				
+				// GeStore (alternative 1): merge output files
+				
 				status.setStatus(s.stageName, timestamp, "done");
 				
 				logger.info("Processed: " + inputFiles.size());

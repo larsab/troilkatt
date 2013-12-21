@@ -39,7 +39,7 @@ public class TroilkattHDFSTest extends TestSuper {
 	public void setUp() throws Exception {		
 		hdfs = FileSystem.get(new Configuration());
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));				
-		tfs = new TroilkattHDFS();
+		tfs = new TroilkattHDFS(new Configuration());
 		
 		OsPath.deleteAll(tmpDir);
 		OsPath.mkdir(tmpDir);

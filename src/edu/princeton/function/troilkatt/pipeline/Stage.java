@@ -226,9 +226,15 @@ public class Stage {
 
 		// Download input and meta files
 		ArrayList<String> inputFiles = downloadInputFiles(inputTFSFiles);
+		
+		// GeStore (alternative 2): check input files before sending to process
+		
+		
 		logger.debug("Before downloadMetaFiles");		
 		ArrayList<String> metaFiles = downloadMetaFiles();
 
+		// GeStore (alternative 2): check meta files before sending to process
+		
 		ArrayList<String> logFiles = new ArrayList<String>();
 		
 		// Do processing		
@@ -241,6 +247,7 @@ public class Stage {
 			// Only save output and meta files if job succeeded
 			if (tfsOutputDir != null) {
 				logger.debug("Before saveOutputFiles");
+				// GeStore (alternative 2): merge output files before saving
 				tfsOutputFiles = saveOutputFiles(outputFiles, timestamp);
 			}
 			else { // no output files should be saved
