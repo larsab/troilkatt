@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -20,6 +21,7 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.StageException;
@@ -43,7 +45,8 @@ public class GeoGSEMirrorTest extends TestSuper {
 		TroilkattProperties troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());			
 		tfs = new TroilkattHDFS(hdfs);
-		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		LogTableHbase lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		String localRootDir = tmpDir;
 		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));

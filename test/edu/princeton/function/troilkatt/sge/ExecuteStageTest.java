@@ -19,6 +19,7 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableTar;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 import edu.princeton.function.troilkatt.pipeline.ExecutePerFileSGE;
@@ -28,6 +29,7 @@ import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 public class ExecuteStageTest extends TestSuperNFS {
 	protected static TroilkattNFS tfs;
+	protected static LogTableTar lt;
 	protected static Pipeline pipeline;	
 	protected static TroilkattProperties troilkattProperties;
 	protected static String nfsOutput;
@@ -70,7 +72,14 @@ public class ExecuteStageTest extends TestSuperNFS {
 		OsPath.mkdir(nfsStageMetaDir);
 
 		tfs = new TroilkattNFS();
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		
+		String pipelineName = "unitPipeline";
+		String sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");
+		String globalLogDir = OsPath.join(sgeDir, "logtar");
+		String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "logtar");
+		String localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), pipelineName);
+		lt = new LogTableTar(pipelineName, tfs, globalLogDir, localLogDir, localTmpDir);
+		pipeline = new Pipeline(pipelineName, troilkattProperties, tfs, lt);
 
 		nfsOutput = OsPath.join(outDir, "sgeOutput");
 		OsPath.mkdir(nfsOutput);

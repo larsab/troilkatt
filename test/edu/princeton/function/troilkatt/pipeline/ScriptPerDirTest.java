@@ -5,10 +5,11 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -21,6 +22,7 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 
@@ -28,6 +30,7 @@ public class ScriptPerDirTest extends TestSuper {
 	protected static TroilkattProperties troilkattProperties;				
 	protected static TroilkattHDFS tfs;
 	protected static Pipeline pipeline;
+	protected static LogTableHbase lt;
 	
 	protected static Logger testLogger;
 	protected static String cmd;
@@ -44,7 +47,8 @@ public class ScriptPerDirTest extends TestSuper {
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());			
 		tfs = new TroilkattHDFS(hdfs);
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		localRootDir = tmpDir;		
 		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));

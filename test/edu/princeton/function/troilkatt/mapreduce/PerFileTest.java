@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -19,6 +20,7 @@ import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TestSuper;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.MapReduce;
@@ -30,6 +32,7 @@ public class PerFileTest extends TestSuper {
 	protected static TroilkattProperties troilkattProperties;
 	protected static String hdfsOutput;
 	protected static Logger testLogger;
+	protected static LogTableHbase lt;
 	
 	protected static String testJar = "TROILKATT.JAR";
 	protected static String testClass = "edu.princeton.function.troilkatt.mapreduce.PerFileUnitTest";
@@ -52,7 +55,8 @@ public class PerFileTest extends TestSuper {
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
 		tfs = new TroilkattHDFS(hdfs);
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		localRootDir = tmpDir;
 		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),

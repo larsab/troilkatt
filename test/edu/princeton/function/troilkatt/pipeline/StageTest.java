@@ -5,10 +5,11 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -21,6 +22,7 @@ import edu.princeton.function.troilkatt.TestSuper;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.hbase.HbaseException;
@@ -29,6 +31,7 @@ public class StageTest extends TestSuper {
 		
 	protected static TroilkattProperties troilkattProperties;
 	protected static TroilkattHDFS tfs;
+	protected static LogTableHbase lt;
 	protected static Pipeline pipeline;	
 	protected static String hdfsRoot;
 	protected static Logger testLogger;
@@ -51,7 +54,8 @@ public class StageTest extends TestSuper {
 		tfs = new TroilkattHDFS(hdfs);
 		
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));	
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 					
 		localRootDir = tmpDir;
 		hdfsRoot = troilkattProperties.get("troilkatt.tfs.root.dir");
@@ -375,7 +379,7 @@ public class StageTest extends TestSuper {
 		assertTrue(stage.logTable.containsFile("003-unitStage", 101, "3.unknown"));
 		assertTrue(stage.logTable.containsFile("003-unitStage", 101, "4.log"));
 		assertFalse(stage.logTable.containsFile("003-unitStage", 101, "5.out"));
-		stage.logTable.schema.clearTable();
+		stage.logTable.schema.clearTable(HBaseConfiguration.create());
 	}
 	
 	@Test

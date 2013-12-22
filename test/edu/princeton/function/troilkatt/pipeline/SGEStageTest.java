@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -21,6 +22,7 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 import edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce;
@@ -28,6 +30,7 @@ import edu.princeton.function.troilkatt.mapreduce.TroilkattMapReduce;
 public class SGEStageTest extends TestSuperNFS {
 	protected static TroilkattNFS tfs;
 	protected static Pipeline pipeline;	
+	protected static LogTableHbase lt;
 	protected static TroilkattProperties troilkattProperties;
 	protected static String nfsOutput;
 	protected static Logger testLogger;
@@ -51,7 +54,8 @@ public class SGEStageTest extends TestSuperNFS {
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFileNFS));	
 
 		tfs = new TroilkattNFS();
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 
 		nfsOutput = OsPath.join(outDir, "sgeOutput");
 

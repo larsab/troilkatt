@@ -3,9 +3,9 @@ package edu.princeton.function.troilkatt.pipeline;
 import static org.junit.Assert.*;
 
 import org.apache.log4j.Logger;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -17,12 +17,14 @@ import edu.princeton.function.troilkatt.TestSuper;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 
 public class StageFactoryTest extends TestSuper {
 	protected TroilkattProperties troilkattProperties;						
 	protected TroilkattHDFS tfs;
+	protected static LogTableHbase lt;
 	protected Pipeline pipeline;
 	protected Logger testLogger;
 	
@@ -40,7 +42,8 @@ public class StageFactoryTest extends TestSuper {
 		FileSystem hdfs = FileSystem.get(new Configuration());			
 		tfs = new TroilkattHDFS(hdfs);
 		testLogger = Logger.getLogger("testLogger");
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 	}
 
 	@After

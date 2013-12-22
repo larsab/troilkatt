@@ -8,6 +8,7 @@ import java.util.Collections;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -26,6 +27,7 @@ import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 
 public class MapReduceStageTest extends TestSuper {
 	protected static TroilkattHDFS tfs;
+	protected static LogTableHbase lt;
 	protected static Pipeline pipeline;	
 	protected static TroilkattProperties troilkattProperties;
 	protected static String hdfsOutput;
@@ -52,7 +54,8 @@ public class MapReduceStageTest extends TestSuper {
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
 		tfs = new TroilkattHDFS(hdfs);
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		hdfsOutput = "test/mapreducestage/output";
 		

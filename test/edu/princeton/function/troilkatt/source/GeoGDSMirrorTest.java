@@ -7,12 +7,13 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -25,6 +26,7 @@ import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.StageException;
@@ -34,6 +36,7 @@ import edu.princeton.function.troilkatt.tools.FilenameUtils;
 public class GeoGDSMirrorTest extends TestSuper {
 	protected TroilkattProperties troilkattProperties;				
 	protected TroilkattHDFS tfs;
+	protected LogTableHbase lt;
 	protected Pipeline pipeline;
 	protected static Logger testLogger;
 	
@@ -56,7 +59,8 @@ public class GeoGDSMirrorTest extends TestSuper {
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());			
 		tfs = new TroilkattHDFS(hdfs);	
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		OsPath.mkdir(tmpDir);
 		OsPath.mkdir(logDir);

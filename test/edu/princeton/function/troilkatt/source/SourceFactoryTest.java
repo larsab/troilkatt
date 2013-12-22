@@ -3,10 +3,10 @@ package edu.princeton.function.troilkatt.source;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+
 import org.apache.log4j.Logger;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,13 +18,15 @@ import edu.princeton.function.troilkatt.TestSuper;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
-import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
+import edu.princeton.function.troilkatt.fs.TroilkattFS;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 
 public class SourceFactoryTest extends TestSuper {
 	protected TroilkattProperties troilkattProperties;						
-	protected TroilkattHDFS tfs;
+	protected TroilkattFS tfs;
+	protected LogTableHbase lt;
 	protected Pipeline pipeline;
 	protected Logger testLogger;
 	
@@ -38,12 +40,13 @@ public class SourceFactoryTest extends TestSuper {
 	}
 
 	@Before
-	public void setUp() throws Exception {		
-		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
-		FileSystem hdfs = FileSystem.get(new Configuration());			
-		tfs = new TroilkattHDFS(hdfs);
+	public void setUp() throws Exception {	
+		Troilkatt troilkatt = new Troilkatt();
+		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));				
+		tfs = troilkatt.setupTFS(troilkattProperties);
 		testLogger = Logger.getLogger("testLogger");
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 	}
 
 	@After

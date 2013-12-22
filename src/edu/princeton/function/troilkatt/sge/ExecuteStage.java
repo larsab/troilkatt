@@ -11,6 +11,7 @@ import edu.princeton.function.troilkatt.PipelineException;
 import edu.princeton.function.troilkatt.PipelinePlaceholder;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.fs.LogTableTar;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 // for some statics functions that check and parse key-entry values
@@ -128,9 +129,26 @@ public class ExecuteStage {
 		/* Setup TFS/ NFS */		
 		tfs = new TroilkattNFS();
 		
+		LogTableTar lt = null;
+		try {
+			String sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");
+			String globalLogDir = OsPath.join(sgeDir, "logtar");
+			String localLogDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.log.dir"), "logtar");
+			String localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), pipelineName);
+			// TODO: Make sure dirs exist?
+			
+			lt = new LogTableTar(pipelineName, tfs, globalLogDir, localLogDir, localTmpDir);
+		} catch (TroilkattPropertiesException e) {
+			logger.fatal("Could not read troilkatt property: ", e);				
+			throw new StageInitException("Could not read directories from properties file: " + e.getMessage());
+		} catch (PipelineException e) {
+			logger.fatal("Could not create LogTableTar object: ", e);
+			throw new StageInitException("Could not create LogTableTar" + e.getMessage());
+		}
+			
 		try {
 			PipelinePlaceholder pipeline = new PipelinePlaceholder(pipelineName, 
-				troilkattProperties, tfs);
+				troilkattProperties, tfs, lt);
 			stage = StageFactory.newStage(stageType,
 					stageNum,
 					taskStageName, 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -16,6 +17,7 @@ import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TestSuper;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.StageException;
@@ -34,7 +36,8 @@ public class NullSinkTest extends TestSuper {
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
 		TroilkattHDFS tfs = new TroilkattHDFS(hdfs);
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);	
+		LogTableHbase lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		localRootDir = tmpDir;		
 		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -26,6 +27,7 @@ import edu.princeton.function.troilkatt.TestSuper;
 import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.pipeline.MapReduce;
@@ -37,6 +39,7 @@ public class GeneCounterTest extends TestSuper {
 	protected static TroilkattProperties troilkattProperties;
 	protected static String hdfsOutput;
 	protected static Logger testLogger;
+	protected static LogTableHbase lt;
 	
 	protected static String testJar = "TROILKATT.JAR";
 	protected static String testClass = "edu.princeton.function.troilkatt.mapreduce.GeneCounter";
@@ -61,7 +64,8 @@ public class GeneCounterTest extends TestSuper {
 		Configuration hdfsConfig = new Configuration();
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
 		tfs = new TroilkattHDFS(hdfs);
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		localRootDir = tmpDir;
 		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -21,6 +22,7 @@ import edu.princeton.function.troilkatt.TroilkattProperties;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.TroilkattStatus;
 import edu.princeton.function.troilkatt.fs.FSUtils;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.hbase.GeoMetaTableSchema;
@@ -29,6 +31,7 @@ import edu.princeton.function.troilkatt.hbase.TroilkattTable;
 public class FindGSMOverlapTest extends TestSuper {
 	protected static TroilkattProperties troilkattProperties;				
 	protected static TroilkattHDFS tfs;
+	protected static LogTableHbase lt;
 	protected static Pipeline pipeline;
 	
 	protected static Logger testLogger;
@@ -48,7 +51,8 @@ public class FindGSMOverlapTest extends TestSuper {
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));		
 		FileSystem hdfs = FileSystem.get(new Configuration());			
 		tfs = new TroilkattHDFS(hdfs);
-		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs);
+		lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		localRootDir = tmpDir;		
 		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));
