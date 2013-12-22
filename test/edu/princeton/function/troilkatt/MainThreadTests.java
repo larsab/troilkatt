@@ -11,5 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	PipelineTest.class,
 	PipelinePlaceholderTest.class})
 public class MainThreadTests {
-	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.MainThreadTests");
+	}
 }

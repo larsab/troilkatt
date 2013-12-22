@@ -20,5 +20,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	ScriptPerFileTest.class,
 	SGEStageTest.class})
 public class PipelineTests {
-
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.pipeline.PipelineTests");
+	}
 }

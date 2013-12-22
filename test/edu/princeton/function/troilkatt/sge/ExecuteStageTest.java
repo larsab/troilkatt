@@ -193,4 +193,8 @@ public class ExecuteStageTest extends TestSuperNFS {
 		assertTrue(logFiles[0].endsWith("executePerFileTest.log"));
 		assertTrue(logFiles[1].endsWith("executePerFileTest.out"));
 	}
+	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.sge.ExecuteStageTest");
+	}
 }

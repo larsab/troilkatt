@@ -16,5 +16,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	UpdateGSMTableTest.class,
 	GSMOverlapTest.class})
 public class MapReduceTests {
-
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.mapreduce.MapReduceTests");
+	}
 }

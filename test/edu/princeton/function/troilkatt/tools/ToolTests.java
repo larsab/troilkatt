@@ -15,4 +15,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	Pcl2InfoTest.class })
 public class ToolTests {
 
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.tools.ToolTests");
+	}
 }

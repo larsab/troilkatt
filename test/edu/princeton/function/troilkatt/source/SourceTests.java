@@ -25,5 +25,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	OsCmdsSourceTest.class
 	})
 public class SourceTests {
-
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.source.SourceTests");
+	}
 }

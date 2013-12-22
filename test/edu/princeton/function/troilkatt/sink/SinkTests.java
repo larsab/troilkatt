@@ -13,5 +13,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	CopyToRemoteTest.class,
 	GlobalMetaTest.class})
 public class SinkTests {
-
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.sink.SinkTests");
+	}
 }

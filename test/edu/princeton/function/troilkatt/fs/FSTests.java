@@ -16,5 +16,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	LogTableHbaseTest.class,
 	LogTableTarTest.class,})
 public class FSTests {
-
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.fs.FSTests");
+	}
 }

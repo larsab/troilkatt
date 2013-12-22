@@ -10,5 +10,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	TroilkattTableTest.class,
 	GeoMetaTableTest.class})
 public class HbaseTests {
-
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.hbase.HbaseTests");
+	}
 }
