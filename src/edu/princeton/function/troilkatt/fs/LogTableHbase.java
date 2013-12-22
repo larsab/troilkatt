@@ -84,7 +84,6 @@ public class LogTableHbase extends LogTable {
 			throw new PipelineException("Could not open table: " + e2);
 		}
 	}
-	
 
 	/**
 	 * Destructor

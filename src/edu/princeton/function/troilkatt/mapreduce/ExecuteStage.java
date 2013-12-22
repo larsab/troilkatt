@@ -15,6 +15,8 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import edu.princeton.function.troilkatt.PipelineException;
 import edu.princeton.function.troilkatt.PipelinePlaceholder;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
+import edu.princeton.function.troilkatt.fs.LogTable;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.pipeline.ExecutePerFileMR;
 import edu.princeton.function.troilkatt.pipeline.ScriptPerFileMR;
@@ -125,8 +127,10 @@ public class ExecuteStage extends PerFile {
 
 			try {
 				String localRootDir = troilkattProperties.get("troilkatt.localfs.mapreduce.dir");
-				PipelinePlaceholder pipeline = new PipelinePlaceholder(confEget(conf, "troilkatt.pipeline.name"), 
-						troilkattProperties, tfs);
+				String pipelineName = confEget(conf, "troilkatt.pipeline.name");
+				LogTable lt = new LogTableHbase(pipelineName, conf);
+				PipelinePlaceholder pipeline = new PipelinePlaceholder(pipelineName, 
+						troilkattProperties, tfs, lt);
 
 				String hdfsStageMetaDir = confEget(conf, "troilkatt.hdfs.meta.dir");
 				

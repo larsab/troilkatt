@@ -46,11 +46,6 @@ public class TableTest extends TestSuper {
 	}
 
 	@Test
-	public void testGetConfiguration() {
-		assertNotNull(TroilkattTable.getConfiguration());
-	}
-
-	@Test
 	public void testCreateTable() throws IOException, HbaseException {
 		createTable();
 	}
@@ -71,7 +66,6 @@ public class TableTest extends TestSuper {
 		table.colFams = new String[1];
 		table.colFams[0] = "fam";
 		
-		Configuration hbConf = TroilkattTable.getConfiguration();
 		table.openTable(hbConf, true);
 		
 		assertNotNull(table.table);
@@ -100,8 +94,7 @@ public class TableTest extends TestSuper {
 		table.colFams = new String[1];
 		table.colFams[0] = "fam";
 		
-		Configuration hbConf = TroilkattTable.getConfiguration();
-		table.openTable(hbConf, false);
+		table.openTable(HBaseConfiguration.create(), false);
 	}
 
 	@Test
@@ -109,7 +102,7 @@ public class TableTest extends TestSuper {
 		TroilkattTable table = createTable();
 		table.openTable(hbConf, false);
 		
-		table.deleteTable();
+		table.deleteTable(hbConf);
 		Thread.sleep(5000);
 		// Note! Test may fail since table delete can return before the table is actually deleted
 		assertFalse(hbAdm.isTableAvailable(tableName));
@@ -129,7 +122,7 @@ public class TableTest extends TestSuper {
 		get.addColumn(Bytes.toBytes("fam"), Bytes.toBytes("unitCol"));
 		assertTrue(table.table.exists(get));
 		
-		table.clearTable();
+		table.clearTable(hbConf);
 		assertTrue(hbAdm.isTableAvailable(tableName));
 		assertFalse(table.table.exists(get));
 	}

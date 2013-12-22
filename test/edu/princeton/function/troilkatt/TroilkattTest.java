@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.apache.hadoop.fs.Path;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -20,6 +20,8 @@ import org.junit.Test;
 
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.sink.NullSink;
+import edu.princeton.function.troilkatt.source.NullSource;
 import edu.princeton.function.troilkatt.utils.Utils;
 
 public class TroilkattTest extends TestSuper {
@@ -333,6 +335,64 @@ public class TroilkattTest extends TestSuper {
 		
 		dirs = troilkatt.listAllLeafDirs(tfs, OsPath.join(hdfsRoot, "not/a/subdir"));
 		assertEquals(0, dirs.size());
+	}
+
+	@Test
+	public void testOpenPipelines() throws PipelineException, TroilkattPropertiesException {
+		Troilkatt troilkatt = new Troilkatt();
+		TroilkattProperties troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
+		TroilkattFS tfs = troilkatt.setupTFS(troilkattProperties);
+		Logger testLogger = Logger.getLogger(TroilkattTest.class);
+		
+		String datasetFile = OsPath.join(dataDir, "unitDatasets");
+		ArrayList<Pipeline> l = troilkatt.openPipelines(datasetFile, troilkattProperties, tfs, testLogger);
+		assertEquals(2, l.size());
+		PipelineTest.verifyPipeline(l.get(0), troilkattProperties);
+		
+		// Verify second dataset
+		Pipeline p = l.get(1);
+		assertNotNull(p.source);
+		assertNotNull(p.sink);
+		assertEquals(0, p.pipeline.size());
+		
+		// Test source arguments
+		assertEquals("000-theSource", p.source.stageName);
+		assertEquals(NullSource.class, p.source.getClass());
+		assertEquals("arg1 arg2 arg3", p.source.args);
+		assertTrue(p.source.tfsOutputDir.endsWith("test/crawler-output"));
+		assertEquals("gz", p.source.compressionFormat);
+		assertEquals(-1, p.source.storageTime);
+		
+		// (No stages)
+				
+		// Test sink
+		assertEquals("001-theSink", p.sink.stageName);
+		assertEquals(NullSink.class, p.sink.getClass());
+		assertEquals("arg1", p.sink.args);
+	}
+	
+	// With invalid dataset
+	@Test(expected=PipelineException.class)
+	public void testOpenPipelines2() throws PipelineException, TroilkattPropertiesException {
+		Troilkatt troilkatt = new Troilkatt();
+		TroilkattProperties troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
+		TroilkattFS tfs = troilkatt.setupTFS(troilkattProperties);
+		Logger testLogger = Logger.getLogger(TroilkattTest.class);
+		
+		ArrayList<Pipeline> l = troilkatt.openPipelines("invalidDatasets1", troilkattProperties, tfs, testLogger);
+		assertFalse(3 == l.size());
+	}
+
+	// With invalid dataset name
+	@Test(expected=PipelineException.class)
+	public void testOpenPipelines3() throws PipelineException, TroilkattPropertiesException {
+		Troilkatt troilkatt = new Troilkatt();
+		TroilkattProperties troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
+		TroilkattFS tfs = troilkatt.setupTFS(troilkattProperties);
+		Logger testLogger = Logger.getLogger(TroilkattTest.class);
+		
+		ArrayList<Pipeline> l = troilkatt.openPipelines("invalidDatasets2", troilkattProperties, tfs, testLogger);
+		assertFalse(2 == l.size());
 	}
 	
 

@@ -31,14 +31,17 @@ import edu.princeton.function.troilkatt.pipeline.StageException;
  */
 public class LogTableHbaseTest extends TestSuper {
 	static final protected String tableName = "troilkatt-log-unitLogTable";
+	static protected Configuration hbConf;
+	
 	static protected HBaseAdmin hbAdm;
 	protected static Logger testLogger;
 	
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Configuration hbConf = HBaseConfiguration.create();
+		hbConf = HBaseConfiguration.create();
 		hbAdm = new HBaseAdmin(hbConf);
-		testLogger = Logger.getLogger("test");
+		testLogger = Logger.getLogger("test");		
 	}
 
 	@AfterClass
@@ -62,7 +65,7 @@ public class LogTableHbaseTest extends TestSuper {
 		}
 		assertFalse(hbAdm.isTableAvailable(tableName));
 		
-		LogTableHbase logTable = new LogTableHbase("unitLogTable");
+		LogTableHbase logTable = new LogTableHbase("unitLogTable", hbConf);
 		assertEquals(tableName, logTable.tableName);
 		assertNotNull(logTable.table);
 		assertNotNull(logTable.hbConfig);
@@ -74,10 +77,10 @@ public class LogTableHbaseTest extends TestSuper {
 
 	@Test
 	public void testDeleteTable() throws PipelineException, IOException, InterruptedException, HbaseException {
-		LogTableHbase logTable = new LogTableHbase("unitLogTable");
+		LogTableHbase logTable = new LogTableHbase("unitLogTable", hbConf);
 		assertTrue(hbAdm.isTableAvailable(tableName));
 		
-		logTable.schema.deleteTable();
+		logTable.schema.deleteTable(hbConf);
 		Thread.sleep(5000);
 		// Note! Test may fail since table delete can return before the table is actually deleted
 		assertFalse(hbAdm.isTableAvailable(tableName));
@@ -85,7 +88,7 @@ public class LogTableHbaseTest extends TestSuper {
 
 	@Test
 	public void testClearTable() throws PipelineException, IOException, HbaseException {
-		LogTableHbase logTable = new LogTableHbase("unitLogTable");
+		LogTableHbase logTable = new LogTableHbase("unitLogTable", hbConf);
 		assertTrue(hbAdm.isTableAvailable(tableName));
 		
 		String content = "unitValue";
@@ -98,16 +101,16 @@ public class LogTableHbaseTest extends TestSuper {
 		get.addColumn(Bytes.toBytes("log"), Bytes.toBytes("unitCol"));
 		assertTrue(logTable.table.exists(get));
 		
-		logTable.schema.clearTable();
+		logTable.schema.clearTable(hbConf);
 		assertTrue(hbAdm.isTableAvailable(tableName));
 		assertFalse(logTable.table.exists(get));
 	}
 
 	@Test
 	public void testContainsFile() throws PipelineException, IOException, StageException, HbaseException {
-		LogTableHbase logTable = new LogTableHbase("unitLogTable");
+		LogTableHbase logTable = new LogTableHbase("unitLogTable", hbConf);
 		// Note this line often causes the test to fail
-		logTable.schema.clearTable();
+		logTable.schema.clearTable(hbConf);
 		assertTrue(hbAdm.isTableAvailable(tableName));
 		
 		byte[] content = Bytes.toBytes("The content");
@@ -171,9 +174,9 @@ public class LogTableHbaseTest extends TestSuper {
 		OsPath.copy(OsPath.join(dataDir, "files/file2"), dstFile4);
 		logFiles.add(dstFile4);		
 		
-		LogTableHbase logTable = new LogTableHbase("unitLogTable");
+		LogTableHbase logTable = new LogTableHbase("unitLogTable", hbConf);
 		// Again a possible source of failure
-		logTable.schema.clearTable();
+		logTable.schema.clearTable(hbConf);
 		assertTrue(hbAdm.isTableAvailable(tableName));
 		
 		// This can fail due to the above clearTable()
@@ -217,7 +220,7 @@ public class LogTableHbaseTest extends TestSuper {
 		OsPath.copy(OsPath.join(dataDir, "files/file1"), dstFile1);
 		logFiles.add(dstFile1);
 		
-		LogTableHbase logTable = new LogTableHbase("unitLogTable");		
+		LogTableHbase logTable = new LogTableHbase("unitLogTable", hbConf);		
 		assertTrue(hbAdm.isTableAvailable(tableName));
 		
 		assertEquals(1, logTable.putLogFiles("004-unitTest", 713, logFiles));
@@ -226,7 +229,7 @@ public class LogTableHbaseTest extends TestSuper {
 	// Invalid output directory
 	@Test(expected=StageException.class)
 	public void testGetLogFiles2() throws PipelineException, IOException, StageException {		
-		LogTableHbase logTable = new LogTableHbase("unitLogTable");		
+		LogTableHbase logTable = new LogTableHbase("unitLogTable", hbConf);		
 		assertTrue(hbAdm.isTableAvailable(tableName));		
 		assertEquals(0, logTable.getLogFiles("004-unknown", 710, "/invalud/dir"));
 	}

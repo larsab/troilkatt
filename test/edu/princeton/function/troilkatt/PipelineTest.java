@@ -3,9 +3,9 @@ package edu.princeton.function.troilkatt;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import org.apache.log4j.Logger;
 
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -16,6 +16,7 @@ import edu.princeton.function.troilkatt.pipeline.NullStage;
 import edu.princeton.function.troilkatt.pipeline.StageInitException;
 import edu.princeton.function.troilkatt.sink.NullSink;
 import edu.princeton.function.troilkatt.source.NullSource;
+import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
 
@@ -34,6 +35,7 @@ public class PipelineTest extends TestSuper {
 	protected Troilkatt troilkatt;
 	protected TroilkattProperties troilkattProperties;
 	protected TroilkattFS tfs;
+	protected LogTableHbase lt;
 	
 	private String pipelineName = "pipelineTest";
 	
@@ -51,6 +53,7 @@ public class PipelineTest extends TestSuper {
 		troilkatt = new Troilkatt();
 		troilkattProperties = Troilkatt.getProperties(OsPath.join(dataDir, configurationFile));
 		tfs = troilkatt.setupTFS(troilkattProperties);
+		lt = new LogTableHbase(pipelineName, HBaseConfiguration.create());
 	}
 
 	@After
@@ -61,7 +64,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/test-pipeline.xml");
 		Pipeline p = new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs);
+				troilkattProperties, tfs, lt);
 		assertNotNull(p);
 		assertEquals(pipelineName, p.name);
 		assertEquals(troilkattProperties, p.troilkattProperties);		
@@ -73,14 +76,14 @@ public class PipelineTest extends TestSuper {
 		assertTrue(tfs.isdir(OsPath.join(hdfsRoot, "log/" + pipelineName)));
 		assertTrue(tfs.isdir(OsPath.join(hdfsRoot, "meta/" + pipelineName)));
 		assertTrue(tfs.isdir(OsPath.join(hdfsRoot, "global-meta")));		
-		verifyPipeline(p);
+		verifyPipeline(p, troilkattProperties);
 	}
 	
 	/**
 	 * Verify testPipeline object
 	 * @throws TroilkattPropertiesException 
 	 */
-	private void verifyPipeline(Pipeline p) throws TroilkattPropertiesException {
+	public static void verifyPipeline(Pipeline p, TroilkattProperties troilkattProperties) throws TroilkattPropertiesException {
 		assertNotNull(p.source);
 		assertNotNull(p.sink);
 		assertEquals(3, p.pipeline.size());
@@ -125,7 +128,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline2() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline1.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 	
 	// With invalid pipeline file
@@ -133,7 +136,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline3() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline2.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 	
 	// With invalid pipeline file
@@ -141,7 +144,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline4() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline3.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 	
 	// With invalid pipeline file
@@ -149,7 +152,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline5() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline4.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 	
 	// With invalid pipeline file
@@ -157,7 +160,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline6() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline5.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 	
 	// With invalid pipeline file
@@ -165,7 +168,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline7() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline6.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 		
 	// With valid pipeline file
@@ -173,7 +176,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline9() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/valid-pipeline1.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 
 	// With invalid pipeline file
@@ -181,7 +184,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline10() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline8.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 	
 	// With invalid pipeline file
@@ -189,7 +192,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline11() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline9.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 	
 	// With invalid pipeline file
@@ -197,7 +200,7 @@ public class PipelineTest extends TestSuper {
 	public void testPipeline12() throws IOException, PipelineException, TroilkattPropertiesException, StageInitException {		
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline10.xml");
 		assertNotNull( new Pipeline(pipelineName, pipelineFile, 
-				troilkattProperties, tfs) );
+				troilkattProperties, tfs, lt) );
 	}
 	
 	// Not unit tested
@@ -218,66 +221,24 @@ public class PipelineTest extends TestSuper {
 	@Test
 	public void testOpenPipeline() throws PipelineException, IOException, TroilkattPropertiesException {
 		String pipelineFile = OsPath.join(dataDir, "datasets/test-pipeline.xml");
-		Pipeline p = Pipeline.openPipeline(pipelineFile, troilkattProperties, tfs, testLogger);
-		verifyPipeline(p);
+		Pipeline p = Pipeline.openPipeline(pipelineFile, troilkattProperties, tfs, lt, testLogger);
+		verifyPipeline(p, troilkattProperties);
 	}
 	
 	// Invalid datasetname
 	@Test(expected=PipelineException.class)
 	public void testOpenPipeline2() throws PipelineException, IOException, TroilkattPropertiesException {
 		String pipelineFile = OsPath.join(dataDir, "datasets/test-pipeline");
-		Pipeline.openPipeline(pipelineFile, troilkattProperties, tfs, testLogger);
+		Pipeline.openPipeline(pipelineFile, troilkattProperties, tfs, lt, testLogger);
 	}
 	
 	// Invalid dataset
 	@Test(expected=PipelineException.class)
 	public void testOpenPipeline3() throws PipelineException, IOException, TroilkattPropertiesException {
 		String pipelineFile = OsPath.join(dataDir, "datasets/invalid-pipeline1.xml");
-		Pipeline.openPipeline(pipelineFile, troilkattProperties, tfs, testLogger);
+		Pipeline.openPipeline(pipelineFile, troilkattProperties, tfs, lt, testLogger);
 	}
 
-	@Test
-	public void testOpenPipelines() throws PipelineException, TroilkattPropertiesException {
-		String datasetFile = OsPath.join(dataDir, "unitDatasets");
-		ArrayList<Pipeline> l = Pipeline.openPipelines(datasetFile, troilkattProperties, tfs, testLogger);
-		assertEquals(2, l.size());
-		verifyPipeline(l.get(0));
-		
-		// Verify second dataset
-		Pipeline p = l.get(1);
-		assertNotNull(p.source);
-		assertNotNull(p.sink);
-		assertEquals(0, p.pipeline.size());
-		
-		// Test source arguments
-		assertEquals("000-theSource", p.source.stageName);
-		assertEquals(NullSource.class, p.source.getClass());
-		assertEquals("arg1 arg2 arg3", p.source.args);
-		assertTrue(p.source.tfsOutputDir.endsWith("test/crawler-output"));
-		assertEquals("gz", p.source.compressionFormat);
-		assertEquals(-1, p.source.storageTime);
-		
-		// (No stages)
-				
-		// Test sink
-		assertEquals("001-theSink", p.sink.stageName);
-		assertEquals(NullSink.class, p.sink.getClass());
-		assertEquals("arg1", p.sink.args);
-	}
-	
-	// With invalid dataset
-	@Test(expected=PipelineException.class)
-	public void testOpenPipelines2() throws PipelineException, TroilkattPropertiesException {
-		ArrayList<Pipeline> l = Pipeline.openPipelines("invalidDatasets1", troilkattProperties, tfs, testLogger);
-		assertFalse(3 == l.size());
-	}
-
-	// With invalid dataset name
-	@Test(expected=PipelineException.class)
-	public void testOpenPipelines3() throws PipelineException, TroilkattPropertiesException {
-		ArrayList<Pipeline> l = Pipeline.openPipelines("invalidDatasets2", troilkattProperties, tfs, testLogger);
-		assertFalse(2 == l.size());
-	}
 	
 	// Not unit tested
 	//@Test

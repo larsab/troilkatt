@@ -461,15 +461,15 @@ public class Troilkatt {
 				/*
 				 * Find pipeline name
 				 */
-				String name;
+				String pipelineName;
 				try {
-					name = OsPath.basename(pipelineFile).split("\\.")[0];
+					pipelineName = OsPath.basename(pipelineFile).split("\\.")[0];
 				} catch (ArrayIndexOutOfBoundsException e) {
 					inputStream.close();
 					logger.fatal("Could not parse dataset name: " + pipelineFile, e);
 					throw new PipelineException("Pipeline name error: " + pipelineFile);
 				}
-				logger.info("Create pipeline: " + name);
+				logger.info("Create pipeline: " + pipelineName);
 					
 				/*
 				 * Create log table (per pipeline)
@@ -477,12 +477,12 @@ public class Troilkatt {
 				LogTable lt = null;
 				String persistentStorage = troilkattProperties.get("troilkatt.persistent.storage");
 				if (persistentStorage.equals("hadoop")) {
-					lt = new LogTableHbase(name, HBaseConfiguration.create());
+					lt = new LogTableHbase(pipelineName, HBaseConfiguration.create());
 				}
 				else if (persistentStorage.equals("nfs")) {
 					String sgeDir = troilkattProperties.get("troilkatt.globalfs.sge.dir");
 					
-					String localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), name);
+					String localTmpDir = OsPath.join(troilkattProperties.get("troilkatt.localfs.dir"), pipelineName);
 					if (! OsPath.isdir(localTmpDir)) {
 						if (! OsPath.mkdir(localTmpDir)) {
 							logger.fatal("Could not create directory: " + localTmpDir);
@@ -503,7 +503,7 @@ public class Troilkatt {
 						inputStream.close();
 						throw new PipelineException("mkdir " + globalLogDir + " failed");
 					}
-					lt = new LogTableTar(name, tfs, globalLogDir, localLogDir, localTmpDir);
+					lt = new LogTableTar(pipelineName, tfs, globalLogDir, localLogDir, localTmpDir);
 				}
 				else {
 					logger.fatal("Invalid valid for persistent storage");
@@ -513,7 +513,7 @@ public class Troilkatt {
 				
 				Pipeline p;
 				try {
-					p = new Pipeline(name,
+					p = new Pipeline(pipelineName,
 							pipelineFile,
 							troilkattProperties,
 							tfs, lt);
