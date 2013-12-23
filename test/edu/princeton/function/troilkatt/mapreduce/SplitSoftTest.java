@@ -64,8 +64,7 @@ public class SplitSoftTest extends TestSuper {
 		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				OsPath.join("meta", pipeline.name));
 		hdfsStageMetaDir = OsPath.join(hdfsPipelineMetaDir, String.format("%03d-%s", 5, "mapreduce-splittest"));
-		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");		
-		
+		hdfsStageTmpDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), "tmp");			
 		
 		hdfsOutput = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				"test/mapreduce/output");
@@ -114,7 +113,7 @@ public class SplitSoftTest extends TestSuper {
 	@Test
 	public void executeJob() throws StageException, IOException, TroilkattPropertiesException, StageInitException {	
 		MapReduce mrs = new MapReduce(5, "mapreduce-splittest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "none", 100, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);				
@@ -126,7 +125,7 @@ public class SplitSoftTest extends TestSuper {
 	@Test
 	public void executeJob2() throws StageException, IOException, TroilkattPropertiesException, StageInitException {		
 		MapReduce mrs = new MapReduce(5, "mapreduce-splittest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "none", 100, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);	
@@ -140,7 +139,7 @@ public class SplitSoftTest extends TestSuper {
 	@Test(expected=StageException.class)
 	public void executeJob3() throws StageException, IOException, TroilkattPropertiesException, StageInitException {		
 		MapReduce mrs = new MapReduce(5, "mapreduce-splittest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "none", 100, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);	
@@ -154,7 +153,7 @@ public class SplitSoftTest extends TestSuper {
 	@Test
 	public void executeJob4() throws StageException, IOException, TroilkattPropertiesException, StageInitException {		
 		MapReduce mrs = new MapReduce(5, "mapreduce-splittest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "none", 100, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);	

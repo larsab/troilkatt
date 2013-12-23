@@ -84,7 +84,7 @@ public class GeneCounterTest extends TestSuper {
 	@Before
 	public void setUp() throws Exception {
 		mrs = new MapReduce(stageNum, stageName, 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "none", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -219,4 +219,6 @@ public class GeneCounterTest extends TestSuper {
 		ArrayList<String> outputFiles = mrs.process2(inputFiles, 834);		
 		assertEquals(0, outputFiles.size());				
 	}
+	
+	//TODO: add tests for invalid VMem and Troilkatt sizes 
 }

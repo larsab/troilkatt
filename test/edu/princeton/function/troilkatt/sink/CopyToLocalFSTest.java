@@ -50,7 +50,7 @@ public class CopyToLocalFSTest extends TestSuper {
 		FileSystem hdfs = FileSystem.get(hdfsConfig);			
 		TroilkattHDFS tfs = new TroilkattHDFS(hdfs);
 		LogTableHbase lt = new LogTableHbase("unitPipeline", HBaseConfiguration.create());
-		Pipeline pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
+		pipeline = new Pipeline("unitPipeline", troilkattProperties, tfs, lt);
 		
 		localRootDir = tmpDir;		
 		String hdfsPipelineMetaDir = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"), OsPath.join("meta", pipeline.name));

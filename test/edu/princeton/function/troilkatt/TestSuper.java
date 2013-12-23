@@ -302,6 +302,8 @@ public class TestSuper {
 		// Set three consist of the invalid file file7.3.gz
 		hdfs.copyFromLocalFile(new Path(OsPath.join(dataDir, "files/invalid.5.gz")),
 				new Path(OsPath.join(nr, "invalid.5.gz")));
+		hdfs.copyFromLocalFile(new Path(OsPath.join(dataDir, "files/file1.3.zip")),
+				new Path(OsPath.join(nr, "file7.3.7z")));
 		// Set four consists of SOFT files
 		hdfs.copyFromLocalFile(new Path(OsPath.join(dataDir, "files/GSE8070_family.soft.6.gz")),
 				new Path(OsPath.join(nr, "GSE8070_family.soft.6.gz")));

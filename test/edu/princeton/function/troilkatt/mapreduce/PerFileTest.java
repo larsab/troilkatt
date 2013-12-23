@@ -75,7 +75,7 @@ public class PerFileTest extends TestSuper {
 	@Before
 	public void setUp() throws Exception {
 		mrs = new MapReduce(5, "mapreduce-perfiletest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -85,13 +85,15 @@ public class PerFileTest extends TestSuper {
 		inputFiles.add(OsPath.join(inputDir, "file2.1.gz"));
 		inputFiles.add(OsPath.join(inputDir, "file3.1.gz"));		
 		
-		pfm = new PerFile.PerFileMapper();	
+		pfm = new PerFile.PerFileMapper();
+		// Do manual setup
 		pfm.conf = new Configuration();
 		pfm.hdfs = FileSystem.get(pfm.conf);
 		pfm.tfs = new TroilkattHDFS(pfm.hdfs);
 		pfm.taskInputDir = tmpDir;
 		pfm.taskTmpDir = tmpDir;
 		pfm.taskLogDir = tmpDir;
+		pfm.mapLogger = testLogger;
 	}
 
 	@After
@@ -135,12 +137,13 @@ public class PerFileTest extends TestSuper {
 		firstLine = lr.readLine();
 		assertNotNull(firstLine);
 		assertTrue(firstLine.startsWith("10116\t24152"));
-		assertTrue(firstLine.endsWith("831"));			
+		assertTrue(firstLine.endsWith("831"));				
 	}
 	
 	// Invalid compression format
 	@Test
 	public void testOpenLineReader2() throws IOException {
+		// zip is an archive and cannot be read directly
 		BufferedReader lr = pfm.openBufferedReader(OsPath.join(inputDir, "file6.2.zip"));
 		assertNull(lr);		
 	}
@@ -167,10 +170,14 @@ public class PerFileTest extends TestSuper {
 	}
 	
 	// Invalid file
-	@Test
+	@Test(expected=IOException.class)
 	public void testOpenLineReader6() throws IOException {
 		BufferedReader lr = pfm.openBufferedReader(OsPath.join(inputDir, "invalid.5.gz"));
-		assertNull(lr);
-		//lr.readLine();		
+		assertNotNull(lr);
+		lr.readLine();		
+	}
+	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.mapreduce.PerFileTest");
 	}
 }

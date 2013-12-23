@@ -111,7 +111,7 @@ public class UpdateGEOMetaTableTest extends TestSuper {
 	@Test
 	public void executeJob() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
 		MapReduce mrs = new MapReduce(5, "mapreduce-metatest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				null, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);		
@@ -163,7 +163,7 @@ public class UpdateGEOMetaTableTest extends TestSuper {
 	@Test
 	public void executeJob2() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
 		MapReduce mrs = new MapReduce(5, "mapreduce-metatest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				null, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);				
@@ -189,7 +189,7 @@ public class UpdateGEOMetaTableTest extends TestSuper {
 	@Test
 	public void executeJob3() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
 		MapReduce mrs = new MapReduce(5, "mapreduce-metatest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				null, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);				
@@ -215,7 +215,7 @@ public class UpdateGEOMetaTableTest extends TestSuper {
 	@Test(expected=StageException.class)
 	public void executeJob4() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
 		MapReduce mrs = new MapReduce(5, "mapreduce-metatest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				null, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);				

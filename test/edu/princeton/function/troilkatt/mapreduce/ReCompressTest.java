@@ -89,7 +89,7 @@ public class ReCompressTest extends TestSuper {
 	@Test
 	public void executeJob() throws StageException, IOException, TroilkattPropertiesException, StageInitException {	
 		MapReduce mrs = new MapReduce(5, "mapreduce-compresstest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);				
@@ -97,7 +97,7 @@ public class ReCompressTest extends TestSuper {
 		checkOutputFiles(outputFiles, mrs.stageOutputDir, 841);
 		
 		mrs = new MapReduce(5, "mapreduce-compresstest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "bz2", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);		
@@ -105,7 +105,7 @@ public class ReCompressTest extends TestSuper {
 		checkOutputFiles(outputFiles, mrs.stageOutputDir, 842);
 		
 		mrs = new MapReduce(5, "mapreduce-compresstest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "none", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);		
@@ -117,7 +117,7 @@ public class ReCompressTest extends TestSuper {
 	@Test
 	public void executeJob2() throws StageException, IOException, TroilkattPropertiesException, StageInitException {		
 		MapReduce mrs = new MapReduce(5, "mapreduce-compresstest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -132,7 +132,7 @@ public class ReCompressTest extends TestSuper {
 	@Test(expected=StageException.class)
 	public void executeJob3() throws StageException, IOException, TroilkattPropertiesException, StageInitException {		
 		MapReduce mrs = new MapReduce(5, "mapreduce-compresstest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -147,7 +147,7 @@ public class ReCompressTest extends TestSuper {
 	@Test
 	public void executeJob4() throws StageException, IOException, TroilkattPropertiesException, StageInitException {		
 		MapReduce mrs = new MapReduce(5, "mapreduce-compresstest", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);

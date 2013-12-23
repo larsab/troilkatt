@@ -207,6 +207,17 @@ public class PerFile extends TroilkattMapReduce {
 		 * @return initialized BufferedReader, or null if the file could not be opened		
 		 */
 		public BufferedReader openBufferedReader(String inputFilename) {
+			
+			try {
+				if (! tfs.isfile(inputFilename)) {
+					mapLogger.warn("Not a file: " + inputFilename);
+					return null;
+				}
+			} catch (IOException e1) {
+				mapLogger.warn("Isfile check failed file: " + inputFilename);
+				return null;
+			}
+			
 			Path inputPath = new Path(inputFilename);
 			String basename = tfs.getFilenameName(inputFilename);			
 			String compression = tfs.getFilenameCompression(inputFilename);
