@@ -166,7 +166,7 @@ public class GSMOverlapTest extends TestSuper {
 		String hdfsOutput = OsPath.join(troilkattProperties.get("troilkatt.tfs.root.dir"),
 				"test/mapreduce/output");
 		MapReduce mrs = new MapReduce(9, "mapreduce-gsmoverlap", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "bz2", 3, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);				
@@ -176,4 +176,7 @@ public class GSMOverlapTest extends TestSuper {
 		assertTrue(outputFiles.size() > 0);
 	}
 		
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.mapreduce.GSMOverlapTest");
+	}
 }

@@ -119,7 +119,7 @@ public class UpdateGSMTableTest extends TestSuper {
 	@Test
 	public void executeJob() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
 		MapReduce mrs = new MapReduce(8, "mapreduce-gsmupdate", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "none", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);				
@@ -158,7 +158,7 @@ public class UpdateGSMTableTest extends TestSuper {
 	@Test
 	public void executeJob2() throws IOException, TroilkattPropertiesException, StageInitException, StageException {
 		MapReduce mrs = new MapReduce(8, "mapreduce-gsmupdate", 
-				testJar + " " + testClass,
+				testJar + " " + testClass + " 2048 4096",
 				hdfsOutput, "none", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);

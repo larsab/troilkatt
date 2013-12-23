@@ -73,7 +73,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			
-			String taskAttemptID = context.getTaskAttemptID().toString();
+			taskAttemptID = context.getTaskAttemptID().toString();
 			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
 			mapLogger = TroilkattMapReduce.getTaskLogger(conf);
 			
@@ -219,7 +219,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 			conf = context.getConfiguration();
 			String pipelineName = TroilkattMapReduce.confEget(conf, "troilkatt.pipeline.name");
 			
-			String taskAttemptID = context.getTaskAttemptID().toString();
+			taskAttemptID = context.getTaskAttemptID().toString();
 			taskLogDir = TroilkattMapReduce.getTaskLocalLogDir(context.getJobID().toString(), taskAttemptID);
 			reduceLogger = TroilkattMapReduce.getTaskLogger(conf);
 			
@@ -294,6 +294,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 			
 			for (String gid: overlappingSamples.keySet()) {
 				if (loadMeta(gid) == false) {
+					reduceLogger.fatal("Could not get GEO meta data for row: " + gid);
 					throw new IOException("Could not get GEO meta data for row: " + gid);
 				}
 				metaRowsRead.increment(1);
@@ -466,13 +467,13 @@ public class GSMOverlap extends TroilkattMapReduce {
 			return job.waitForCompletion(true) ? 0: -1;
 		} catch (InterruptedException e) {
 			jobLogger.fatal("Job exception failed: ", e);
-			return -1;
+			return -2;
 		} catch (ClassNotFoundException e) {
 			jobLogger.fatal("Job exception failed: ", e);
-			return -1;
+			return -3;
 		} catch (IOException e) {
 			jobLogger.fatal("Job exception failed: ", e);
-			return -1;
+			return -4;
 		}
 	}
 
