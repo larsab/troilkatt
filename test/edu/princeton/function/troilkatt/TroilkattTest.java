@@ -206,12 +206,14 @@ public class TroilkattTest extends TestSuper {
 	// HDFS & NFS
 	@Test
 	public void testSetupTFS() {
+		//TODO
 		assertTrue(false);
 	}
 	
 	// Invalid property
 	@Test
 	public void testSetupTFS2() {
+		//TODO
 		assertTrue(false);
 	}
 
@@ -286,6 +288,7 @@ public class TroilkattTest extends TestSuper {
 
 	@Test
 	public void createTroilkattDirs() {
+		//TODO
 		assertFalse(true);
 	}
 	

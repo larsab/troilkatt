@@ -115,7 +115,7 @@ public class TroilkattStatusTest extends TestSuper {
 		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		// Test with a filename neither on local FS or remote FS
-		troilkattProperties.set("troilkatt.tfs.status.file", statusFilename + ".2");
+		troilkattProperties.set("troilkatt.tfs.status.file", hdfsStatusFilename + ".2");
 		s = new TroilkattStatus(tfs, troilkattProperties);
 	}
 	
@@ -140,7 +140,7 @@ public class TroilkattStatusTest extends TestSuper {
 		s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		// Test with a filename neither on local FS or remote FS
-		troilkattProperties.set("troilkatt.tfs.status.file", statusFilename + ".2");
+		troilkattProperties.set("troilkatt.tfs.status.file", hdfsStatusFilename + ".2");
 		s = new TroilkattStatus(tfs, troilkattProperties);
 	}
 	
@@ -266,7 +266,7 @@ public class TroilkattStatusTest extends TestSuper {
 
 	@Test
 	public void testSetStatus() throws IOException, TroilkattPropertiesException {
-		troilkattProperties.set("troilkatt.tfs.status.file", statusFilename + ".modified");
+		troilkattProperties.set("troilkatt.tfs.status.file", hdfsStatusFilename + ".modified");
 		TroilkattStatus s = new TroilkattStatus(tfs, troilkattProperties);
 		
 		s.setStatus("Troilkatt", 10, "start");

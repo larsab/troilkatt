@@ -10,7 +10,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	SinkFactoryTest.class,
 	NullSinkTest.class,
 	CopyToLocalFSTest.class, 
-	CopyToRemoteTest.class,
+	//CopyToRemoteTest.class,
 	GlobalMetaTest.class})
 public class SinkTests {
 	public static void main(String args[]) {
