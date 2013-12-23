@@ -139,7 +139,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 			}
 			
 			// Merge two lists and convert them to Text while at it
-			String[] gids = new String[gses.length + gdss.length];    // ids
+			String[] gids = new String[gses.length + gdss.length];        // ids
 			Text[] gidsWithGsm = new Text[gses.length + gdss.length]; // samples
 			for (int i = 0; i < gdss.length; i++) {				
 				gids[i] = gdss[i];
@@ -294,7 +294,7 @@ public class GSMOverlap extends TroilkattMapReduce {
 			
 			for (String gid: overlappingSamples.keySet()) {
 				if (loadMeta(gid) == false) {
-					reduceLogger.error("Could not get GEO meta data for row: " + gid);
+					reduceLogger.fatal("Could not get GEO meta data for row: " + gid);
 					throw new IOException("Could not get GEO meta data for row: " + gid);
 				}
 				metaRowsRead.increment(1);
@@ -360,14 +360,14 @@ public class GSMOverlap extends TroilkattMapReduce {
 			byte[] orgBytes = result.getValue(metaFam, Bytes.toBytes("organisms"));
 			if (orgBytes == null) {
 				reduceLogger.error("Null value for meta:organisms column in row: " + gid);
-				orgBytes = Bytes.toBytes("null");
+				return false;
 			}
 			String[] orgs = Bytes.toString(orgBytes).split("\n");
 			
 			byte[] dateBytes = result.getValue(metaFam, Bytes.toBytes("date"));
 			if (dateBytes == null) {
 				reduceLogger.error("Null value for meta:date column in row: " + gid);
-				dateBytes = Bytes.toBytes("null");
+				return false;
 			}
 			String date = Bytes.toString(dateBytes);
 			String meta = date + "\t" + orgs[0];

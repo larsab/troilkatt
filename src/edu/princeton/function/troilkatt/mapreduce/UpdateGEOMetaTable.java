@@ -147,9 +147,6 @@ public class UpdateGEOMetaTable extends PerFile {
 				return;
 			}
 			
-			/*
-			 * Parse file
-			 */
 			GeoSoftParser parser = null;
 			if (basename.startsWith("GDS")) {
 				parser = new GeoGDSParser();
@@ -162,7 +159,10 @@ public class UpdateGEOMetaTable extends PerFile {
 				unknownFiletypes.increment(1);
 				return;
 			}
-			
+				
+			/*
+			 * Parse file
+			 */
 			long lcnt = 0;
 			String line;
 			while ((line = lin.readLine()) != null) {				
