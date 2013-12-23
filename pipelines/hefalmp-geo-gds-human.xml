@@ -16,7 +16,7 @@
 	    <stage>
 			<name>remove_overlapping</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPCLRemoveOverlapping 4096 6096 TROILKATT.GLOBALMETA_DIR/geo-gds.excluded</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPCLRemoveOverlapping TROILKATT.GLOBALMETA_DIR/geo-gds.excluded</arguments>
 			<output-directory>hefalmp/gds/human/rmo</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>
@@ -25,7 +25,7 @@
 		<stage>
 			<name>missing_values</name>			
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMissingValues 4096 609650 3 50</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMissingValues 50 3 50</arguments>
 			<output-directory>hefalmp/gds/human/mv</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
@@ -34,7 +34,7 @@
 		<stage>
 			<name>log_transform</name>			
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclLogTransform 4096 6096</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclLogTransform</arguments>
 			<output-directory>hefalmp/gds/human/log</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
@@ -43,7 +43,7 @@
 		<stage>
 			<name>knnimpute</name>
 			<type>mapreduce_stage</type>
-			<arguments>execute_per_file 4096 6096 TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
+			<arguments>execute_per_file TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
 			<output-directory>hefalmp/gds/human/knn</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>		
@@ -53,7 +53,7 @@
 		<stage>
 			<name>map_genes</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMapGeneNames 4096 6096 TROILKATT.GLOBALMETA_DIR/genes/hefalmp/hsa.map</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMapGeneNames TROILKATT.GLOBALMETA_DIR/genes/hefalmp/hsa.map</arguments>
 			<output-directory>hefalmp/gds/human/map</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>			
@@ -63,7 +63,7 @@
 		<stage>
 			<name>average_duplicates</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMeanGenesThatAgree 4096 6096 0</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclMeanGenesThatAgree 0</arguments>
 			<output-directory>hefalmp/gds/human/avg</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>					
@@ -73,7 +73,7 @@
 		<stage>
 			<name>cleanup_consolidation</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclCleanupConsolidation 4096 6096</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPclCleanupConsolidation</arguments>
 			<output-directory>hefalmp/gds/human/final</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>									
