@@ -26,7 +26,7 @@
 	    <stage>
 			<name>soft2meta</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.UpdateGEOMetaTable</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.UpdateGEOMetaTable 2048 4096</arguments>
 			<output-directory>geo/gds/meta</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>7</storage-time>
@@ -36,7 +36,7 @@
 		<stage>
 			<name>meta2gsm</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.UpdateGSMTable</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.UpdateGSMTable 2048 4096</arguments>
 			<output-directory>geo/gds/gsm</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>7</storage-time>
@@ -46,7 +46,7 @@
 		<stage>
 			<name>gsm_overlap</name>
 			<type>mapreduce</type>
-			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.GSMOverlap</arguments>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.GSMOverlap 2048 4096</arguments>
 			<output-directory>geo/gds/gsm-overlap</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>-1</storage-time>
@@ -65,7 +65,7 @@
 	
 	<sink>
 		<name>geo_gds_meta_sink</name>
-		<type>global_meta</type>
+		<type>global_meta_sink</type>
 		<arguments></arguments>
 		<description>Copy overlap file to global-meta dir.</description>
 	</sink>
