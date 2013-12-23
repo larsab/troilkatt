@@ -42,7 +42,6 @@ public class GSMOverlap {
 		String serverAdr = args[0];
 		int serverPort = Integer.valueOf(args[1]);
 		
-		
 		gid2meta = new HashMap<String, String>();
 		gid2nSamples = new HashMap<String, Integer>();
 		
