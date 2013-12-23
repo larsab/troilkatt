@@ -44,7 +44,7 @@ public class SGEStage extends Stage {
 	protected int sgePESlots;
 	
 	// Memory allocated for task specific stripped down troilkatt process
-	// Note! This value should inclide 1GB that is reserved for the binary, stack, ...
+	// Note! This value should include 1GB that is reserved for the binary, stack, ...
 	protected static final int troilkattVMSize = 3096; // in MB
 	
 	/**

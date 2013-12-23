@@ -397,8 +397,9 @@ public class Stage {
 				localFiles.add(ln);
 			}
 			
-			if ((++counter)%10 == 0)
+			if ((++counter)%10 == 0) {
 				logger.info("Uncompressed: "+counter+" files [" + counter*100/total+" %]");
+			}
 		}
 		return localFiles;
 	}
@@ -535,6 +536,7 @@ public class Stage {
 			else {
 				if (OsPath.deleteAll(d) == false) {
 					logger.warn("Could not delete directory: " + d);
+					//Should be handled by stages: 
 					throw new StageException("Cleanup failed: could not delete directory: " + d);
 				}
 			}

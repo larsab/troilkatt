@@ -9,7 +9,6 @@ import org.apache.log4j.Level;
 
 import edu.princeton.function.troilkatt.Pipeline;
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
-
 import edu.princeton.function.troilkatt.fs.OsPath;
 
 /** 
@@ -287,6 +286,10 @@ public class MapReduce extends Stage {
 		// Create arguments file for MapReduce Job-task
 		writeMapReduceArgsFile(inputFiles, hdfsTmpOutputDir, timestamp);
 		
+		// DEBUG
+		//System.out.println("MapReduce cmd = " + mapReduceCmd);
+		//System.exit(0);
+		
 		// Redirect output and execute MapReduce job
 		String outputLogfile = OsPath.join(stageLogDir, "mapreduce.output");
 		String errorLogfile = OsPath.join(stageLogDir, "mapreduce.error");
@@ -308,6 +311,10 @@ public class MapReduce extends Stage {
 		updateMetaFiles(metaFiles);		
 		
 		return outputFiles;
+	}
+	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.pipeline.MapReduceTest");
 	}
 }
         

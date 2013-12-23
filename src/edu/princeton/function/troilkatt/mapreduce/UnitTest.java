@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -15,14 +14,11 @@ import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import edu.princeton.function.troilkatt.PipelineException;
-import edu.princeton.function.troilkatt.Troilkatt;
 import edu.princeton.function.troilkatt.fs.FSUtils;
 import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.OsPath;
@@ -389,97 +385,6 @@ public class UnitTest extends TroilkattMapReduce {
 	}
 
 	/**
-	 * Alternative run method that can be used without the Troilkatt arguments
-	 * 
-	 * @param cargs command line arguments, which are: hdfsInputDir hdfsOutputDir log4j.properties word1 word2...
-	 * @return 0 on success, -1 of failure
-	 */
-	public int run2(String[] cargs) {
-		Configuration conf = new Configuration();		
-		String[] remainingArgs = null;;
-		try {
-			remainingArgs = new GenericOptionsParser(conf, cargs).getRemainingArgs();
-		} catch (IOException e2) {
-			e2.printStackTrace();
-			System.err.println("Could not parse arguments: IOException: " + e2);
-			return -1;
-		}
-
-		/* Check input arguments */
-		if (remainingArgs.length <= 4) {
-			System.err.println("At least four arguments are required (inputDir outputDir logDir word1)");
-			return -1;
-		}
-
-		String inputDir = remainingArgs[0];
-		String outputDir = remainingArgs[1];
-		String logProperties = remainingArgs[2];
-		loggingLevel = "finest";
-		String[] inputWords = new String[remainingArgs.length - 3];
-		String stageArgs = null;
-		for (int i = 0; i < inputWords.length; i++) {
-			inputWords[i] = remainingArgs[3 + i].toLowerCase();
-			if (i == 0) {
-				stageArgs = inputWords[i];
-			}
-			else {
-				stageArgs = stageArgs + " " + inputWords[i];
-			}
-		}
-
-		Troilkatt.setupLogging(logProperties);		
-		progName = "unit-test";
-		jobLogger = Logger.getLogger("troilkatt." + progName + "-jobclient");
-
-		conf.set("troilkatt.stage.args", stageArgs);
-		System.out.println("stageArgs: " + stageArgs);
-
-
-		/* Setup job */		
-		Job job = null;
-		try {
-			job = Job.getInstance(conf, progName);
-			job.setJarByClass(UnitTest.class);
-
-			FileInputFormat.setInputPaths(job, new Path(inputDir));
-			FileOutputFormat.setOutputPath(job, new Path(outputDir));
-
-		} catch (IOException e) {
-			jobLogger.fatal("Job setup failed: ", e);
-			return -1;
-		}
-
-		/* Setup mapper */
-		job.setMapperClass(WordMatcherMapper.class);	    				
-
-		/* Setup reducer */		
-		job.setReducerClass(WordWritterReducer.class);		
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(IntWritable.class);
-
-		/* Setup multiple named output paths */
-		for (String y: inputWords) {
-			MultipleOutputs.addNamedOutput(job, y.trim().toLowerCase(), TextOutputFormat.class,
-					Text.class, LongWritable.class);
-		}
-
-		// Execute job and wait for completion
-		try {
-			return job.waitForCompletion(true) ? 0: -1;
-		} catch (InterruptedException e) {
-			jobLogger.fatal("Job execution failed: Interrupt exception: ", e);
-			return -1;
-		} catch (ClassNotFoundException e) {
-			jobLogger.fatal("Job execution failed: Class not found exception: ", e);
-			return -1;
-		} catch (IOException e) {
-			jobLogger.fatal("Job execution failed: IOException: ", e);
-			return -1;
-		}
-	}
-
-
-	/**
 	 * Create and execute the MapReduce job.
 	 * 
 	 * This program is run in the context of the "Troilkatt" user, while the mappers and reducers are run
@@ -658,8 +563,6 @@ public class UnitTest extends TroilkattMapReduce {
 
 		// For starting with Troilkatt
 		int exitCode = o.run(args);		
-		// For starting without Troilkatt
-		//int exitCode = o.run2(args);
 
 		// These lines go respectively to stage/log/mapreduce.output and stage/log/mapreduce.error
 		System.out.println("Output test: MapReduce job: System.out.println: after running MapReduce job");
@@ -667,5 +570,4 @@ public class UnitTest extends TroilkattMapReduce {
 
 		System.exit(exitCode);	    	    
 	}
-
 }

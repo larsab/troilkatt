@@ -114,6 +114,7 @@ public class ScriptPerDirTest extends TestSuper {
 	
 	@Test
 	public void testProcess() throws TroilkattPropertiesException, StageInitException, IOException, StageException {
+		System.err.println("cmd = " + cmd);
 		ScriptPerDir stage = new ScriptPerDir(5, "scriptPerDir", cmd,
 				"test/sciptPerDir", "gz", 10, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
@@ -198,5 +199,9 @@ public class ScriptPerDirTest extends TestSuper {
 		Collections.sort(logFiles);
 		assertTrue(logFiles.get(0).endsWith("scriptPerDirTest.err"));		
 		assertTrue(logFiles.get(1).endsWith("scriptPerDirTest.out"));
+	}
+	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.pipeline.ScriptPerDirTest");
 	}
 }

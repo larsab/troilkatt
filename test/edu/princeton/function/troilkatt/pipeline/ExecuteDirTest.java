@@ -106,6 +106,7 @@ public class ExecuteDirTest extends TestSuper {
 	
 	@Test
 	public void testProcess() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
+		System.out.println("cmd = " + cmd);
 		ExecuteDir stage = new ExecuteDir(5, "executeDir", cmd,
 				"test/executeDir", "gz", 10, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
@@ -137,33 +138,6 @@ public class ExecuteDirTest extends TestSuper {
 		Collections.sort(outputFiles);
 		assertTrue(outputFiles.get(0).endsWith("file1"));
 		assertTrue(outputFiles.get(1).endsWith("file2"));
-	}
-
-	// Invalid command
-	@Test
-	public void testProcess2I() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
-		String invalidCmd = "python " + OsPath.join(dataDir, "bin/executeDirTest.py") + " > TROILKATT.LOG_DIR/executeDirTest.out 2> TROILKATT.LOG_DIR/executeDirTest.log";
-		
-		ExecuteDir stage = new ExecuteDir(5, "executeDir", invalidCmd,
-				"test/executeDir", "gz", 10, 
-				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
-				pipeline);
-		
-		ArrayList<String> inputFiles = new ArrayList<String>();
-		ArrayList<String> metaFiles = new ArrayList<String>();
-		ArrayList<String> logFiles = new ArrayList<String>();
-		try {
-			stage.process(inputFiles, metaFiles, logFiles, 202);
-			fail("StageException should have been thrown");
-		} catch (StageException e) {
-			// expected
-		}
-		
-		// log files should still have been created
-		assertEquals(2, logFiles.size());
-		Collections.sort(logFiles);
-		assertTrue(logFiles.get(0).endsWith("executeDirTest.log"));
-		assertTrue(logFiles.get(1).endsWith("executeDirTest.out"));
 	}
 	
 	// Process 2
@@ -208,5 +182,36 @@ public class ExecuteDirTest extends TestSuper {
 		assertTrue(tfs.isfile(OsPath.join(stage.tfsOutputDir, "file6.202.gz")));
 		assertTrue(tfs.isfile(OsPath.join(stage.tfsMetaDir, "202.tar.gz")));
 		assertTrue(stage.logTable.containsFile(stage.stageName, 202, "executeDirTest.log"));	
+	}
+	
+	// Invalid command
+		@Test
+		public void testProcess2I() throws TroilkattPropertiesException, StageInitException, StageException, IOException {
+			String invalidCmd = "python " + OsPath.join(dataDir, "bin/executeDirTest.py") + " > TROILKATT.LOG_DIR/executeDirTest.out 2> TROILKATT.LOG_DIR/executeDirTest.log";
+			
+			ExecuteDir stage = new ExecuteDir(5, "executeDir", invalidCmd,
+					"test/executeDir", "gz", 10, 
+					localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+					pipeline);
+			
+			ArrayList<String> inputFiles = new ArrayList<String>();
+			ArrayList<String> metaFiles = new ArrayList<String>();
+			ArrayList<String> logFiles = new ArrayList<String>();
+			try {
+				stage.process(inputFiles, metaFiles, logFiles, 202);
+				fail("StageException should have been thrown");
+			} catch (StageException e) {
+				// expected
+			}
+			
+			// log files should still have been created
+			assertEquals(2, logFiles.size());
+			Collections.sort(logFiles);
+			assertTrue(logFiles.get(0).endsWith("executeDirTest.log"));
+			assertTrue(logFiles.get(1).endsWith("executeDirTest.out"));
+		}
+	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.pipeline.ExecuteDirTest");
 	}
 }

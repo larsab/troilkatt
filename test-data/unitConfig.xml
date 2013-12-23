@@ -179,7 +179,7 @@
 	
 	<property>
 		<name>troilkatt.libjars</name>
-		<value>/home/larsab/apps/hbase-ice/hbase.jar,/usr/share/java/commons-cli.jar,/home/larsab/apps/zookeeper-ice/zookeeper.jar,/usr/share/java/commons-logging.jar</value>
+		<value>/home/larsab/lib/java/commons-cli.jar,/home/larsab/lib/java/commons-logging.jar,/home/larsab/lib/java/commons-compress.jar,/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hbase/hbase.jar,/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/zookeeper/zookeeper.jar,/etc/hadoop/conf</value>
 		<description>
 
 			Jar files passed to the hadoop MapReduce startup script (-libjars). 
@@ -190,7 +190,7 @@
 	
 	<property>
 		<name>troilkatt.classpath</name>
-		<value>/home/larsab/troilkatt2/bin:/usr/share/java/log4j-1.2.jar:/usr/share/java/commons-compress.jar:/home/larsab/apps/hbase-ice/hbase.jar:/home/larsab/apps/hadoop-ice/hadoop-core.jar</value>
+		<value>/home/larsab/troilkatt2/bin:/home/larsab/lib/java/log4j-1.2.jar:/home/larsab/lib/java/commons-compress.jar:/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hadoop/hadoop-common.jar:/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hadoop-mapreduce/hadoop-mapreduce-client-core.jar:/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hbase/hbase.jar:/home/larsab/lib/java/mongo-java-driver.jar</value>
 		<description>
 
 			Classpath used by SGEStage for executing sge.ExecuteStage

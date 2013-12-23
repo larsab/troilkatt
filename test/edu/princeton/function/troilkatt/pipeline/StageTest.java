@@ -265,12 +265,12 @@ public class StageTest extends TestSuper {
 	}
 	
 	// Invalid file
-	@Test(expected=StageException.class)
+	@Test
 	public void testDownloadInputFiles2() throws IOException, StageException {
 		ArrayList<String> hdfsFiles = tfs.listdirR(OsPath.join(hdfsRoot, "data/test/input"));
 		hdfsFiles.add("/non/existing/file");
 		ArrayList<String> files = stage.downloadInputFiles(hdfsFiles);
-		assertNotNull(files);
+		assertEquals(6, files.size());
 	}
 
 	@Test
@@ -292,10 +292,11 @@ public class StageTest extends TestSuper {
 	
 	// Invalid meta-dir
 	// This test will fail with AssertionException (and not StageException) when HDFS run in pesudo mode
-	@Test(expected=StageException.class)
+	@Test
 	public void testDownloadMetaFiles2() throws StageException {
 		stage.tfsMetaDir = "/foo/bar";
-		assertNull(stage.downloadMetaFiles());
+		ArrayList<String> metaFiles = stage.downloadMetaFiles();
+		assertEquals(0, metaFiles.size());
 	}
 
 	@Test(expected=RuntimeException.class)

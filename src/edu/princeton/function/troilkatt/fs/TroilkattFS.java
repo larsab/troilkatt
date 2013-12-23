@@ -735,7 +735,7 @@ public class TroilkattFS {
 				//	fos.write(buffer, 0, n);
 				//	bytesRead += n;
 				//}
-				//fos.close();
+				fos.close();
 				dirContent.add(outputFilename);
 			}
 			ain.close();

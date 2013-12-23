@@ -88,8 +88,7 @@ public class GeneCounterTest extends TestSuper {
 				hdfsOutput, "none", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
-		
-		
+			
 		inputFiles = new ArrayList<String>();
 		inputFiles.add(OsPath.join(inputDir, "file1.1.gz"));
 		inputFiles.add(OsPath.join(inputDir, "file2.1.gz"));

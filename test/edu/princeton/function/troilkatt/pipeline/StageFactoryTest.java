@@ -111,7 +111,7 @@ public class StageFactoryTest extends TestSuper {
 		
 		stage = StageFactory.newStage("sge_stage", 
 				7, "factoryTest", 
-				"execute_per_file " + SGEStageTest.executeCmd,
+				"execute_per_file 1 4096 " + SGEStageTest.executeCmd,
 				"test/stage", "gz", 10, 
 				pipeline, testLogger);
 		assertEquals(SGEStage.class, stage.getClass());

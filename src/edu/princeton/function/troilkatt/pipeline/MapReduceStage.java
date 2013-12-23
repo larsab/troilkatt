@@ -38,6 +38,8 @@ public class MapReduceStage extends MapReduce {
 	 * @throws TroilkattPropertiesException 
 	 */
 	public void parseMapReduceArgs(String args) throws StageInitException, TroilkattPropertiesException {
+		System.err.println("args = " + args);
+		
 		String[] argsParts = args.split(" ");
         if (argsParts.length < 3) {
         	logger.fatal("Invalid arguments: " + args);

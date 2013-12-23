@@ -26,7 +26,7 @@ public class ScriptPerDir extends ExecuteDir {
 				pipeline);
 	
 		if (args.isEmpty()) {
-			logger.fatal("Troilkatt script to execute could not be parsed: " + args);
+			logger.fatal("Troilkatt script to execute is not specified: " + args);
 			throw new StageInitException("Troilkatt script to execute is not specified: " + args);
 		}		
 		String[] cmdParts = args.split(" ");

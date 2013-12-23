@@ -283,12 +283,8 @@ public class MapReduceTest extends TestSuper {
 		/* The logfiles are:
 		 * 1. mapreduce.error
 		 * 2. mapreduce.output
-		 * 3. tar.734.error (from writeMetaFile)
-		 * 4. tar.734.output (from writeMetaFile)
-		 * 5. tar.734.error (from downlaod metafile)
-		 * 6. tar.734.output (from download metafile)
 		 */
-		assertEquals(6, logFiles.size());	
+		assertEquals(2, logFiles.size());	
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.error", false));
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.output", false));
 	}
@@ -299,7 +295,7 @@ public class MapReduceTest extends TestSuper {
 		inputFiles.clear();
 		String inputDir = "troilkatt/data/test/mapreduce/input";		
 		inputFiles.add(OsPath.join(inputDir, "file5.2.bz2"));
-		inputFiles.add(OsPath.join(inputDir, "file6.2.zip"));
+		inputFiles.add(OsPath.join(inputDir, "file6.2.7z"));
 		
 		ArrayList<String> metaFiles = writeMetaFile(mrs, inputFiles, 732);
 		
@@ -312,7 +308,7 @@ public class MapReduceTest extends TestSuper {
 		}
 		
 		// Check logfiles
-		assertEquals(6, logFiles.size());	
+		assertEquals(2, logFiles.size());	
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.error", false));
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.output", false));
 	}
@@ -336,7 +332,7 @@ public class MapReduceTest extends TestSuper {
 		}
 		
 		// Check logfiles
-		assertEquals(6, logFiles.size());	
+		assertEquals(2, logFiles.size());	
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.error", false));
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.output", false));
 	}
@@ -353,7 +349,7 @@ public class MapReduceTest extends TestSuper {
 		ArrayList<String> outputFiles = mrs.process(inputFiles, metaFiles, logFiles, 734);
 		assertTrue(outputFiles.isEmpty());
 		// Check logfiles
-		assertEquals(6, logFiles.size());	
+		assertEquals(2, logFiles.size());	
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.error", false));
 		assertTrue(OsPath.fileInList(logFiles, "mapreduce.output", false));
 	}
@@ -440,21 +436,19 @@ public class MapReduceTest extends TestSuper {
 		assertTrue(reducers > 0);
 		
 		String[] mapperFiles = OsPath.listdir(aMapper);
-		assertEquals(7, mapperFiles.length);
+		assertEquals(5, mapperFiles.length);
 		assertTrue(OsPath.fileInList(mapperFiles, "stdout", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "stderr", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "syslog", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "foo.txt", false));
-		assertTrue(OsPath.fileInList(mapperFiles, "untar.735.tar.gz.error", false));
 		//assertTrue(OsPath.fileInList(mapperFiles, "5-mapreduce-unittest-task.log", false));
 		
 		String[] reducerFiles = OsPath.listdir(aReducer);
-		assertEquals(7, reducerFiles.length);
+		assertEquals(5, reducerFiles.length);
 		assertTrue(OsPath.fileInList(reducerFiles, "stdout", false));
 		assertTrue(OsPath.fileInList(reducerFiles, "stderr", false));
 		assertTrue(OsPath.fileInList(reducerFiles, "syslog", false));
 		assertTrue(OsPath.fileInList(reducerFiles, "foo.txt", false));
-		assertTrue(OsPath.fileInList(reducerFiles, "untar.735.tar.gz.error", false));
 		//assertTrue(OsPath.fileInList(reducerFiles, "5-mapreduce-unittest-task.log", false));
 	}
 	
@@ -485,5 +479,9 @@ public class MapReduceTest extends TestSuper {
 		mrs.saveMetaFiles(metaFiles, timestamp - 1);
 		OsPath.delete(metaFilename);
 		return metaFiles;
+	}
+	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.pipeline.MapReduceTest");
 	}
 }

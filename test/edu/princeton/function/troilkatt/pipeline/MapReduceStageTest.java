@@ -32,7 +32,7 @@ public class MapReduceStageTest extends TestSuper {
 	protected static TroilkattProperties troilkattProperties;
 	protected static String hdfsOutput;
 	protected static Logger testLogger;
-	public static String executeCmd = "/usr/bin/python " + OsPath.join(dataDir, "bin/executePerFileTest.py") + " TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.out TROILKATT.META_DIR/filelist > TROILKATT.LOG_DIR/executePerFileTest.out 2> TROILKATT.LOG_DIR/executePerFileTest.log";
+	public static String executeCmd;
 	
 	protected MapReduceStage mrs;
 	protected ArrayList<String> inputFiles;
@@ -46,6 +46,8 @@ public class MapReduceStageTest extends TestSuper {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		executeCmd = "/usr/bin/python " + OsPath.join(dataDir, "bin/executePerFileTest.py") + " TROILKATT.INPUT_DIR/TROILKATT.FILE TROILKATT.OUTPUT_DIR/TROILKATT.FILE_NOEXT.out TROILKATT.META_DIR/filelist > TROILKATT.LOG_DIR/executePerFileTest.out 2> TROILKATT.LOG_DIR/executePerFileTest.log";
+		
 		testLogger = Logger.getLogger("test");
 		TestSuper.initTestDir();
 		
@@ -73,7 +75,7 @@ public class MapReduceStageTest extends TestSuper {
 
 	@Before
 	public void setUp() throws Exception {
-		mrs = new MapReduceStage(stageNum, stageName, " execute_per_file 256 512 " + executeCmd,
+		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file 2048 4096 " + executeCmd,
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -99,7 +101,9 @@ public class MapReduceStageTest extends TestSuper {
 	@Test
 	public void testMapReduceStage() {
 		assertTrue(mrs.jarFile.endsWith("troilkatt.jar"));
-		assertTrue(mrs.stageArgs.contains("execute_per_file " + "/usr/bin/python " + OsPath.join(dataDir, "bin/executePerFileTest.py")));
+		System.out.println("stageArgs = " + mrs.stageArgs);
+		assertTrue(mrs.stageArgs.contains("/usr/bin/python"));
+		assertTrue(mrs.stageArgs.contains("bin/executePerFileTest.py"));
 		assertEquals("input.args", OsPath.basename(mrs.argsFilename));
 		assertNotNull(mrs.mapReduceCmd);
 	}
@@ -150,10 +154,11 @@ public class MapReduceStageTest extends TestSuper {
 		assertTrue(reducers == 0);
 		
 		String[] mapperFiles = OsPath.listdir(aMapper);
-		assertEquals(8, mapperFiles.length);
+		assertEquals(6, mapperFiles.length);
 		assertTrue(OsPath.fileInList(mapperFiles, "stdout", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "stderr", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "syslog", false));
+		assertTrue(OsPath.fileInList(mapperFiles, "log.index", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "executePerFileTest.log", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "executePerFileTest.out", false));
 	}
@@ -167,10 +172,19 @@ public class MapReduceStageTest extends TestSuper {
 				pipeline);
 	}
 	
+	// Invalid stage (missing maxVM): should be handled by constructor
+	@Test(expected=StageInitException.class)
+	public void testProcess2I5() throws IOException, StageException, TroilkattPropertiesException, StageInitException {
+		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file 4096 " + executeCmd,
+				hdfsOutput, "gz", -1, 
+				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
+				pipeline);
+	}
+	
 	// Invalid stage arguments: MapReduce job should return zero output files
 	@Test
 	public void testProcess2I2() throws IOException, StageException, TroilkattPropertiesException, StageInitException {
-		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file foo bar",
+		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file 2048 4096 foo bar",
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -209,7 +223,7 @@ public class MapReduceStageTest extends TestSuper {
 		assertTrue(reducers == 0);
 		
 		String[] mapperFiles = OsPath.listdir(aMapper);
-		assertEquals(8, mapperFiles.length);
+		assertEquals(6, mapperFiles.length);
 		assertTrue(OsPath.fileInList(mapperFiles, "stdout", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "stderr", false));
 		assertTrue(OsPath.fileInList(mapperFiles, "syslog", false));
@@ -220,7 +234,7 @@ public class MapReduceStageTest extends TestSuper {
 	// Invalid input file: Exception should be handled by MapReduce job	
 	@Test
 	public void testProcess2I3() throws IOException, StageException, TroilkattPropertiesException, StageInitException {
-		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file " + executeCmd,
+		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file 2048 4096 " + executeCmd,
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -237,7 +251,7 @@ public class MapReduceStageTest extends TestSuper {
 	// Non-existing input file: crashes job
 	@Test
 	public void testProcess2I4() throws IOException, StageException, TroilkattPropertiesException, StageInitException {
-		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file " + executeCmd,
+		mrs = new MapReduceStage(stageNum, stageName, "execute_per_file 2048 4096 " + executeCmd,
 				hdfsOutput, "gz", -1, 
 				localRootDir, hdfsStageMetaDir, hdfsStageTmpDir,
 				pipeline);
@@ -281,5 +295,7 @@ public class MapReduceStageTest extends TestSuper {
 		assertTrue(reducers == 0);		
 	}
 	
-	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.pipeline.MapReduceStageTest");
+	}
 }
