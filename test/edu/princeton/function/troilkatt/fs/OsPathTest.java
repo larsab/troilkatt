@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -332,9 +332,7 @@ public class OsPathTest extends TestSuper {
 	}
 
 	@Test
-	public void testListdir() throws IOException {
-		initTestDir();
-		
+	public void testListdir() throws IOException {		
 		String[] files = OsPath.listdir(OsPath.join(dataDir, "ls"), testLogger);
 		
 		assertNotNull(files);
@@ -378,8 +376,6 @@ public class OsPathTest extends TestSuper {
 
 	@Test
 	public void testListdirR() throws IOException {
-		initTestDir();
-		
 		String[] files = OsPath.listdirR(OsPath.join(dataDir, "ls"), testLogger);
 		
 		assertNotNull(files);
@@ -449,5 +445,9 @@ public class OsPathTest extends TestSuper {
 		assertFalse(OsPath.fileInList(array, "ba", false));
 		assertFalse(OsPath.fileInList(array, "sub1", false));
 		assertFalse(OsPath.fileInList(array, "sub1", true));
+	}
+	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.fs.OsPathTest");
 	}
 }

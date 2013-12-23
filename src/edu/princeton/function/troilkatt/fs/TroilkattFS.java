@@ -23,6 +23,7 @@ import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.log4j.Logger;
 
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
@@ -606,7 +607,8 @@ public class TroilkattFS {
 					 * Add entry and copy file data
 					 */
 					aos.putArchiveEntry(ar);					 					
-									
+					
+					// TODO: use IOUtils
 					int n = 0;
 					while (true) {
 						n = is.read(buffer);
@@ -679,7 +681,6 @@ public class TroilkattFS {
 				cin = new CompressorStreamFactory().createCompressorInputStream("bzip2", is);
 			}
 			else {
-				System.out.println("|" + compressionExtension + "|");
 				cin = new CompressorStreamFactory().createCompressorInputStream(compressionExtension, is);
 			}
 		} catch (CompressorException e) { // This is expected, for example for the "none" format
@@ -697,7 +698,7 @@ public class TroilkattFS {
 			try {
 				ain = new ArchiveStreamFactory().createArchiveInputStream(compression, is);
 			} catch (ArchiveException e) { // This is expected, for example for the "none" format
-				logger.warn("Unknown archive: " + archiveExtension);		
+				logger.warn("Unknown archive: " + compressionExtension);		
 			}
 		}
 		
@@ -706,13 +707,14 @@ public class TroilkattFS {
 			return null;
 		}
 		
-		final byte[] buffer = new byte[4096]; // use a 4KB buffer	
+		//final byte[] buffer = new byte[4096]; // use a 4KB buffer	
 		try {
 			while (true) { // for all files in archive
 				ArchiveEntry ae = ain.getNextEntry();					
 				if (ae == null) { // no more entries
 					break;
 				}				
+								
 				if (ae.isDirectory()) {
 					OsPath.mkdir(OsPath.join(dstDir, ae.getName()));
 					continue;
@@ -721,19 +723,22 @@ public class TroilkattFS {
 				// entry is for a file
 				String outputFilename = OsPath.join(dstDir, ae.getName());
 				FileOutputStream fos = new FileOutputStream(outputFilename);
-				long fileSize = ae.getSize();
-				long bytesRead = 0;
-				while (bytesRead < fileSize) {
-					int n = ain.read(buffer);
-					if (n == -1) { // EOF
-						break;
-					}
-					fos.write(buffer, 0, n);
-					bytesRead += n;
-				}
-				fos.close();
+				
+				IOUtils.copy(ain, fos);
+				//long fileSize = ae.getSize();
+				//long bytesRead = 0;
+				//while (bytesRead < fileSize) {
+				//	int n = ain.read(buffer);
+				//	if (n == -1) { // EOF
+				//		break;
+				//	}
+				//	fos.write(buffer, 0, n);
+				//	bytesRead += n;
+				//}
+				//fos.close();
 				dirContent.add(outputFilename);
 			}
+			ain.close();
 		} catch (IOException e1) {
 			logger.error("Could not unpack archive entry: ", e1);
 			try {
@@ -742,6 +747,14 @@ public class TroilkattFS {
 				logger.warn("Could not close archive in exception clause: ", e2);
 			}
 			return null;
+		}
+		
+		if (cin != null) {
+			try {
+				cin.close();
+			} catch (IOException e) {
+				logger.warn("Could not close compression stream: ", e);
+			}
 		}
 		
 		return dirContent;

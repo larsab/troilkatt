@@ -209,49 +209,62 @@ public class TroilkattFSTest extends TestSuper {
 		Collections.sort(files);		
 		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
 		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
-		
+	}
+	
+	@Test
+	public void testCompressUncompressDirectory2() throws IOException {
 		OsPath.delete(outDir);
 		OsPath.mkdir(outDir);
 		OsPath.copy(OsPath.join(dataDir, "files/file1"), OsPath.join(outDir, "file1"));
 		OsPath.copy(OsPath.join(dataDir, "files/file2"), OsPath.join(outDir, "file2"));
-		compressedDir = tfs.compressDirectory(outDir, OsPath.join(tmpDir, "output"), logDir, "tar.bz2");
+		String compressedDir = tfs.compressDirectory(outDir, OsPath.join(tmpDir, "output"), logDir, "tar.bz2");
 		assertNotNull(compressedDir);
 		assertTrue( OsPath.isfile(OsPath.join(tmpDir, "output.tar.bz2")) );
 		OsPath.delete(outDir);
 		OsPath.mkdir(outDir);
-		files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
+		ArrayList<String> files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
 		assertEquals(2, files.size());
 		Collections.sort(files);		
 		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
 		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
-		
+	}
+	
+	@Test
+	public void testCompressUncompressDirectory3() throws IOException {
 		OsPath.delete(outDir);
 		OsPath.mkdir(outDir);
 		OsPath.copy(OsPath.join(dataDir, "files/file1"), OsPath.join(outDir, "file1"));
 		OsPath.copy(OsPath.join(dataDir, "files/file2"), OsPath.join(outDir, "file2"));
-		compressedDir = tfs.compressDirectory(outDir, OsPath.join(tmpDir, "output"), logDir, "tar");
+		String compressedDir = tfs.compressDirectory(outDir, OsPath.join(tmpDir, "output"), logDir, "tar");
 		assertNotNull(compressedDir);
 		assertTrue( OsPath.isfile(OsPath.join(tmpDir, "output.tar")) );
 		OsPath.delete(outDir);
 		OsPath.mkdir(outDir);
-		files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
+		ArrayList<String> files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
 		assertEquals(2, files.size());
 		Collections.sort(files);		
 		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
 		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
-				
-		OsPath.delete(outDir);
-		OsPath.mkdir(outDir);
-		OsPath.copy(OsPath.join(dataDir, "files/file1"), OsPath.join(outDir, "file1"));
-		OsPath.copy(OsPath.join(dataDir, "files/file2"), OsPath.join(outDir, "file2"));
-		compressedDir = tfs.compressDirectory(outDir, OsPath.join(tmpDir, "output"), logDir, "zip");
+	}
+	
+	@Test
+	public void testCompressUncompressDirectory4() throws IOException, InterruptedException {
+		String myOutDir = OsPath.join(outDir, "4");
+		OsPath.delete(myOutDir);
+		OsPath.mkdir(myOutDir);
+		OsPath.copy(OsPath.join(dataDir, "files/file1"), OsPath.join(myOutDir, "file1"));
+		OsPath.copy(OsPath.join(dataDir, "files/file2"), OsPath.join(myOutDir, "file2"));
+		String compressedDir = tfs.compressDirectory(myOutDir, OsPath.join(tmpDir, "output"), logDir, "zip");
 		assertNotNull(compressedDir);
 		assertTrue( OsPath.isfile(OsPath.join(tmpDir, "output.zip")) );
-		OsPath.delete(outDir);
-		OsPath.mkdir(outDir);
-		files = tfs.uncompressDirectory(compressedDir, outDir, logDir);
+		OsPath.delete(myOutDir);
+		OsPath.mkdir(myOutDir);
+		ArrayList<String> files = tfs.uncompressDirectory(compressedDir, myOutDir, logDir);
 		assertEquals(2, files.size());
-		Collections.sort(files);		
+		Collections.sort(files);	
+		System.out.println(files.get(0));
+		System.out.println(files.get(1));
+		Thread.sleep(30000);
 		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
 		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));	
 	}
@@ -320,4 +333,7 @@ public class TroilkattFSTest extends TestSuper {
 	//	
 	//}
 	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.fs.TroilkattFSTest");
+	}
 }

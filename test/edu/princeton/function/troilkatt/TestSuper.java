@@ -36,7 +36,7 @@ public class TestSuper {
 	protected static final String logProperties = "log4j-unit.properties";
 	
 	// Test root dir in HDFS
-	public static String hdfsRoot = "/users/larsab/troilkatt/test/troilkattFS";
+	public static String hdfsRoot = "/user/larsab/troilkatt/test/troilkattFS";
 	
 	// Test root dir in NFS (or other POSIC system)
 	public static String nfsRoot = "/home/larsab/troilkatt/test/troilkattFS/";
@@ -66,6 +66,7 @@ public class TestSuper {
 				else {
 					ib1.close();
 					ib2.close();
+					System.err.println(str1 + " or " + str2 + " is null");
 					return false;
 				}
 			}
@@ -73,6 +74,7 @@ public class TestSuper {
 			if (str1.equals(str2) == false) {
 				ib1.close();
 				ib2.close();
+				System.err.println(str1 + " != " + str2);
 				return false;
 			}
 		}		
@@ -82,8 +84,9 @@ public class TestSuper {
 	 * Initialized HDFS test directories.
 	 * 
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public static void initTestDir() throws IOException {
+	public static void initTestDir() throws IOException, InterruptedException {
 		FileSystem hdfs = FileSystem.get(new Configuration());		
 		
 		OsPath.mkdir(OsPath.join(dataDir, "files"));

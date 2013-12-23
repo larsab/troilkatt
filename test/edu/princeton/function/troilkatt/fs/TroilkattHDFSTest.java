@@ -528,13 +528,12 @@ public class TroilkattHDFSTest extends TestSuper {
 	public void testGetDirFiles3() throws IOException {	
 		ArrayList<String> files = tfs.getDirFiles(OsPath.join(hdfsRoot, "compressed-dirs/3.zip"),
 				outDir, logDir, tmpDir);
-		assertNull(files);
-		//assertEquals(files.size(), 2);
-		//Collections.sort(files);
-		//assertTrue(files.get(0).endsWith(OsPath.join(outDir, "files/file1")));
-		//assertTrue(files.get(1).endsWith(OsPath.join(outDir, "files/file2")));
-		//assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
-		//assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
+		assertEquals(files.size(), 2);
+		Collections.sort(files);
+		assertTrue(files.get(0).endsWith(OsPath.join(outDir, "files/file1")));
+		assertTrue(files.get(1).endsWith(OsPath.join(outDir, "files/file2")));
+		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
+		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
 	}
 
 	@Test
@@ -560,7 +559,7 @@ public class TroilkattHDFSTest extends TestSuper {
 	// Invalid file
 	@Test
 	public void testGetDirFiles6() throws IOException {		
-		ArrayList<String> files = tfs.getDirFiles(OsPath.join(hdfsRoot, "compressed-dirs/5.zip"),
+		ArrayList<String> files = tfs.getDirFiles(OsPath.join(hdfsRoot, "compressed-dirs/invalid.zip"),
 				outDir, logDir, tmpDir);
 		assertNull(files);		
 	}
@@ -867,7 +866,8 @@ public class TroilkattHDFSTest extends TestSuper {
 		String houtDir = OsPath.join(hdfsRoot, "out");
 		hdfs.mkdirs(new Path(houtDir));
 		localFiles.clear();
-		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "tar", logDir, tmpDir) );
+		// Not an error
+		assertTrue( tfs.putLocalDirFiles(houtDir, 10, localFiles, "tar", logDir, tmpDir) );
 	}
 	
 	// Invalid compression
@@ -1209,5 +1209,9 @@ public class TroilkattHDFSTest extends TestSuper {
 		tfs.mkdir(OsPath.join(hdfsRoot, "tmp"));
 		hdfs.copyFromLocalFile(false, true, new Path(srcFile), new Path(OsPath.join(hdfsRoot, "tmp/empty")));		
 		assertEquals(0,tfs.fileSize( OsPath.join(hdfsRoot, "tmp/empty")));
+	}
+	
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.fs.TroilkattHDFSTest");
 	}
 }

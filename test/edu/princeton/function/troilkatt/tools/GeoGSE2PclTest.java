@@ -224,9 +224,9 @@ public class GeoGSE2PclTest extends TestSuper {
 		assertEquals("104769_at", cols[0]);
 		assertEquals("LIMA1", cols[1]);
 		assertEquals("1", cols[2]);
-		assertEquals("3.24834504", cols[3]);		
-		assertEquals("3.334094632", cols[4]);		
-		assertEquals("3.5329929", cols[12]);
+		assertEquals("3.2483451", cols[3]);		
+		assertEquals("3.3340945", cols[4]);		
+		assertEquals("3.5329928", cols[12]);
 		
 		dataLine = outputLines[4785];
 		cols = dataLine.split("\t");
@@ -234,9 +234,9 @@ public class GeoGSE2PclTest extends TestSuper {
 		assertEquals("111524_at", cols[0]);
 		assertEquals("ARID4B", cols[1]);
 		assertEquals("1", cols[2]);
-		assertEquals("7.001965921", cols[3]);		
-		assertEquals("6.999242822", cols[4]);		
-		assertEquals("6.458056294", cols[12]);
+		assertEquals("7.001966", cols[3]);		
+		assertEquals("6.999243", cols[4]);		
+		assertEquals("6.4580564", cols[12]);
 		
 		/*
 		 * Re-run, this time without an explicit call to writeOutputLines
@@ -278,9 +278,9 @@ public class GeoGSE2PclTest extends TestSuper {
 		assertEquals("104769_at", cols[0]);
 		assertEquals("LIMA1", cols[1]);
 		assertEquals("1", cols[2]);
-		assertEquals("3.24834504", cols[3]);		
-		assertEquals("3.334094632", cols[4]);		
-		assertEquals("3.5329929", cols[12]);
+		assertEquals("3.2483451", cols[3]);		
+		assertEquals("3.3340945", cols[4]);		
+		assertEquals("3.5329928", cols[12]);
 		
 		dataLine = outputLines[4785];
 		cols = dataLine.split("\t");
@@ -288,9 +288,9 @@ public class GeoGSE2PclTest extends TestSuper {
 		assertEquals("111524_at", cols[0]);
 		assertEquals("ARID4B", cols[1]);
 		assertEquals("1", cols[2]);
-		assertEquals("7.001965921", cols[3]);		
-		assertEquals("6.999242822", cols[4]);		
-		assertEquals("6.458056294", cols[12]);
+		assertEquals("7.001966", cols[3]);		
+		assertEquals("6.999243", cols[4]);		
+		assertEquals("6.4580564", cols[12]);
 		
 		/*	
 		 * 		outputLines = parser.getOutputLines("GPL81");

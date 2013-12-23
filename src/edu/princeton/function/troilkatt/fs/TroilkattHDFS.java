@@ -10,7 +10,6 @@ import java.net.URI;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -20,6 +19,7 @@ import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.io.compress.CompressionInputStream;
 import org.apache.hadoop.io.compress.CompressionOutputStream;
+import org.apache.hadoop.security.AccessControlException;
 
 import edu.princeton.function.troilkatt.TroilkattPropertiesException;
 import edu.princeton.function.troilkatt.utils.Utils;
@@ -769,13 +769,21 @@ public class TroilkattHDFS extends TroilkattFS {
 		
 		if (isfile(dstName)) {
 			// dst file already exists, so it is deleted
-			if (! deleteFile(dstName)) {
-				// Could not delete dst file
+			try {
+				if (! deleteFile(dstName)) {
+					// Could not delete dst file
+					return false;
+				}
+			} catch (AccessControlException e) {
 				return false;
 			}
 		}
 		
-		return hdfs.rename(new Path(srcName), new Path(dstName));
+		try {
+			return hdfs.rename(new Path(srcName), new Path(dstName));
+		} catch (AccessControlException e) {
+			return false;
+		}
 	}
 
 	/**
