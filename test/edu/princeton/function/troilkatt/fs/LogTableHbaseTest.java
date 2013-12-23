@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Get;
@@ -234,4 +234,7 @@ public class LogTableHbaseTest extends TestSuper {
 		assertEquals(0, logTable.getLogFiles("004-unknown", 710, "/invalud/dir"));
 	}
 
+	public static void main(String args[]) {
+		org.junit.runner.JUnitCore.main("edu.princeton.function.troilkatt.fs.LogTableHbaseTest");
+	}
 }

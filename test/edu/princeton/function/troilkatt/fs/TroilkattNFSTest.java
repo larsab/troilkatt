@@ -514,13 +514,12 @@ public class TroilkattNFSTest extends TestSuper {
 	public void testGetDirFiles3() throws IOException {	
 		ArrayList<String> files = tfs.getDirFiles(OsPath.join(nfsRoot, "compressed-dirs/3.zip"),
 				outDir, logDir, tmpDir);
-		assertNull(files);
-		//assertEquals(files.size(), 2);
-		//Collections.sort(files);
-		//assertTrue(files.get(0).endsWith(OsPath.join(outDir, "files/file1")));
-		//assertTrue(files.get(1).endsWith(OsPath.join(outDir, "files/file2")));
-		//assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
-		//assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
+		assertEquals(files.size(), 2);
+		Collections.sort(files);
+		assertTrue(files.get(0).endsWith(OsPath.join(outDir, "files/file1")));
+		assertTrue(files.get(1).endsWith(OsPath.join(outDir, "files/file2")));
+		assertTrue(fileCmp(files.get(0), OsPath.join(dataDir, "files/file1")));
+		assertTrue(fileCmp(files.get(1), OsPath.join(dataDir, "files/file2")));
 	}
 
 	@Test
@@ -546,7 +545,7 @@ public class TroilkattNFSTest extends TestSuper {
 	// Invalid file
 	@Test
 	public void testGetDirFiles6() throws IOException {		
-		ArrayList<String> files = tfs.getDirFiles(OsPath.join(nfsRoot, "compressed-dirs/5.zip"),
+		ArrayList<String> files = tfs.getDirFiles(OsPath.join(nfsRoot, "compressed-dirs/invalid.zip"),
 				outDir, logDir, tmpDir);
 		assertNull(files);		
 	}
@@ -853,7 +852,8 @@ public class TroilkattNFSTest extends TestSuper {
 		String houtDir = OsPath.join(nfsRoot, "out");
 		OsPath.mkdir(houtDir);
 		localFiles.clear();
-		assertFalse( tfs.putLocalDirFiles(houtDir, 10, localFiles, "tar", logDir, tmpDir) );
+		// not an error
+		assertTrue( tfs.putLocalDirFiles(houtDir, 10, localFiles, "tar", logDir, tmpDir) );
 	}
 	
 	// Invalid compression
