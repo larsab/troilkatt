@@ -162,7 +162,7 @@ Troilkatt configuration file for the ice2 cluster
 	
     <property>
 		<name>troilkatt.libjars</name>
-		<value>/home/larsab/lib/java/commons-cli.jar,/home/larsab/lib/java/commons-logging.jar,/home/larsab/lib/java/commons-compress.jar,/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hbase/hbase.jar,/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/zookeeper/zookeeper.jar,/etc/hadoop/conf</value>
+		<value>/home/larsab/lib/java/commons-cli.jar,/home/larsab/lib/java/commons-logging.jar,/home/larsab/lib/java/commons-compress.jar,/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hbase/hbase.jar,/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/zookeeper/zookeeper.jar,/etc/hadoop/conf,/etc/hbase/conf</value>
 		<description>
 			Jar files passed to the hadoop MapReduce startup script (-libjars). 
 			These should include: hbase-VERSION.jar, commons-cli.jar, zookeeper.jar, commons-logging.jar    	
