@@ -119,7 +119,7 @@ public class PclMapGeneNames {
 			headerRead = true;
 			return line;
 		}	
-		//the 2nd line might be EWEIGHT but not always (e.g. if some preceding stages got rid of this line)
+		//the 2nd line might be EWEIGHT but not always (e.g. if some preceeding stages got rid of this line)
 		if (eweightRead == false) {
 			eweightRead = true;
 			if (line.toLowerCase().startsWith("eweight")) {
