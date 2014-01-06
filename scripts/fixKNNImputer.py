@@ -42,7 +42,7 @@ if __name__ == '__main__':
     fp.close()
 
     fpi = open(tmpFilename)
-    Fpo = open(outputFilename, "w")
+    fpo = open(outputFilename, "w")
     outputHeader = fpi.readline()
     outputWeight = fpi.readline()
     
@@ -70,4 +70,4 @@ if __name__ == '__main__':
         fpi.close()
         fpo.close()
 
-        os.delete(tmpFilename)
+        os.remove(tmpFilename)
