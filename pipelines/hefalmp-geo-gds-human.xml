@@ -43,7 +43,7 @@
 		<stage>
 			<name>knnimpute</name>
 			<type>mapreduce_stage</type>
-			<arguments>execute_per_file 4096 6096 /usr/bin/pythonTROILKATT.SCRIPTS/fixKNNImputer.py TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
+			<arguments>execute_per_file 4096 6096 /usr/bin/python TROILKATT.SCRIPTS/fixKNNImputer.py TROILKATT.BIN/KNNImputer -i TROILKATT.INPUT_DIR/TROILKATT.FILE -o TROILKATT.OUTPUT_DIR/TROILKATT.FILE.knn -k 10 -m 0.7 -d euclidean > TROILKATT.LOG_DIR/KNNImputer.out 2> TROILKATT.LOG_DIR/KNNImputer.error</arguments>
 			<output-directory>hefalmp/gds/human/knn</output-directory>
 			<compression-format>bz2</compression-format>
 			<storage-time>14</storage-time>		
