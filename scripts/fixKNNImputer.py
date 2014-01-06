@@ -11,6 +11,7 @@ if __name__ == '__main__':
     # Find input and output filename
     inputFilename = None
     outputFilename = None
+    tmpFilename = None
     for i in range(len(sys.argv)):
         if sys.argv[i] == "-i" or sys.argv[i] == "--input":
             if len(sys.argv) >= i + 2:
@@ -18,7 +19,8 @@ if __name__ == '__main__':
         if sys.argv[i] == "-o" or sys.argv[i] == "--output":
             if len(sys.argv) >= i + 2:
                 outputFilename = sys.argv[i+1]
-                sys.argv[i+1] = sys.argv[i+1] + ".tmp"
+                tmpFilename = outputFilename + ".tmp"
+                sys.argv[i+1] = tmpFilename
                 
     if inputFilename == None:
         print "Input file argument not found"
@@ -39,14 +41,18 @@ if __name__ == '__main__':
     inputWeight = fp.readline()
     fp.close()
 
-    fpi = open(outputFilename + ".tmp")
-    fpo = open(outputFilename, "w")
+    fpi = open(tmpFilename)
+    Fpo = open(outputFilename, "w")
     outputHeader = fpi.readline()
     outputWeight = fpi.readline()
     
     if inputHeader == outputHeader and inputWeight == outputWeight:
-        os.rename(outputFilename + ".tmp", outputFilename)
+        os.rename(tmpFilename, outputFilename)
+        fpi.close()
+        fpo.close()
     else:
+        print "KNNImputer has corrupted headers. Replacing these with input file headers"
+
         # Headers are corrupted, so we use the headers from the input file
         fpo.write(inputHeader)
         fpo.write(inputWeight )
@@ -61,5 +67,7 @@ if __name__ == '__main__':
                 break
             fpo.write(r)
     
-    fpi.close()
-    fpo.close()
+        fpi.close()
+        fpo.close()
+
+        os.delete(tmpFilename)
