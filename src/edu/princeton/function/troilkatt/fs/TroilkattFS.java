@@ -16,6 +16,7 @@ import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -598,6 +599,7 @@ public class TroilkattFS {
 					}
 					else if (archiverFormat.equals("tar")) {
 						ar = new TarArchiveEntry(new File(f), arName);				
+						((TarArchiveOutputStream)aos).setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
 					}				
 					else if (archiverFormat.equals("cpio")) {
 						ar = new CpioArchiveEntry(new File(f), arName);
