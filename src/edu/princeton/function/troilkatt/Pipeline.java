@@ -272,7 +272,7 @@ public class Pipeline {
 			logger.info("Sunk during recovery: " + inputFiles.size());
 			return true;
 		} catch (StageException e) {
-			logger.error("Could not process a pipeline stage: " + e);					
+			logger.error("Could not process a pipeline stage: " + e, e);					
 			return false;
 		}
 	}

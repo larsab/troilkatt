@@ -509,6 +509,14 @@ public class Stage {
 			//if (tfs.putDirFiles(tfsLogDir, timestamp, logFiles, LOG_COMPRESSION, stageLogDir, stageTmpDir) == false) {
 			//	throw new StageException("Could not save log files");
 			//}
+			logger.info("Stage name: " + stageName);
+			logger.info("Timestamp: " + Long.toString(timestamp));
+			if(logTable == null) {
+				logger.fatal("LogTable == NULL");
+			}
+			if(logFiles == null) {
+				logger.fatal("logFiles == NULL");
+			}
 			int nSaved = logTable.putLogFiles(stageName, timestamp, logFiles);
 			if (nSaved != logFiles.size()) {
 				logger.warn("Could not save all log files");				

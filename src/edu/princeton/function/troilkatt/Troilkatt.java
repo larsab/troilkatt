@@ -17,6 +17,7 @@ import edu.princeton.function.troilkatt.fs.LogTableHbase;
 import edu.princeton.function.troilkatt.fs.LogTableTar;
 import edu.princeton.function.troilkatt.fs.OsPath;
 import edu.princeton.function.troilkatt.fs.TroilkattFS;
+import edu.princeton.function.troilkatt.fs.TroilkattGS;
 import edu.princeton.function.troilkatt.fs.TroilkattHDFS;
 import edu.princeton.function.troilkatt.fs.TroilkattNFS;
 import edu.princeton.function.troilkatt.pipeline.Stage;
@@ -187,8 +188,11 @@ public class Troilkatt {
 			else if (persistentStorage.equals("nfs")) {
 				tfs = new TroilkattNFS();
 			}
+			else if(persistentStorage.equals("gestore")) {
+				tfs = new TroilkattGS(new Configuration());
+                        }
 			else {
-				logger.fatal("Invalid valid for persistent storage");
+				logger.fatal("Invalid valid for persistent storage, tried storage " + persistentStorage);
 				throw new TroilkattPropertiesException("Invalid value for persistent storage property");
 			}			
 			
@@ -504,6 +508,10 @@ public class Troilkatt {
 						throw new PipelineException("mkdir " + globalLogDir + " failed");
 					}
 					lt = new LogTableTar(pipelineName, tfs, globalLogDir, localLogDir, localTmpDir);
+				}
+				else if (persistentStorage.equals("gestore")) {
+					lt = new LogTableHbase(pipelineName, HBaseConfiguration.create());
+					//logger.warn("No logging table created");
 				}
 				else {
 					logger.fatal("Invalid valid for persistent storage");

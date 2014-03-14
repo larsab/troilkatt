@@ -10,23 +10,25 @@
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
     <path id="JUnit 4.libraryclasspath">
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.junit_4.11.0.v201303080030/junit.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/>
+        <pathelement location="/opt/eclipse/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705/junit.jar"/>
+<!--        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/> -->
     </path>
     <path id="troilkatt2.classpath">
         <pathelement location="bin"/>
-        <pathelement location="../../java/log4j-1.2.jar"/>
-        <pathelement location="../../java/hbase.jar"/>
-        <pathelement location="../../java/hadoop-common.jar"/>
-        <pathelement location="../../java/commons-compress.jar"/>
-        <pathelement location="../../java/hadoop-mapreduce-client-core.jar"/>
-        <pathelement location="../../java/commons-cli.jar"/>
-        <pathelement location="../../java/commons-logging.jar"/>
+        <pathelement location="../java/log4j-1.2.jar"/>
+        <pathelement location="../java/hbase.jar"/>
+        <pathelement location="../java/hadoop-common.jar"/>
+        <pathelement location="../java/commons-compress.jar"/>
+        <pathelement location="../java/hadoop-mapreduce-client-core.jar"/>
+        <pathelement location="../java/commons-cli.jar"/>
+        <pathelement location="../java/commons-logging.jar"/>
+        <pathelement location="../java/move.jar"/>
         <path refid="JUnit 4.libraryclasspath"/>
-        <pathelement location="../../java/commons-net.jar"/>
-        <pathelement location="../../java/gnu-getopt.jar"/>
-        <pathelement location="../../java/conf"/>
-        <pathelement location="../../java/mongo-java-driver.jar"/>
+        <pathelement location="../java/commons-net.jar"/>
+        <pathelement location="../java/gnu-getopt.jar"/>
+        <pathelement location="../java/conf"/>
+        <pathelement location="../java/mongo-java-driver.jar"/>
+        <pathelement location="../java/move.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -58,6 +60,7 @@
             <exclude name="trash/"/>
             <classpath refid="troilkatt2.classpath"/>
         </javac>
+        <jar destfile="lib/troilkatt.jar" basedir="bin"/>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
     <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
@@ -72,5 +75,6 @@
     <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
+        <jar destfile="lib/troilkatt.jar" basedir="bin"/>
     </target>
 </project>

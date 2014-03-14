@@ -2,17 +2,17 @@
 
 <!-- Mirror all GSE files from the GEO FTP server and convert these to the PCL format -->
 <dataset>	
-  
-  <source>
-    <name>geo_gse_mirror</name>
-    <type>geo_gse_mirror</type>
-    <arguments></arguments>
-    <output-directory>geo/gse/soft</output-directory>
-    <compression-format>gz</compression-format>
-    <storage-time>-1</storage-time>
-    <description>Mirror all series (GSEXXX) files from GEO and keep them forever.</description>    
-  </source>
-  <!-- 	
+
+	<source>
+            <name>geo_gse_mirror</name>
+	    <type>geo_gse_mirror</type>
+	    <arguments></arguments>
+	    <output-directory>geo/gse/soft</output-directory>
+	    <compression-format>gz</compression-format>
+	    <storage-time>-1</storage-time>
+	    <description>Mirror all series (GSEXXX) files from GEO and keep them forever.</description>    
+	</source>
+<!-- 	
         <source>
 	    <name>geo_meta_source</name>
 	    <type>hbase_source</type>
@@ -35,52 +35,51 @@
      </source>
  -->
 
-  <pipeline>
-    <stage>
-      <name>split</name>
-      <type>mapreduce</type>
-      <arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSESplit 10240 12288</arguments>
-      <output-directory>geo/gse/soft-gpl</output-directory>
-      <compression-format>bz2</compression-format>
-      <storage-time>0</storage-time>
-      <description>Do first stage of SOFT to PCL conversion.</description>
-    </stage>
-  
-    <stage>
-      <name>soft_filter</name>
-      <type>filter</type>
-      <arguments>.*\.soft</arguments>
-      <output-directory></output-directory>
-      <compression-format></compression-format>
-      <storage-time>-1</storage-time>
-      <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
-    </stage>
-    
-    <stage>
-      <name>soft2pcl</name>
-      <type>mapreduce</type>
-      <arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSE2Pcl 20480 24000</arguments>
-      <output-directory>geo/gse/pcl</output-directory>
-      <compression-format>bz2</compression-format>
-      <storage-time>-1</storage-time>
-      <description>Convert all downloaded SOFT files to the PCL format and keep them forever.</description>						
-    </stage> 
-    <stage>
-      <name>pcl2info</name>
-      <type>mapreduce</type>
-      <arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPcl2Info 2098 4096</arguments>
-      <output-directory>geo/gse/info</output-directory>
-      <compression-format>bz2</compression-format>
-      <storage-time>-1</storage-time>
-      <description>Calculate "info" information for PCL files.</description>						
-    </stage>
-  </pipeline>
-  
-  <sink>
-    <name>geo_gse_sink</name>
-    <type>null_sink</type>
-    <arguments></arguments>
-    <description>No sink necessary for GEO GDS mirror.</description>
-  </sink>
-  
+	<pipeline>
+	    <stage>
+		<name>split</name>
+		<type>mapreduce</type>
+		<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSESplit 10240 12288</arguments>
+		<output-directory>geo/gse/soft-gpl</output-directory>
+		<compression-format>bz2</compression-format>
+		<storage-time>0</storage-time>
+		<description>Do first stage of SOFT to PCL conversion.</description>
+	    </stage>
+	    <stage>
+                <name>soft_filter</name>
+                <type>filter</type>
+                <arguments>.*\.soft</arguments>
+                <output-directory></output-directory>
+                <compression-format></compression-format>
+                <storage-time>-1</storage-time>
+                <description>Filter out the ser files created in the previous stage such that only soft files are kept.</description>                                                             
+        </stage>
+
+        <stage>
+			<name>soft2pcl</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchGeoGSE2Pcl 20480 24000</arguments>
+			<output-directory>geo/gse/pcl</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Convert all downloaded SOFT files to the PCL format and keep them forever.</description>						
+		</stage> 
+		<stage>
+			<name>pcl2info</name>
+			<type>mapreduce</type>
+			<arguments>TROILKATT.JAR edu.princeton.function.troilkatt.mapreduce.BatchPcl2Info 2098 4096</arguments>
+			<output-directory>geo/gse/info</output-directory>
+			<compression-format>bz2</compression-format>
+			<storage-time>-1</storage-time>
+			<description>Calculate "info" information for PCL files.</description>						
+		</stage>
+	</pipeline>
+	
+	<sink>
+		<name>geo_gse_sink</name>
+		<type>null_sink</type>
+		<arguments></arguments>
+		<description>No sink necessary for GEO GDS mirror.</description>
+	</sink>
+				
 </dataset>

@@ -23,7 +23,7 @@
 	  <stage>
 		<name>uncompress</name>
 		<type>execute_per_file</type>
-		<arguments>unzip -d /home/larsab/troilkatt/apps/lib64/R/library TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.LOG_DIR/TROILKATT.FILE.zip.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.zip.err</arguments>
+		<arguments>unzip -d /home/epe005/troilkatt/apps/lib64/R/library TROILKATT.INPUT_DIR/TROILKATT.FILE > TROILKATT.LOG_DIR/TROILKATT.FILE.zip.out 2> TROILKATT.LOG_DIR/TROILKATT.FILE.zip.err</arguments>
 		<output-directory></output-directory>
 		<compression-format>none</compression-format>
 		<storage-time>0</storage-time>

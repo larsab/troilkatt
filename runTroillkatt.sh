@@ -1,3 +1,10 @@
 # Tip. Use hadoop classpath: to get the necessary hadoop jars
 #
-java -Xmx2048m -classpath $HADOOP_HOME/hadoop-ant.jar:$HADOOP_HOME/hadoop-core.jar:$HADOOP_HOME/hadoop-tools.jar:$HADOOP_HOME/lib/hadoop-gpl-compression-0.2.0-dev.jar:$HBASE_HOME/hbase-0.90.1-cdh3u0.jar:$ZOOKEEPER_HOME/zookeeper.jar:/home/larsab/lib/java/commons-cli.jar:/home/larsab/lib/java/mongo-2.10.1.jar:/home/larsab/lib/java/commons-compress.jar:/home/larsab/lib/java/commons-logging.jar:/home/larsab/lib/java/commons-io.jar:/home/larsab/lib/java/commons-net.jar:/home/larsab/lib/java/gnu-getopt.jar:$HBASE_CONF:/home/larsab/lib/java/log4j-1.2.jar:$HADOOP_CONF:$HBASE_CONF:$TROILKATT_HOME/bin edu.princeton.function.troilkatt.Troilkatt -c conf/ice.xml -d conf/pipelines -l log4j.properties
+
+MY_JAVA_LIB=/home/epe005/troilkatt/java
+TROILKATT_HOME=/home/epe005/troilkatt/troilkatt
+
+java -Xmx2048m -classpath `hbase classpath`:$MY_JAVA_LIB/commons-cli.jar:$MY_JAVA_LIB/mongo-2.10.1.jar:$MY_JAVA_LIB/commons-compress.jar:$MY_JAVA_LIB/commons-logging.jar:$MY_JAVA_LIB/commons-io.jar:$MY_JAVA_LIB/commons-net.jar:$MY_JAVA_LIB/gnu-getopt.jar:$HBASE_CONF:$MY_JAVA_LIB/log4j-1.2.jar:$MY_JAVA_LIB/move.jar:$HADOOP_CONF:$HBASE_CONF:$TROILKATT_HOME/bin edu.princeton.function.troilkatt.Troilkatt -c conf/epe.xml -d conf/pipelines -l log4j.properties -s recovery
+
+
+#java -Xmx2048m -classpath $TROILKATT_HOME/bin:`hbase classpath`:$MY_JAVA_LIB/commons-cli.jar:$MY_JAVA_LIB/mongo-2.10.1.jar:$MY_JAVA_LIB/commons-compress.jar:$MY_JAVA_LIB/commons-logging.jar:$MY_JAVA_LIB/commons-io.jar:$MY_JAVA_LIB/commons-net.jar:$MY_JAVA_LIB/gnu-getopt.jar:$HBASE_CONF:$MY_JAVA_LIB/log4j-1.2.jar edu.princeton.function.troilkatt.clients.GetLogFiles -c conf/epe.xml -l log4j.properties -t 1388665958069 -mr hefalmp-geo-gds-human 001-remove_overlapping /home/epe005/troilkatt/tmp

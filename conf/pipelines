@@ -10,23 +10,23 @@
 #
 # Meta data and gold standard
 #
-#pipelines/genes.xml
+pipelines/genes.xml
 #pipelines/brainarray.xml
 #pipelines/brainarray2.xml
 #
 # GEO Series
-pipelines/geo-gse-mirror.xml
+#pipelines/geo-gse-mirror.xml
 #pipelines/geo-gse-mirror-sge.xml
 #pipelines/geo-gse-meta.xml
 #pipelines/geo-gse-meta-sge.xml
 #
 # GEO Datasets
 #
-#pipelines/geo-gds-mirror.xml
+pipelines/geo-gds-mirror.xml
 #pipelines/geo-gds-mirror-sge.xml
-#pipelines/geo-gds-meta.xml
+pipelines/geo-gds-meta.xml
 #pipelines/geo-gds-meta-sge.xml
-#pipelines/hefalmp-geo-gds-human.xml
+pipelines/hefalmp-geo-gds-human.xml
 #pipelines/hefalmp-geo-gds-human-sge.xml
 #pipelines/hefalmp-geo-gds-mouse.xml
 #pipelines/hefalmp-geo-gds-rat.xml

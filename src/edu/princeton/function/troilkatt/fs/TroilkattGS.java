@@ -44,6 +44,7 @@ public class TroilkattGS extends TroilkattFS {
 	 */
 	public TroilkattGS(Configuration cf) throws IOException {
 		logger = Logger.getLogger("troilkatt.gs");
+		hdfs = FileSystem.get(new Configuration());
                 runner = new fswrapper("troilkatt");
 	}
 	
@@ -56,6 +57,7 @@ public class TroilkattGS extends TroilkattFS {
 	public TroilkattGS(FileSystem hdfs) throws IOException {
 		logger = Logger.getLogger("troilkatt.gs");
                 runner = new fswrapper("troilkatt");
+		this.hdfs = hdfs;
 	}
 	
 	/**
@@ -68,8 +70,9 @@ public class TroilkattGS extends TroilkattFS {
 	 */
 	@Override
 	public ArrayList<String> listdir(String hdfsDir) throws IOException {
-		logger.info("listDir");
-		return runner.ls(hdfsDir);
+		ArrayList<String> returns = runner.ls(hdfsDir);
+		logger.info("listDir: " + hdfsDir + " Length: " + Integer.toString(returns.size()));
+		return returns;
 	}
 	
 	/**
@@ -82,7 +85,7 @@ public class TroilkattGS extends TroilkattFS {
 	 */
 	@Override
 	public ArrayList<String> listdirR(String hdfsDir) throws IOException {
-		logger.info("listDirR");
+		logger.info("listDirR dir:" + hdfsDir);
 		return runner.lsRec(hdfsDir);
 	}
 	
@@ -102,7 +105,7 @@ public class TroilkattGS extends TroilkattFS {
 	 */
 	@Override
 	public String getFile(String hdfsName, String localDir, String tmpDir, String logDir) throws IOException {
-		logger.info("getfile");
+		logger.info("getfile hdfsName:" + hdfsName);
 		// Do GeStore Get
 		ArrayList<String> files = runner.getFile(hdfsName);
                 for(String file : files) {
@@ -110,8 +113,7 @@ public class TroilkattGS extends TroilkattFS {
                     FileSystem fs = runner.getFS();
                     fs.copyToLocalFile(false, new Path(file), new Path(localDir));
                 }
-		String finalName = "";
-		return finalName;
+		return localDir;
 	}
 
 	/**
@@ -128,8 +130,9 @@ public class TroilkattGS extends TroilkattFS {
 	 */
 	@Override
 	public ArrayList<String> getDirFiles(String hdfsName, String localDir, String logDir, String tmpDir) throws IOException {	
-		logger.info("getdirfiles");
+		logger.info("getdirfiles hdfsName: " + hdfsName);
 		//Do multiple gestore gets
+		// Does not work!
 		return runner.getFile(hdfsName);
 	}
 
@@ -150,10 +153,10 @@ public class TroilkattGS extends TroilkattFS {
 	@Override
 	public String putLocalFile(String localFilename, String hdfsOutputDir, String tmpDir, String logDir, 
 			String compression, long timestamp) {
-		logger.info("putlocalfile");
+		logger.info("putlocalfile " + localFilename + " hdfsDir: " + hdfsOutputDir);
 		// Do GeStore put
-		
-		return "";
+		runner.putFile(localFilename, hdfsOutputDir + localFilename + "." + Long.toString(timestamp) + ".none");
+		return hdfsOutputDir + localFilename;
 	}
 	
 	/**
@@ -173,7 +176,8 @@ public class TroilkattGS extends TroilkattFS {
 	 */
 	@Override
 	public String putLocalFile(String localFilename, String hdfsOutputDir, String tmpDir, String logDir, String compression) {
-		logger.info("putlocalfile2");
+		logger.info("putlocalfile2 " + localFilename);
+		runner.putFile(localFilename, hdfsOutputDir + localFilename + ".none");
 		// Do GeStore Put (no timestamp)
 		return "";
 	}
@@ -195,8 +199,24 @@ public class TroilkattGS extends TroilkattFS {
 	@Override
 	public boolean putLocalDirFiles(String hdfsDir, long timestamp, ArrayList<String> localFiles, 
 			String compression, String logDir, String tmpDir) {		
-		logger.info("putlocaldirfiles");
+		logger.info("putlocaldirfiles hdfsDir: " + hdfsDir);
 		// Do GeStore put (multiple files)
+		for(String file : localFiles) {
+			String [] fileParts = file.split("/");
+			String addendum = "." + Long.toString(timestamp) + ".none";
+			File oldFile = new File(file);
+			File newFile = new File(file + addendum);
+			if(newFile.exists()) {
+				logger.warn("File exists, using old file!");
+			}
+			if(!oldFile.renameTo(newFile)) {
+				logger.warn("Unable to rename file!");
+				return false;
+			}
+			runner.putFile(file + addendum, hdfsDir + "/" + fileParts[fileParts.length-1] + addendum);
+			logger.info("File to put into GeStore: " + file);
+			logger.info("GeStore target: " + hdfsDir + fileParts[fileParts.length-1] + addendum);
+                }
 		return true;
 	}
 
