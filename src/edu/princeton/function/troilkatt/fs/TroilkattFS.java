@@ -94,6 +94,7 @@ public class TroilkattFS {
 		HashMap<String, Long> name2timestamp = new HashMap<String, Long>();
 		HashMap<String, String> name2fullname = new HashMap<String, String>();
 		for (String f: allFiles) {
+			logger.warn("THISFILE: " + f);
 			String name = getFilenameName(f);
 			long timestamp = getFilenameTimestamp(f);
 			
@@ -164,7 +165,9 @@ public class TroilkattFS {
 	 * @throws IOException 
 	 */
 	public String getNewestDir(String tfsDir) throws IOException {
+		logger.warn("GETNEWESTDIR: " + tfsDir);
 		ArrayList<String> subdirs = listdir(tfsDir);
+		logger.warn("subdir size: " + subdirs.size());
 		
 		if (subdirs == null) {
 			logger.warn("Invalid directory: " + tfsDir);
@@ -178,6 +181,7 @@ public class TroilkattFS {
 		long maxTimestamp = -1;
 		String newestSubdir = null;
 		for (String s: subdirs) {
+			logger.warn("TSDIR: " + s);
 			long timestamp = getDirTimestamp(s);
 			if (timestamp == -1) {
 				logger.warn("Invalid subdirectory name: " + s);
@@ -871,6 +875,7 @@ public class TroilkattFS {
 				logger.warn("Invalid file age: " + fileAge);
 				continue;
 			}
+			logger.info("fileAge = " + fileAge);
 			
 			if (fileAge > storageTime) {
 				if (deleteFile(f) == false) {
@@ -883,6 +888,8 @@ public class TroilkattFS {
 		}
 		if (deleted > 0) {
 			logger.info("Deleted " + deleted + " of " + files.size() + " files");
+		} else {
+			logger.info("No files deleted with params: " + tfsOutputDir + " ts:" + timestamp + " time:" + storageTime);
 		}
 	}
 	

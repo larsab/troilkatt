@@ -6,7 +6,7 @@
 <configuration>
     <property>
 		<name>troilkatt.admin.email</name>
-		<value>larsab@cs.uit.no</value>
+		<value>edvard.pedersen@uit.no</value>
 		<description>
 
 			Administrator e-mail. It is used as password when logging to NCBI FTP servers.
@@ -26,7 +26,7 @@
 
 	<property>
 		<name>troilkatt.localfs.dir</name>
-		<value>/home/larsab/troilkatt2/test-tmp/data</value>
+		<value>/home/epe005/troilkatt/troilkatt/test-tmp/data</value>
 		<description>
 
 			Directory on local filesystem used by Troilkatt server and clients for intermediate files.
@@ -37,7 +37,7 @@
 
 	<property>
 		<name>troilkatt.localfs.log.dir</name>
-		<value>/home/larsab/troilkatt2/test-tmp/log</value>
+		<value>/home/epe005/troilkatt/troilkatt/test-tmp/log</value>
 		<description>
 		
 			Directory where the main logfiles are stored. Additional
@@ -49,7 +49,7 @@
 	
 	<property>
 		<name>troilkatt.globalfs.global-meta.dir</name>
-		<value>/home/larsab/troilkatt2/test-tmp/global-meta</value>
+		<value>/home/epe005/troilkatt/troilkatt/test-tmp/global-meta</value>
 		<description>
 		
 			This directory contains various global meta-data files used by many
@@ -61,7 +61,7 @@
 	
 	<property>
 		<name>troilkatt.localfs.sge.dir</name>
-		<value>/home/larsab/troilkatt2/test-tmp/sge-local</value>
+		<value>/home/epe005/troilkatt/troilkatt/test-tmp/sge-local</value>
 		<description>
 		
 			This directory contains local files for the SGE jobs
@@ -71,7 +71,7 @@
 	
 	<property>
 		<name>troilkatt.globalfs.sge.dir</name>
-		<value>/home/larsab/troilkatt2/test-tmp/sge-global</value>
+		<value>/home/epe005/troilkatt/troilkatt/test-tmp/sge-global</value>
 		<description>
 		
 			This directory contains globally shared files for SGE jobs.
@@ -92,7 +92,7 @@
 	
 	<property>
 		<name>troilkatt.localfs.mapreduce.dir</name>
-		<value>/home/larsab/troilkatt2/test-tmp/mapreduce</value>
+		<value>/home/epe005/troilkatt/troilkatt/test-tmp/mapreduce</value>
 		<description>
 		
 			This directory is used by MapReduce jobs to save temporal data on the local FS.
@@ -103,7 +103,7 @@
 	
 	<property>
 		<name>troilkatt.localfs.binary.dir</name>
-		<value>/home/larsab/troilkatt/apps/bin</value>
+		<value>/home/epe005/troilkatt/troilkatt/apps/bin</value>
 		<description>
 
 			This directory contains binaries for progeams started by Troilkatt.
@@ -114,7 +114,7 @@
 
 	<property>
 		<name>troilkatt.localfs.utils.dir</name>
-		<value>/home/larsab/troilkatt2/scripts/array_utils</value>
+		<value>/home/epe005/troilkatt/troilkatt/scripts/array_utils</value>
 		<description>
 		
 			This directory contains various scripts and tools used by
@@ -125,7 +125,7 @@
 	
 	<property>
 		<name>troilkatt.localfs.scripts.dir</name>
-		<value>/home/larsab/troilkatt2/scripts</value>
+		<value>/home/epe005/troilkatt/troilkatt/scripts</value>
 		<description>
 		
 			This directory contains various scripts for processing a
@@ -169,7 +169,7 @@
 	
 	<property>
 		<name>troilkatt.jar</name>
-		<value>/home/larsab/troilkatt2/lib/troilkatt.jar</value>
+		<value>/home/epe005/troilkatt/troilkatt/lib/troilkatt.jar</value>
 		<description>
 
 			Jar file with Troilkatt MapReduce classes
@@ -235,7 +235,7 @@
 	
 	<property>
 		<name>troilkatt.container.bin</name>
-		<value>/home/larsab/troilkatt2/bin/troilkatt_container</value>
+		<value>/home/epe005/troilkatt/troilkatt/bin/troilkatt_container</value>
 		<description>
 
 			Troilkatt container binary

@@ -2,7 +2,7 @@
 
 <!-- Mirror all GSD files from the GEO FTP server and convert these to the PCL format -->
 <dataset>	
-  <!-- <source>
+  <source>
        <name>geo_gds_mirror</name>
        <type>geo_gds_mirror</type>
        <arguments></arguments>
@@ -11,9 +11,9 @@
        <storage-time>-1</storage-time>
        <description>Mirror all dataset files from GEO and keep them forever.</description>    
   </source>
-  -->
+
   
-  <source>
+<!--  <source>
     <name>geo_gds_soft_dir</name>
     <type>list_dir</type>
     <arguments>/user/larsab/troilkatt/data/geo/gds/soft</arguments>	    
@@ -22,7 +22,8 @@
     <storage-time>-1</storage-time>	    
     <description>Read in files from the GEO SOFT HDFS directory.</description>    
   </source> 
-  
+  -->
+
   <pipeline>	
     
     <stage>

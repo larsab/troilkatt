@@ -1,0 +1,263 @@
+<?xml-stylesheet type="text/xsl"?>
+
+<!-- 
+
+Troilkatt configuration file for the ice cluster
+
+-->
+
+<configuration>
+    <property>
+	<name>troilkatt.admin.email</name>
+	<value>edvard.pedersen@uit.no</value>
+	<description>
+
+	Administrator e-mail. It is used as the password when logging to NCBI FTP servers.
+
+   	</description>
+    </property>
+
+    <property>
+	<name>troilkatt.persistent.storage</name>
+	<value>gestore</value>
+	<description>
+
+	File system to use for persistent storage. Valid values are: hadoop and nfs
+
+    </description>
+    </property>
+
+    <property>
+	<name>troilkatt.localfs.dir</name>
+	<value>/state/partition1/epe005/troilkatt</value>
+	<description>
+
+	Directory on local filesystem used by Troilkatt server and clients for intermediate files.
+	The TROILKATT.DIR symbol is mapped to this directory.
+			
+	Note! _all_ data in this directory will be deleted after each iteration.
+			
+    </description>
+    </property>
+
+    <property>
+	<name>troilkatt.localfs.log.dir</name>
+	<value>/home/epe005/troilkatt/troilkatt/log</value>
+	<description>
+			
+	Directory where the main logfile (troilkatt.log) is stored. Additional
+	logfiles are stored in the (intermediate) output directories for the
+	crawlers and pipeline stages, and then saved into persistent storage.
+			
+	</description>
+    </property>
+ 	
+    <property>
+	<name>troilkatt.globalfs.global-meta.dir</name>
+	<value>/home/epe005/troilkatt/global-meta</value>
+	<description>
+		
+	This directory contains various global meta-data files used by many
+	Troilkatt stage such as gold standards, gene names files, etc.
+			
+	The TROILKATT.GLOBALMETA_DIR symbol is mapped to this directory.
+			
+	</description>
+    </property>
+	
+    <property>
+	<name>troilkatt.localfs.sge.dir</name>
+	<value>/home/epe005/troilkatt/troilkatt/test-tmp/sge-local</value>
+	<description>
+		
+	This directory contains local files for SGE jobs. 
+	
+	Note! _all_ data in this directory will be deleted after each iteration.
+	
+    </description>
+    </property>
+	
+    <property>
+	<name>troilkatt.globalfs.sge.dir</name>
+	<value>/home/epe005/troilkatt/troilkatt/sge</value>
+	<description>
+		
+	This directory contains globally shared files for SGE jobs.
+			
+	Note! _all_ data in this directory will be deleted after each iteration.
+			
+	</description>
+    </property>
+	
+    <property>
+	<name>troilkatt.global-meta.retain.days</name>
+	<value>-1</value>
+	<description>
+
+	Time in days for which global-meta data is retained before being deleted. If
+	-1 global-meta is never deleted.
+    	
+    </description>
+    </property>
+	
+    <property>
+	<name>troilkatt.localfs.mapreduce.dir</name>
+	<value>/state/partition1/epe005/troilkatt/mapreduce</value>
+	<description>
+		
+	This directory is used by MapReduce jobs to save temporal data on the local FS.
+			
+	Note! all data in this directory will be deleted after each iteration
+			
+	</description>
+    </property>
+	
+    <property>
+	<name>troilkatt.localfs.binary.dir</name>
+	<value>/home/epe005/troilkatt/troilkatt/apps/bin</value>
+	<description>
+
+	This directory contains binaries for programs started by Troilkatt.
+			
+	The TROILKATT.BIN symbol is mapped to this directory.
+    	
+    </description>
+    </property>
+	
+    <property>
+	<name>troilkatt.localfs.utils.dir</name>
+	<value>/home/epe005/troilkatt/troilkatt/scripts/array_utils</value>
+	<description>
+		
+	This directory contains various scripts and tools used by
+	the stages. The TROILKATT.UTILS symbol is mapped to this directory.
+			
+	</description>
+    </property>
+	
+    <property>
+	<name>troilkatt.localfs.scripts.dir</name>
+	<value>/home/epe005/troilkatt/troilkatt/scripts</value>
+	<description>
+		
+	This directory contains various scripts for processing a
+	Troilkatt stage. The TROILKATT.SCRIPTS symbol is mapped to this
+	directory.
+			
+	</description>
+    </property>
+	
+    <property>
+	<name>troilkatt.tfs.root.dir</name>
+	<value>/user/larsab/troilkatt/</value>
+	<description>
+		
+	Root directory for Troilkatt files in HDFS.
+	
+	</description>
+    </property>	
+
+    <property>
+	<name>troilkatt.tfs.status.file</name>
+	<value>/user/epe005/troilkatt/status/status.txt</value>
+	<description>
+		
+	This file contains the status of troilkatt iterations. It
+	is used to do recovery by checking the status of the last update
+	before initiating a new update.
+			
+	The file is in persitent storage. It can be either a HDFS or NFS
+	directory.
+			
+	</description>
+    </property>
+	
+   <property>
+	<name>troilkatt.update.interval.hours</name>
+	<value>24</value>
+	<description>
+
+	Time in hours between each time the crawlers are called.
+    	
+    </description>
+    </property>
+	
+    <property>
+	<name>troilkatt.jar</name>
+	<value>/home/epe005/troilkatt/troilkatt/lib/troilkatt.jar</value>
+	<description>
+
+	Jar file with Troilkatt classes.
+    	
+    </description>
+    </property>
+	
+    <property>
+	<name>troilkatt.libjars</name>
+	<value>/home/epe005/troilkatt/java/commons-cli.jar,/home/epe005/troilkatt/java/commons-logging.jar,/home/epe005/troilkatt/java/commons-compress.jar,/home/epe005/troilkatt/java/hbase.jar,/home/epe005/troilkatt/java/zookeeper.jar,/etc/hadoop/conf,/etc/hbase/conf</value>
+	<description>
+
+	Jar files passed to the hadoop MapReduce startup script (-libjars). 
+	These should include: hbase-VERSION.jar, commons-cli.jar, zookeeper.jar, commons-logging.jar
+    	
+    </description>
+    </property>
+
+    <property>
+	<name>troilkatt.classpath</name>
+	<value>/home/epe005/troilkatt/troilkatt/bin:/home/epe005/troilkatt/java/log4j-1.2.jar:/home/epe005/troilkatt/java/commons-compress.jar:/home/epe005/troilkatt/java/hadoop-common.jar:/home/epe005/troilkatt/java/hadoop-mapreduce-client-core.jar:/home/epe005/troilkatt/java/hbase.jar:/home/epe005/troilkatt/java/mongo-java-driver.jar</value>
+	<description>
+
+	Classpath used by SGEStage for executing sge.ExecuteStage
+			
+	The classpath should include log4j-1.2.jar, commons-compress.jar, hbase.jar, and hadoop-core.jar. 
+	In addition the root directory for the troilkatt class files should be included (typically troilkatt2/bin). 
+    	
+    </description>
+    </property>
+
+    <property>
+	<name>troilkatt.sge.slots.per.node</name>
+	<value>8</value>
+	<description>
+
+	Number of SGE slots per node. This number is used to calculate the number of slots to request when
+	when submitting SGE jobs to ensure that only M processes are started per node. (M is specified
+	as an argument to SGEStage) 
+    	
+    	</description>
+   </property>
+	
+   <property>
+	<name>troilkatt.mongodb.server.host</name>
+	<value>10.1.1.1</value>
+	<description>
+
+	IP address for MongoDB server
+    	
+    	</description>
+    </property>
+	
+    <property>
+	<name>troilkatt.mongodb.server.port</name>
+	<value>27017</value>
+	<description>
+
+	 MongoDB server port (required). The default port is 27017 for MongoDB.
+    	
+    </description>
+    </property>
+		
+    <property>
+	<name>troilkatt.container.bin</name>
+	<value>/home/epe005/troilkatt/troilkatt/apps/bin/troilkatt_container</value>
+	<description>
+
+	Troilkatt container binary. The container is used to ensure that applications
+	started by troilkatt are limited with regards to memory usage and CPU time.
+    	
+   </description>
+   </property>
+	
+</configuration>
+	

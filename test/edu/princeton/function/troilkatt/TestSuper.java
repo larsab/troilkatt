@@ -11,6 +11,8 @@ import org.apache.hadoop.fs.Path;
 import edu.princeton.function.troilkatt.fs.FSUtils;
 import edu.princeton.function.troilkatt.fs.OsPath;
 
+import org.diffdb.fswrapper;
+
 /**
  * Test superclass for adding commonly used constants and functions.
  */
@@ -24,11 +26,11 @@ public class TestSuper {
 		"If you set him on a rat then he'd rather chase a mouse."};
 	
 	// Directory with configuration files used for the unit testing
-	protected static final String dataDir = "/home/larsab/troilkatt2/test-data";
+	protected static final String dataDir = "/home/epe005/troilkatt/troilkatt/test-data";
 	// Temporary directory for storing files created during the unit tests
-	protected static final String tmpDir = "/home/larsab/troilkatt2/test-tmp/data";
-	protected static final String logDir = "/home/larsab/troilkatt2/test-tmp/log";
-	protected static final String outDir = "/home/larsab/troilkatt2/test-tmp/output";
+	protected static final String tmpDir = "/home/epe005/troilkatt/troilkatt/test-tmp/data";
+	protected static final String logDir = "/home/epe005/troilkatt/troilkatt/test-tmp/log";
+	protected static final String outDir = "/home/epe005/troilkatt/troilkatt/test-tmp/output";
 	// Configuration file 
 	protected static final String configurationFile = "unitConfig.xml";
 	protected static final String configurationFileNFS = "unitConfigNFS.xml";
@@ -39,7 +41,7 @@ public class TestSuper {
 	public static String hdfsRoot = "/user/larsab/troilkatt/test/troilkattFS";
 	
 	// Test root dir in NFS (or other POSIC system)
-	public static String nfsRoot = "/home/larsab/troilkatt/test/troilkattFS/";
+	public static String nfsRoot = "/home/epe005/troilkatt/troilkatt/test/troilkattFS/";
 	
 	/**
 	 * Compare two files
@@ -317,6 +319,56 @@ public class TestSuper {
 				new Path(OsPath.join(nr, "GDS2949_full.soft.6.gz")));
 		hdfs.copyFromLocalFile(new Path(OsPath.join(dataDir, "files/GDS2949_full.soft.6.none")),
 				new Path(OsPath.join(nr, "GDS2949_full.soft.6.none")));
+	}
+
+	public static void initTestDirGS() throws IOException, InterruptedException {
+		String srcFile = OsPath.join(dataDir, configurationFile);
+		fswrapper runner = new fswrapper("troilkatt");
+		runner.putFile(srcFile, OsPath.join(nfsRoot, "ls/file1"));
+		runner.putFile(srcFile, OsPath.join(nfsRoot, "ls/file2"));
+		runner.putFile(srcFile, OsPath.join(nfsRoot, "ls/file3"));
+		runner.putFile(srcFile, OsPath.join(nfsRoot, "ls/subdir1/file4"));
+		runner.putFile(srcFile, OsPath.join(nfsRoot, "ls/subdir1/file5"));
+		runner.putFile(srcFile, OsPath.join(nfsRoot, "ls/subdir2/file6"));
+
+		String nfsSrcFile = OsPath.join(dataDir, configurationFile);
+		runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/file1.1.gz"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/file1.2.gz"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/file1.3.gz"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/file2.1.gz"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/file2.3.bz2"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/file3.1.none"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/file3.2.none"));
+                //OsPath.mkdir(OsPath.join(nfsRoot, "ts/subdir1"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/subdir1/file4.1.none"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/subdir1/file4.2.bz2"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/subdir1/file4.3.gz"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/subdir1/file5.2.none"));
+                //OsPath.mkdir(OsPath.join(nfsRoot, "ts/subdir2"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "ts/subdir2/file6.2.none"));
+                //OsPath.mkdir(OsPath.join(nfsRoot, "ts/subdir3"));
+                //
+                //OsPath.mkdir(OsPath.join(nfsRoot, "tsd"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "tsd/1.tar.gz"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "tsd/2.tar.bz2"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "tsd/invalid"));
+                //OsPath.mkdir(OsPath.join(nfsRoot, "tsd/3.none"));
+                runner.putFile(nfsSrcFile, OsPath.join(nfsRoot, "tsd/4.zip"));
+                //OsPath.mkdir(OsPath.join(nfsRoot, "tsd-empty"));
+                //
+                String testFile = srcFile; // on local FS
+		String cleanupRoot = OsPath.join(nfsRoot, "cleanup");
+		long ts = 15 * 1000 * 60 * 60 * 24;
+
+                runner.putFile(testFile, OsPath.join(cleanupRoot, "foo.1.gz"));
+                runner.putFile(testFile, OsPath.join(cleanupRoot, "bar.2.gz"));
+                runner.putFile(testFile, OsPath.join(cleanupRoot, "foo." + ts + ".gz"));
+                runner.putFile(testFile, OsPath.join(cleanupRoot, "baz." + ts + ".gz"));
+                runner.putFile(testFile, OsPath.join(cleanupRoot, "bongo." + ts + ".gz"));
+
+                runner.putFile(testFile, OsPath.join(cleanupRoot, "subdir/sd-foo.1.gz"));
+                runner.putFile(testFile, OsPath.join(cleanupRoot, "subdir/sd-bar.2.gz"));
+                runner.putFile(testFile, OsPath.join(cleanupRoot, "subdir/sd-foo." + ts + ".gz"));
 	}
 
 }

@@ -70,7 +70,7 @@ public class TroilkattGS extends TroilkattFS {
 	 */
 	@Override
 	public ArrayList<String> listdir(String hdfsDir) throws IOException {
-		ArrayList<String> returns = runner.ls(hdfsDir);
+		ArrayList<String> returns = runner.getFiles(hdfsDir);
 		logger.info("listDir: " + hdfsDir + " Length: " + Integer.toString(returns.size()));
 		return returns;
 	}
@@ -85,8 +85,9 @@ public class TroilkattGS extends TroilkattFS {
 	 */
 	@Override
 	public ArrayList<String> listdirR(String hdfsDir) throws IOException {
-		logger.info("listDirR dir:" + hdfsDir);
-		return runner.lsRec(hdfsDir);
+		ArrayList<String> returns = runner.getFiles(hdfsDir);
+		logger.info("listDirR dir:" + hdfsDir + " Length: " + Integer.toString(returns.size()));
+		return returns;
 	}
 	
 	
@@ -133,7 +134,15 @@ public class TroilkattGS extends TroilkattFS {
 		logger.info("getdirfiles hdfsName: " + hdfsName);
 		//Do multiple gestore gets
 		// Does not work!
-		return runner.getFile(hdfsName);
+		ArrayList<String> localFiles = new ArrayList<String>();
+		ArrayList<String> files = runner.getFile(hdfsName);
+		for(String file : files) {
+			FileSystem fs = runner.getFS();
+			fs.copyToLocalFile(false, new Path(file), new Path(localDir));
+			String [] path = file.split("/");
+			localFiles.add(localDir + "/" + path[path.length - 1]);
+		}
+		return localFiles;
 	}
 
 	/**
@@ -215,7 +224,7 @@ public class TroilkattGS extends TroilkattFS {
 			}
 			runner.putFile(file + addendum, hdfsDir + "/" + fileParts[fileParts.length-1] + addendum);
 			logger.info("File to put into GeStore: " + file);
-			logger.info("GeStore target: " + hdfsDir + fileParts[fileParts.length-1] + addendum);
+			logger.info("GeStore target: " + hdfsDir +"/" + fileParts[fileParts.length-1] + addendum);
                 }
 		return true;
 	}
@@ -271,7 +280,21 @@ public class TroilkattGS extends TroilkattFS {
 	public boolean isfile(String filename) throws IOException {
 		logger.info("isfile");
 		//Check if something is in GeStore
-		return true;
+		//
+		ArrayList<String> paths = runner.getFiles(filename);
+		String[] fileNamepath = filename.split("/");
+		String shortFilename = fileNamepath[fileNamepath.length - 1 ];
+		if(paths.size() > 0) {
+			for(String onePath : paths) {
+				String[] onePathLast = onePath.split("/");
+				String lastPathPart = onePathLast[onePathLast.length - 1];
+				if(lastPathPart.equals(shortFilename)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -330,8 +353,14 @@ public class TroilkattGS extends TroilkattFS {
 	@Override
 	public boolean deleteFile(String filename) throws IOException {
 		logger.info("deletefile");
+		if(filename == null) {
+			throw new RuntimeException();
+		}
 		// Delete a reference, new GS functionality needed
-		return true;
+		if(runner.delFile(filename) == 1) {
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -357,8 +386,9 @@ public class TroilkattGS extends TroilkattFS {
 	@Override
 	public String getFilenameDir(String hdfsName) {
 		logger.info("getfilenamedir");
+		
 		// I have no idea what to do here... Strip the filename extension maybe?
-		return "";
+		return hdfsName.substring(0, hdfsName.lastIndexOf("/"));
 	}
 	
 	/**
